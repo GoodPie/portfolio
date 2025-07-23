@@ -62,17 +62,10 @@
 			</li>
 
 			<li>
-				🎲Dungeons and Dragons
+				🎲Ice Hockey
 			</li>
 		</ul>
 	</div>
-
-
-
-
-
-
-
 
 </main>
 
