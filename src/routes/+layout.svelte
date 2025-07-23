@@ -1,15 +1,10 @@
 <script>
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
+	import '../app.css';
 
 	inject({ mode: dev ? 'development' : 'production' });
-
-
-	import "../app.css";
-
-
 </script>
-
 
 <main class="p-0 m-0">
 
@@ -33,17 +28,8 @@
 					<slot></slot>
 				</div>
 			</div>
-
-
 		</div>
-
-
-
-
-
 	</div>
-
-
 </main>
 
 

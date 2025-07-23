@@ -1,14 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-
-
 .vt323-regular {
     font-family: "VT323", monospace;
     font-weight: 400;
     font-style: normal;
 }
 
+
+
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
