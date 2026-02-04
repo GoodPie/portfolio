@@ -1,0 +1,64 @@
+---
+import { Badge } from "@/components/ui/badge";
+import type { Experience } from "@/data/experience";
+
+interface Props {
+  experience: Experience;
+}
+
+const { experience } = Astro.props;
+---
+
+<div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 lg:gap-16">
+  <div class="text-8xl lg:text-9xl font-serif text-muted-foreground/10 font-light leading-none select-none">
+    {experience.id}
+  </div>
+
+  <div class="space-y-4">
+    <div class="text-sm text-muted-foreground tracking-wide">
+      {experience.dateRange}
+    </div>
+
+    <h3 class="text-2xl lg:text-3xl font-serif">
+      {experience.title}
+    </h3>
+
+    <a
+      href={experience.companyUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-1 text-teal hover:underline"
+    >
+      {experience.company}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="translate-y-px"
+      >
+        <path d="M7 7h10v10" />
+        <path d="M7 17 17 7" />
+      </svg>
+    </a>
+
+    <p class="text-muted-foreground leading-relaxed max-w-2xl">
+      {experience.description}
+    </p>
+
+    <div class="flex flex-wrap gap-2 pt-2">
+      {
+        experience.technologies.map((tech) => (
+          <Badge variant="secondary" className="text-xs font-normal">
+            {tech}
+          </Badge>
+        ))
+      }
+    </div>
+  </div>
+</div>
