@@ -1,5 +1,6 @@
 ---
 import { Badge } from "@/components/ui/badge";
+import ExternalLinkIcon from "@/components/icons/ExternalLinkIcon.astro";
 import type { Experience } from "@/data/experience";
 
 interface Props {
@@ -30,21 +31,7 @@ const { experience } = Astro.props;
       class="inline-flex items-center gap-1 text-teal hover:underline"
     >
       {experience.company}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="translate-y-px"
-      >
-        <path d="M7 7h10v10" />
-        <path d="M7 17 17 7" />
-      </svg>
+      <ExternalLinkIcon size={14} class="translate-y-px" />
     </a>
 
     <p class="text-muted-foreground leading-relaxed max-w-2xl">
