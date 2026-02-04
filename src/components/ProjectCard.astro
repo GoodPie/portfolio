@@ -1,0 +1,71 @@
+---
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import ExternalLinkIcon from "@/components/icons/ExternalLinkIcon.astro";
+import type { Project } from "@/data/projects";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+{project.url ? (
+  <a
+    href={project.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg"
+    aria-label={`View ${project.name} on GitHub`}
+  >
+    <Card className="bg-card border-border hover:border-teal/30 transition-colors group h-full">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+        <h3 class="text-xl font-serif">
+          {project.name}
+          <span class="text-teal">.</span>
+        </h3>
+        <div class="flex items-center gap-2">
+          <ExternalLinkIcon size={16} class="text-muted-foreground group-hover:text-teal transition-colors" />
+          <span class="text-sm text-muted-foreground">{project.id}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          {project.description}
+        </p>
+        <div class="flex flex-wrap gap-2 pt-2">
+          {project.technologies.map((tech) => (
+            <Badge variant="outline" className="text-xs font-mono font-normal">
+              {tech}
+            </Badge>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  </a>
+) : (
+  <Card className="bg-card border-border hover:border-teal/30 transition-colors group h-full">
+    <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+      <h3 class="text-xl font-serif">
+        {project.name}
+        <span class="text-teal">.</span>
+      </h3>
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">{project.id}</span>
+      </div>
+    </CardHeader>
+    <CardContent className="space-y-4">
+      <p class="text-sm text-muted-foreground leading-relaxed">
+        {project.description}
+      </p>
+      <div class="flex flex-wrap gap-2 pt-2">
+        {project.technologies.map((tech) => (
+          <Badge variant="outline" className="text-xs font-mono font-normal">
+            {tech}
+          </Badge>
+        ))}
+      </div>
+    </CardContent>
+  </Card>
+)}

@@ -1,15 +1,14 @@
 ---
+import Section from "@/components/Section.astro";
 import SectionLabel from "@/components/SectionLabel.astro";
 import ExperienceItem from "@/components/ExperienceItem.astro";
 import { experiences } from "@/data/experience";
 ---
 
-<section class="px-6 md:px-12 lg:px-24 py-24">
-  <div class="w-full">
-    <SectionLabel number="02" label="Experience" />
+<Section>
+  <SectionLabel number="02" label="Experience" />
 
-    <div class="space-y-24">
-      {experiences.map((exp) => <ExperienceItem experience={exp} />)}
-    </div>
+  <div class="space-y-24">
+    {experiences.map((exp) => <ExperienceItem experience={exp} />)}
   </div>
-</section>
+</Section>
