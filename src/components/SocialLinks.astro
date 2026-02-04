@@ -1,0 +1,52 @@
+---
+import GithubIcon from "@/components/icons/GithubIcon.astro";
+import LinkedinIcon from "@/components/icons/LinkedinIcon.astro";
+import MailIcon from "@/components/icons/MailIcon.astro";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const links = [
+  {
+    name: "GitHub",
+    href: "https://github.com/Goodpie",
+    icon: "github",
+  },
+  {
+    name: "LinkedIn",
+    href: "https://linkedin.com/in/brandynbritton",
+    icon: "linkedin",
+  },
+  {
+    name: "Email",
+    href: "mailto:brandynbb96@gmail.com",
+    icon: "email",
+  },
+];
+---
+
+<div class:list={["flex items-center gap-6", className]}>
+  {
+    links.map((link, index) => (
+      <>
+        <a
+          href={link.href}
+          target={link.href.startsWith("mailto") ? undefined : "_blank"}
+          rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
+          {link.icon === "github" && <GithubIcon size={16} />}
+          {link.icon === "linkedin" && <LinkedinIcon size={16} />}
+          {link.icon === "email" && <MailIcon size={16} />}
+          {link.name}
+        </a>
+        {index < links.length - 1 && (
+          <span class="text-muted-foreground/30">/</span>
+        )}
+      </>
+    ))
+  }
+</div>

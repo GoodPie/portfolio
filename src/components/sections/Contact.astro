@@ -1,0 +1,31 @@
+---
+import Section from "@/components/Section.astro";
+import SectionLabel from "@/components/SectionLabel.astro";
+import ExternalLinkIcon from "@/components/icons/ExternalLinkIcon.astro";
+import { Button } from "@/components/ui/button";
+---
+
+<Section>
+  <SectionLabel number="04" label="Contact" />
+
+  <div class="text-center max-w-2xl mx-auto">
+    <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif leading-tight mb-4">
+      Let's build something<br />
+      <em class="text-teal italic">together.</em>
+    </h2>
+
+    <p class="text-muted-foreground leading-relaxed mb-8">
+      Always open to discussing new projects, opportunities, or just chatting about technology.
+    </p>
+
+    <a href="mailto:brandynbb96@gmail.com">
+      <Button
+        size="lg"
+        className="bg-teal text-background hover:bg-teal/90 font-medium"
+      >
+        brandynbb96@gmail.com
+        <ExternalLinkIcon size={16} class="ml-2" />
+      </Button>
+    </a>
+  </div>
+</Section>

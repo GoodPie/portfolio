@@ -1,0 +1,14 @@
+---
+import Section from "@/components/Section.astro";
+import SectionLabel from "@/components/SectionLabel.astro";
+import ExperienceItem from "@/components/ExperienceItem.astro";
+import { experiences } from "@/data/experience";
+---
+
+<Section>
+  <SectionLabel number="02" label="Experience" />
+
+  <div class="space-y-24">
+    {experiences.map((exp) => <ExperienceItem experience={exp} />)}
+  </div>
+</Section>
