@@ -26,8 +26,8 @@ export const experiences: Experience[] = [
     company: "Ascend Health",
     companyUrl: "https://ascendhealth.com.au",
     description:
-      "Developed healthcare software solutions improving patient care and clinical workflows.",
-    technologies: ["PHP", "React", "TypeScript", "AWS"],
+      "Developed healthcare software solutions improving patient care and clinical workflows for Allied Health.",
+    technologies: ["Ruby on Rails", "React", "TypeScript", "AWS"],
   },
   {
     id: "03",
