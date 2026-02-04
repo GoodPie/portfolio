@@ -9,26 +9,26 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: "01",
-    name: "FastCache",
+    name: "Rails Active MCP",
     description:
-      "A high-performance distributed caching library for Node.js with automatic invalidation and clustering support.",
-    technologies: ["TypeScript", "Redis", "Node.js"],
-    url: "https://github.com",
+      "Secure Rails console access for AI agents through Model Context Protocol with safety features and read-only modes.",
+    technologies: ["Ruby", "Rails", "MCP"],
+    url: "https://github.com/Goodpie/rails-active-mcp",
   },
   {
     id: "02",
-    name: "QueryBuilder",
+    name: "GameMaker Server",
     description:
-      "Type-safe SQL query builder with support for PostgreSQL, MySQL, and SQLite. Over 5k stars on GitHub.",
-    technologies: ["TypeScript", "SQL", "Testing"],
-    url: "https://github.com",
+      "Multiplayer game server for GameMaker:Studio written in Python, enabling real-time networked gameplay.",
+    technologies: ["Python", "Networking", "GameMaker"],
+    url: "https://github.com/Goodpie/gamemaker-server",
   },
   {
     id: "03",
-    name: "DevMetrics",
+    name: "Modular Tree",
     description:
-      "Real-time dashboard for monitoring application performance and developer productivity metrics.",
-    technologies: ["React", "Go", "Prometheus"],
-    url: "https://github.com",
+      "Create dynamic procedural trees in Blender. Fork of MTree with enhanced features for 3D artists.",
+    technologies: ["Python", "Blender", "3D"],
+    url: "https://github.com/Goodpie/modular_tree",
   },
 ];
