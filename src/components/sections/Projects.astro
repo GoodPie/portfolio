@@ -1,15 +1,14 @@
 ---
+import Section from "@/components/Section.astro";
 import SectionLabel from "@/components/SectionLabel.astro";
-import { ProjectCard } from "@/components/ProjectCard";
+import ProjectCard from "@/components/ProjectCard.astro";
 import { projects } from "@/data/projects";
 ---
 
-<section class="px-6 md:px-12 lg:px-24 py-24">
-  <div class="w-full">
-    <SectionLabel number="03" label="Projects" />
+<Section>
+  <SectionLabel number="03" label="Projects" />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project) => <ProjectCard project={project} client:visible />)}
-    </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {projects.map((project) => <ProjectCard project={project} />)}
   </div>
-</section>
+</Section>
