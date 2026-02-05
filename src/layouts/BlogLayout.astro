@@ -25,7 +25,7 @@ const { title, description, publishDate, tags = [] } = Astro.props;
     </a>
 
     <header class="mb-12 max-w-prose">
-      <time class="text-sm text-muted-foreground">{formatDate(publishDate)}</time>
+      <time class="text-sm text-muted-foreground" datetime={publishDate}>{formatDate(publishDate)}</time>
       <h1 class="text-4xl md:text-5xl font-serif font-medium tracking-tight mt-3 mb-4">
         {title}
       </h1>
@@ -33,11 +33,13 @@ const { title, description, publishDate, tags = [] } = Astro.props;
 
       {
         tags.length > 0 && (
-          <div class="flex flex-wrap gap-2 mt-6">
-            {tags.map((tag) => (
-              <Tag>{tag}</Tag>
-            ))}
-          </div>
+          <nav aria-label="Post tags">
+            <ul class="flex flex-wrap gap-2 mt-6" role="list">
+              {tags.map((tag) => (
+                <li><Tag>{tag}</Tag></li>
+              ))}
+            </ul>
+          </nav>
         )
       }
     </header>

@@ -8,7 +8,7 @@ interface Props {
 
 const {
   title = "Brandyn Britton | Software Engineer",
-  description = "Software engineer building scalable systems and crafting delightful experiences for the web.",
+  description = "Senior Software engineer from Perth, Western Australia building scalable systems and crafting delightful experiences for the education and healthcare sectors",
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -48,7 +48,10 @@ const ogImageURL = new URL("/og-image.png", Astro.site);
     <title>{title}</title>
   </head>
   <body class="w-full">
-    <main class="min-h-screen min-w-5/8 w-10/12 mx-auto">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded">
+      Skip to content
+    </a>
+    <main id="main-content" class="min-h-screen min-w-5/8 w-10/12 mx-auto">
       <slot />
     </main>
   </body>
