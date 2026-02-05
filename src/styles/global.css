@@ -137,3 +137,39 @@
         @apply bg-background text-foreground font-sans antialiased;
     }
 }
+
+/* Map prose colors to theme tokens */
+.prose-invert {
+  --tw-prose-body: var(--muted-foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: oklch(0.985 0 0 / 80%);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-bullets: var(--primary);
+  --tw-prose-counters: var(--primary);
+  --tw-prose-quotes: var(--muted-foreground);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-hr: var(--border);
+  --tw-prose-code: var(--primary);
+  --tw-prose-pre-bg: var(--card);
+  --tw-prose-pre-code: var(--foreground);
+}
+
+@layer base {
+  /* Blog prose — only for things CSS vars and modifiers can't express */
+  .prose-blog {
+    /* Lead paragraph */
+    & > :where(p:first-of-type) {
+      @apply text-xl leading-relaxed;
+      color: var(--tw-prose-lead);
+    }
+    /* Inline code (compound styling that's verbose as modifiers) */
+    & :where(:not(pre) > code) {
+      @apply bg-secondary px-1.5 py-0.5 rounded text-sm;
+    }
+    /* Blockquote background accent */
+    & :where(blockquote) {
+      @apply bg-primary/5 rounded-r-lg px-6 py-4;
+    }
+  }
+}

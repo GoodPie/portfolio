@@ -1,6 +1,7 @@
 ---
 import Section from "@/components/Section.astro";
 import SocialLinks from "@/components/SocialLinks.astro";
+import BookIcon from "@/components/icons/BookIcon.astro";
 ---
 
 <Section class="min-h-[80vh] flex flex-col justify-center">
@@ -18,6 +19,16 @@ import SocialLinks from "@/components/SocialLinks.astro";
       <em class="font-serif text-foreground not-italic">healthcare and education</em>.
     </p>
 
-    <SocialLinks />
+    <div class="flex items-center gap-6">
+      <SocialLinks />
+      <span class="text-muted-foreground/30">/</span>
+      <a
+        href="/blog"
+        class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+      >
+        <BookIcon size={16} />
+        Blog
+      </a>
+    </div>
   </div>
 </Section>

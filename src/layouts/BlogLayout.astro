@@ -24,12 +24,12 @@ const { title, description, publishDate, tags = [] } = Astro.props;
       Back to blog
     </a>
 
-    <header class="mb-12">
+    <header class="mb-12 max-w-prose">
       <time class="text-sm text-muted-foreground">{formatDate(publishDate)}</time>
-      <h1 class="text-4xl md:text-5xl font-serif font-medium mt-2 mb-4">
+      <h1 class="text-4xl md:text-5xl font-serif font-medium tracking-tight mt-3 mb-4">
         {title}
       </h1>
-      <p class="text-lg text-muted-foreground">{description}</p>
+      <p class="text-xl text-muted-foreground leading-relaxed">{description}</p>
 
       {
         tags.length > 0 && (
@@ -43,23 +43,19 @@ const { title, description, publishDate, tags = [] } = Astro.props;
     </header>
 
     <div
-      class="prose prose-invert prose-lg max-w-none
-             prose-headings:font-serif prose-headings:font-medium
-             prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
-             prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-             prose-p:text-muted-foreground prose-p:leading-relaxed
-             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-             prose-strong:text-foreground prose-strong:font-semibold
-             prose-code:text-primary prose-code:bg-secondary prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-             prose-pre:bg-card prose-pre:border prose-pre:border-border
-             prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground prose-blockquote:italic
-             prose-li:text-muted-foreground
+      class="prose prose-invert prose-lg max-w-prose prose-blog
+             prose-headings:font-serif prose-headings:font-medium prose-headings:tracking-tight
+             prose-h2:mt-14 prose-h2:mb-5
+             prose-h3:mt-10 prose-h3:mb-4
+             prose-a:underline prose-a:decoration-primary/30 prose-a:underline-offset-2 hover:prose-a:decoration-primary
+             prose-pre:border prose-pre:border-border
+             prose-code:before:content-none prose-code:after:content-none
              prose-img:rounded-lg"
     >
       <slot />
     </div>
 
-    <footer class="mt-16 pt-8 border-t border-border">
+    <footer class="mt-16 pt-8 border-t border-border max-w-prose">
       <a
         href="/"
         class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
