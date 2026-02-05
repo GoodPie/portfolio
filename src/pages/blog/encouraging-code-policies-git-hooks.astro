@@ -1,0 +1,229 @@
+---
+import BlogLayout from "@/layouts/BlogLayout.astro";
+import {posts} from "@/data/posts";
+
+const post = posts.find((p) => p.slug === "encouraging-code-policies-git-hooks")!;
+---
+
+<BlogLayout {...post} description={post.description} publishDate={post.publishDate} tags={post.tags} title={post.title}>
+    <img
+            src="https://miro.medium.com/v2/resize:fit:1400/1*-xaKOqURXGzUffkVHLDMgg.png"
+            alt="Git hooks illustration"
+            class="rounded-lg mb-8"
+    />
+
+    <p>
+        I've been working on a project that uses react-i18next to translate my project to different languages. I'd run
+        into an issue where some of the keys in my English translation file weren't matching those in the other
+        translation files.
+    </p>
+
+    <p>
+        Now there are multiple solutions available but because this is a hobby project where I am exploring new things,
+        I wanted to explore a bit more of Git beyond what I would use in my general day-to-day. This mis-match of keys
+        gave me the opportunity to finally explore Git Hooks and implement a pre-commit hook that would let me know that
+        I've messed up my translations.
+    </p>
+
+    <h2>Project Structure and Problem</h2>
+
+    <p>
+        As stated before, I have a React project that utilizes react-i18next to handle the translations. My translation
+        files are small JSON files and only contain key text to translate. These files are located in the <code>src/__translations__</code>
+        directory.
+    </p>
+
+    <p>
+        For the purpose of this example, I have:
+    </p>
+
+    <ul>
+        <li>English translation json — <code>en.json</code></li>
+        <li>Spanish translation json — <code>es.json</code></li>
+        <li>Initialization script — <code>initTranslation.ts</code></li>
+    </ul>
+
+    <p>
+        <strong>
+            en.json
+        </strong>
+    </p>
+
+    <pre><code class="language-json">&lcub;
+        "translation": &lcub;
+            "Home": "Home",
+            "Loading": "Loading"
+        &rcub;
+    &rcub;</code></pre>
+
+    <p><strong>es.json:</strong></p>
+
+    <pre><code class="language-json">
+        &lcub;
+        "translation": &lcub;
+            "Home": "Casa",
+            "Loading": "Espera"
+        &rcub;
+    &rcub;</code></pre>
+
+    <p><strong>initTranslation.ts</strong></p>
+
+    <pre><code class="language-typescript">import i18n from "i18next";
+import &lcub;initReactI18next&rcub; from "react-i18next";
+import * as en from "./en.json";
+import * as es from "./es.json";
+
+type translation = &lcub;
+            translation: &lcub;
+                [key: string]: string
+        &rcub;
+        &rcub;
+
+        export const initializeTranslation = () =&gt; &lcub;
+            i18n
+                .use(initReactI18next)
+                .init(&lcub;
+                    resources: &lcub;
+                        en: en as translation,
+                        es: es as translation,
+                    &rcub;,
+                    fallbackLng: "en",
+                    interpolation: &lcub;
+                        escapeValue: false
+                    &rcub;
+                &rcub;);
+        &rcub;</code></pre>
+
+    <p>
+        Most of this is just boilerplate from the react-i18next documentation for getting started.
+    </p>
+
+    <p>
+        In my <code>App.tsx</code> file, I call the <code>initializeTranslation</code> and I can run the following to
+        change the language during runtime:
+    </p>
+
+    <pre><code class="language-typescript">initializeTranslation();
+
+const App = () =&gt; &lcub;
+            const &lcub;i18n&rcub; = useTranslation();
+
+            useEffect(() = &gt; &lcub;
+                i18n.changeLanguage("es"); // Change to "en" for English
+
+            &rcub;, []);
+            ...
+        &rcub;</code></pre>
+
+            <h2>Python Script to Check for Missing Keys</h2>
+
+            <p>
+                Now if I add a key to the <code>en.json</code> and forget it in the <code>es.json</code>, it's not a big
+                deal. The translation will fallback to English and it will still render correctly, just in the incorrect
+                language.
+            </p>
+
+            <p>
+                Translation is always something I've seen as something that I don't want to have to do later down the
+                track and if I have the appropriate framework in place, it's a lot easier to fix those small mistakes
+                then implement it entirely and ensure I'm covering it in all the appropriate places. It's not something
+                I'd do by myself usually but I'm also learning languages and this is a good way to assist in that and
+                pick up some slang for webpages that I wouldn't cover in DuoLingo.
+            </p>
+
+            <p>
+                If I miss a key, it's not the end of the world basically. I just want to stay on top of it.
+            </p>
+
+            <p>
+                Let's say I add a key for "Sign In" to my <code>en.json</code> and forget to add it. I have tests to
+                cover this but I also want to make sure I have something pre-commit just to say "Hey, you forgot a key
+                in one of the language files".
+            </p>
+
+            <p>
+                Before we explore hooks, I want to write a Python script that does this:
+            </p>
+
+            <pre><code class="language-python">#!/usr/bin/env python3
+import os
+import json
+
+def check_translation_files(directory):
+    translation_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                translation_files.append(os.path.join(root, file))
+
+    translations = []
+    for file in translation_files:
+        with open(file) as f:
+            data = json.load(f)
+            translations.append(data.get("translation", &lcub;&rcub;))
+
+    is_match = True
+    not_matching = []
+    for i in range(len(translations) - 1):
+        if translations[i].keys() != translations[i + 1].keys():
+            not_matching = list(
+                set(translations[i].keys()) - set(translations[i + 1].keys()))
+            is_match = False
+
+    if (is_match):
+        print("✅ All translation files have matching keys")
+    else:
+        print("❌ WARNING: Translation files do not have matching keys. Missing keys:",
+              str(not_matching))
+
+check_translation_files("src/__translations__")</code></pre>
+
+            <p>
+                All this does is open the <code>__translations__</code> directory, picking up all the <code>.json</code>
+                files. It will compare the english one to the other and then output:
+            </p>
+
+            <ul>
+                <li>✅ All translation files have matching keys — If all keys are present</li>
+                <li>❌ WARNING: Translation files do not have matching keys. Missing: […{'{list of missing keys}'}] — If
+                    keys do not match
+                </li>
+            </ul>
+
+            <p>
+                If I run this now, with the above files, it will output that all the keys are present.
+            </p>
+
+            <p>
+                It's important to note that the directory that it searches in will be the root directory of the project.
+            </p>
+
+            <h2>Adding a pre-commit hook</h2>
+
+            <p>
+                Now that I have a working script, I'm going to copy the code to a file named <code>pre-commit</code> and
+                store it under the <code>.git/hooks/</code> directory. This file will have no extension.
+            </p>
+
+            <p>
+                That's all there is to it. It will know it's a Python script from the shebang at the top of the file and
+                every time I run <code>git commit ...</code> it will let me know if I have the same keys in all my
+                translation files.
+            </p>
+
+            <h2>Problems</h2>
+
+            <ul>
+                <li>This works fine for me as a solo developer but working on a team would mean I have to have the
+                    developer run some pre-configuration before they start. I don't see this as a bad thing as you could
+                    just add a script and some addition to the project README.
+                </li>
+                <li>It doesn't enforce any code conventions and just says "Hey, you missed something that might not be
+                    too crucial"
+                </li>
+            </ul>
+
+            <p>
+                Overall, it was a fun, quick exploration into using Git hooks for the first time.
+            </p>
+            </BlogLayout>

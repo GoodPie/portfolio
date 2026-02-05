@@ -1,0 +1,495 @@
+---
+import BlogLayout from "@/layouts/BlogLayout.astro";
+import {posts} from "@/data/posts";
+
+const post = posts.find((p) => p.slug === "zero-downtime-rails-8-kamal-aws")!;
+---
+
+<BlogLayout {...post} description={post.description} publishDate={post.publishDate} tags={post.tags} title={post.title}>
+    <img
+            src="https://miro.medium.com/v2/resize:fit:1400/1*gedK_uV39TY2Jc4ZkzYlow.jpeg"
+            alt="Deploy a Rails application to AWS using Kamal"
+            class="rounded-lg mb-8"
+    />
+
+    <p>
+        If you've ever deployed a Next.js app to Vercel, you know the magic of "git push and you're live." But if you're
+        a Rails developer? You're stuck configuring servers, managing databases, and wrestling with deployment
+        pipelines.
+    </p>
+
+    <p>
+        I recently set out to simplify Rails deployment for a personal project of mine to simplify this process. Along
+        the way, I learned why Kamal, the deployment tool built by 37signals (the creators of Rails) is the recommended
+        approach (and that it's really annoyingly documented).
+    </p>
+
+    <p>
+        This is the complete story of that journey, including every pitfall I hit and how I solved them.
+    </p>
+
+    <h2>The Starting Point: Infrastructure</h2>
+
+    <p>
+        My initial approach was "do it the AWS way." I built a CloudFormation template with all the basic enterprise
+        bells and whistles:
+    </p>
+
+    <ul>
+        <li>VPC with public and private subnets</li>
+        <li>NAT Gateway for outbound traffic from private subnets</li>
+        <li>Application Load Balancer</li>
+        <li>ECS Fargate for container orchestration</li>
+        <li>RDS PostgreSQL</li>
+        <li>Secrets Manager for credentials</li>
+    </ul>
+
+    <p>
+        The template worked. But the costs added up quickly:
+    </p>
+
+    <ul>
+        <li>NAT Gateway — $22</li>
+        <li>ALB — $16</li>
+        <li>Fargate — $15</li>
+        <li>RDS T3 Micro — $12</li>
+    </ul>
+
+    <p>
+        That's a total of ~$75/month. I'm just developing a prototype and like I said, if you've been in the Vercel
+        world, I'd rather just write my project in TS and deploy there. I'd honestly even look at switching to Laravel
+        Forge or using Supabase.
+    </p>
+
+    <h2>Enter Kamal</h2>
+
+    <p>
+        Given the release of Rails 8 last year and subsequent updates, with an emphasis on smoothing out deployments,
+        Kamal 2 was a big mention.
+    </p>
+
+    <p>
+        The pitch is simple: you get zero-downtime deployments without the complexity of Kubernetes or ECS.
+    </p>
+
+    <p>
+        This brings my self managed infrastructure down to:
+    </p>
+
+    <ul>
+        <li>EC2 t3.small — $15</li>
+        <li>RDS T3 Micro — $12</li>
+    </ul>
+
+    <p>
+        Down from $75 to $27/month. That's a 64% cost reduction, and the deployment process is dramatically simpler. I
+        still also control the core infrastructure.
+    </p>
+
+    <h2>How Zero-Downtime Works with Kamal</h2>
+
+    <p>
+        The magic is in kamal-proxy, a lightweight reverse proxy that runs on your server.
+    </p>
+
+    <p>
+        Here's the deployment sequence:
+    </p>
+
+    <ol>
+        <li>Build Docker image locally (~1–2 min)</li>
+        <li>Push to registry (~30 sec)</li>
+        <li>Pull image on server (~30 sec)</li>
+        <li>Start new container on new port (~10 sec)</li>
+        <li>Health check passes (~10 sec)</li>
+        <li>kamal-proxy switches traffic (instant)</li>
+        <li>Stop old container (~10 sec)</li>
+    </ol>
+
+    <p>
+        During step 6, kamal-proxy atomically switches traffic from the old container to the new one. No dropped
+        requests. No load balancer reconfiguration.
+    </p>
+
+    <p>
+        Compare this to a traditional blue-green deployment where you're spinning up new EC2 instances, updating target
+        groups, and draining connections — easily a 20 minute process.
+    </p>
+
+    <h2>The Setup: Step by Step</h2>
+
+    <h3>Prerequisites</h3>
+
+    <ul>
+        <li>AWS account</li>
+        <li>Rails application with a Dockerfile (Rails 7.1+ generates one)</li>
+        <li>Domain name (optional — you can test with IP address)</li>
+    </ul>
+
+    <h3>Step 1: CloudFormation Template</h3>
+
+    <p>
+        Let's create a basic re-usable cloud formation template. My CloudFormation template provisions just the
+        essentials:
+    </p>
+
+    <ul>
+        <li>VPC with public subnet</li>
+        <li>EC2 instance for your application</li>
+        <li>RDS PostgreSQL database</li>
+        <li>Secrets Manager generates and stores the database credentials automatically.</li>
+    </ul>
+
+    <p>
+        The whole stack deploys in about 10 minutes.
+    </p>
+
+    <pre><code class="language-yaml">AWSTemplateFormatVersion: '2010-09-09'
+Description: Rails Infra - EC2 + RDS for Kamal deployment
+
+Parameters:
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: SSH key pair for EC2 access
+  DBName:
+    Type: String
+    Default: rails_app_production
+  InstanceType:
+    Type: String
+    Default: t3.small
+    AllowedValues: [t3.micro, t3.small, t3.medium]
+  YourIP:
+    Type: String
+    Description: Your IP for SSH access (e.g., 203.0.113.0/32)
+
+Resources:
+  #### VPC + Networking ####
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: rails-app-vpc
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: rails-app-public-1
+
+  # ... (truncated for brevity - see full template in repo)</code></pre>
+
+    <p>
+        And deploy it:
+    </p>
+
+    <pre><code class="language-bash">aws cloudformation deploy \
+  --stack-name myapp-infra \
+  --template-file infrastructure.yml \
+  --parameter-overrides \
+    KeyPairName=myapp \
+    YourIP=$(curl -s https://checkip.amazonaws.com)/32 \
+  --capabilities CAPABILITY_NAMED_IAM</code></pre>
+
+    <p>
+        I've written a handy deploy script you can also use that will make this a little easier if you don't care about
+        the process and just want to get up and running. You can find the code here: <a
+            href="https://github.com/GoodPie/kamal-application-iaac">github.com/GoodPie/kamal-application-iaac</a>
+    </p>
+
+    <h3>Step 2: Create an ECR Repository</h3>
+
+    <p>
+        We need to be able to push our built images somewhere. We are already in the AWS space, so ECR suits my needs
+        but you could alternatively deploy to Docker or Github for free.
+    </p>
+
+    <pre><code
+            class="language-bash">aws ecr create-repository --repository-name myapp --region ap-southeast-2</code></pre>
+
+    <h3>Step 3: Initialize and configure Kamal</h3>
+
+    <p>
+        You can and should read the documentation for Kamal before proceeding or at least have it in the background. I
+        found it a little bit lacking, especially for Rails.
+    </p>
+
+    <pre><code class="language-bash"># Install the gem
+gem install kamal
+
+# Initialize Kamal
+kamal init</code></pre>
+
+    <p>
+        From these commands, you should have a file <code>config/deploy.yml</code> in your project. Edit this and add
+        your credentials from your CloudFormation output:
+    </p>
+
+    <pre><code class="language-yaml">service: myapp
+image: myapp
+
+servers:
+  web:
+    hosts:
+      - 52.62.xxx.xxx # Your EC2 IP from CloudFormation output
+
+proxy:
+  ssl: false # Start without SSL for testing
+  host: 52.62.xxx.xxx
+  healthcheck:
+    path: /up
+
+registry:
+  server: 123456789.dkr.ecr.ap-southeast-2.amazonaws.com
+  username: AWS
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_TO_STDOUT: 'true'
+    RAILS_SERVE_STATIC_FILES: 'true'
+    DATABASE_HOST: myapp-db.xxx.ap-southeast-2.rds.amazonaws.com
+    DATABASE_NAME: myapp_production
+    DATABASE_USER: myapp
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_PASSWORD
+
+ssh:
+  user: ubuntu
+  keys:
+    - ~/.ssh/myapp.pem</code></pre>
+
+    <h3>Step 4: Create our Secrets</h3>
+
+    <p>
+        Let's create or edit our <code>.kamal/secrets</code> file:
+    </p>
+
+    <pre><code class="language-bash">KAMAL_REGISTRY_PASSWORD=$(aws ecr get-login-password --region ap-southeast-2)
+RAILS_MASTER_KEY=$(cat config/master.key)
+DATABASE_PASSWORD=$(aws secretsmanager get-secret-value --secret-id myapp/db-credentials --query 'SecretString' --output text --region ap-southeast-2 | jq -r '.password')</code></pre>
+
+    <h3>Step 5: Deploy</h3>
+
+    <p>
+        Let's finally deploy:
+    </p>
+
+    <pre><code class="language-bash"># First time - installs Docker, kamal-proxy
+kamal setup
+
+# Subsequent deploys
+kamal deploy</code></pre>
+
+    <h2>Pitfalls I Hit (So You Don't Have To)</h2>
+
+    <h3>1. Docker Desktop's Credential Store</h3>
+
+    <p>
+        <strong>Symptom:</strong> docker login works manually but fails through Kamal with "400 Bad Request"
+    </p>
+
+    <p>
+        <strong>Cause:</strong> Docker Desktop on macOS uses a credential store that interferes with Kamal's login.
+    </p>
+
+    <p>
+        <strong>Fix:</strong> Remove credsStore from <code>~/.docker/config.json</code>:
+    </p>
+
+    <pre>
+        <code class="language-json">
+&lcub;
+"auths"%colon; &lcub;	&rcub;,
+"currentContext"%colon; "desktop-linux"
+&rcub;
+        </code>
+    </pre>
+
+    <h3>2. ECR Image Path Doubling</h3>
+
+    <p>
+        <strong>Symptom:</strong> Error mentions <code>ecr.amazonaws.com/ecr.amazonaws.com/myapp</code>
+    </p>
+
+    <p>
+        <strong>Cause:</strong> Putting the full ECR URL in both image and registry.server.
+    </p>
+
+    <p>
+        <strong>Fix:</strong> Use just the repository name in image:
+    </p>
+
+    <pre><code class="language-yaml">image: myapp # Not the full ECR URL
+registry:
+  server: 123456789.dkr.ecr.ap-southeast-2.amazonaws.com</code></pre>
+
+    <h3>3. Docker Permission Denied on Server</h3>
+
+    <p>
+        <strong>Symptom:</strong> <code>permission denied while trying to connect to the Docker API</code>
+    </p>
+
+    <p>
+        <strong>Cause:</strong> The ubuntu user isn't in the docker group.
+    </p>
+
+    <pre><code class="language-bash">ssh -i ~/.ssh/myapp.pem ubuntu@your-server-ip
+sudo usermod -aG docker ubuntu
+exit</code></pre>
+
+    <p>
+        Then retry <code>kamal setup</code>.
+    </p>
+
+    <h3>4. Database Using Socket Instead of TCP</h3>
+
+    <p>
+        <strong>Symptom:</strong> <code>connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed</code>
+    </p>
+
+    <p>
+        <strong>Cause:</strong> Your database.yml isn't reading the environment variables.
+    </p>
+
+    <p>
+        <strong>Fix:</strong> Ensure your production config uses the env vars:
+    </p>
+
+    <pre><code class="language-yaml">database: &lt;%= ENV['DATABASE_NAME'] %&gt;
+username: &lt;%= ENV['DATABASE_USER'] %&gt;
+password: &lt;%= ENV['DATABASE_PASSWORD'] %&gt;</code></pre>
+
+    <h2>Production Considerations</h2>
+
+    <h3>Thruster: The Missing Piece in Rails 8</h3>
+
+    <p>
+        Rails 8 introduces Thruster, a lightweight HTTP/2 proxy that wraps Puma inside your container. It's easy to
+        confuse with kamal-proxy, so let's clarify:
+    </p>
+
+    <ul>
+        <li><strong>Kamal Proxy</strong> — Sits on the host and routes traffic between containers with zero-downtime
+            switching
+        </li>
+        <li><strong>Thruster</strong> — HTTP/2, asset caching, compression and TLS</li>
+        <li><strong>Puma</strong> — Ruby application server</li>
+    </ul>
+
+    <p>
+        The request flow looks like:
+    </p>
+
+    <pre><code>Internet → kamal-proxy (host:80/443) → Thruster (container:3000) → Puma (container:3001)</code></pre>
+
+    <p>
+        If you're on Rails 7.x, add Thruster to your Gemfile:
+    </p>
+
+    <pre><code class="language-ruby">gem 'thruster'</code></pre>
+
+    <p>
+        Then update your Dockerfile's CMD:
+    </p>
+
+    <pre><code class="language-dockerfile">CMD ["thrust", "bin/rails", "server", "-b", "0.0.0.0"]</code></pre>
+
+    <h3>Health Checks</h3>
+
+    <p>
+        The kamal-proxy needs to verify your app is healthy before routing traffic. Rails 7.1+ provides <code>/up</code>
+        out of the box. Configure appropriate timeouts:
+    </p>
+
+    <pre><code class="language-yaml">proxy:
+  healthcheck:
+    path: /up
+    interval: 3
+    timeout: 3</code></pre>
+
+    <h3>SSL</h3>
+
+    <p>
+        For production, enable SSL:
+    </p>
+
+    <pre><code class="language-yaml">proxy:
+  ssl: true
+  host: myapp.com</code></pre>
+
+    <p>
+        Kamal uses Let's Encrypt automatically.
+    </p>
+
+    <h2>Conclusion</h2>
+
+    <p>
+        Kamal won't replace Kubernetes for complex microservice architectures. But for most Rails applications —
+        especially those run by small teams — it's a breath of fresh air.
+    </p>
+
+    <p>
+        The deployment experience is closer to what frontend developers have with Vercel:
+    </p>
+
+    <pre><code class="language-bash">git push origin main
+kamal deploy</code></pre>
+
+    <p>
+        Two commands. Two minutes. Zero downtime.
+    </p>
+
+    <p>
+        The Rails community has been waiting for this. With Rails 8's deployment-focused defaults, Thruster for HTTP/2
+        and asset caching, Solid Queue/Cache/Cable eliminating Redis dependencies, and Kamal for orchestration, the
+        "just deploy it" experience is finally within reach.
+    </p>
+
+    <p>
+        The full Rails 8 production stack:
+    </p>
+
+    <pre><code>kamal-proxy (traffic routing, zero-downtime)
+       ↓
+Thruster (HTTP/2, caching, compression)
+       ↓
+Puma (application server)
+       ↓
+Solid Queue/Cache/Cable (database-backed background jobs, caching, websockets)</code></pre>
+
+    <p>
+        No Nginx. No Redis. No Kubernetes. Just Rails.
+    </p>
+
+    <p>
+        Let me know if I missed anything here.
+    </p>
+
+    <p>
+        Remember, you can find the IaaC here: <a href="https://github.com/GoodPie/kamal-application-iaac">github.com/GoodPie/kamal-application-iaac</a>
+    </p>
+</BlogLayout>

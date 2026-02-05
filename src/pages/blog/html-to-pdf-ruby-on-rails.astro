@@ -1,0 +1,123 @@
+---
+import BlogLayout from "@/layouts/BlogLayout.astro";
+import { posts } from "@/data/posts";
+
+const post = posts.find((p) => p.slug === "html-to-pdf-ruby-on-rails")!;
+---
+
+<BlogLayout {...post} description={post.description} publishDate={post.publishDate} tags={post.tags} title={post.title}>
+  <img
+    src="https://miro.medium.com/v2/resize:fit:1400/1*Lt5ueMRktWs2QEHYDL8hJA.png"
+    alt="HTML to PDF conversion illustration"
+    class="rounded-lg mb-8"
+  />
+
+  <p>
+    Converting HTML to PDF has long been a staple in web development, particularly for applications that need to generate invoices, reports, or any printable content. Traditionally, the Rails community has relied on gems like WickedPDF and Prawn. However, these tools have their limitations, and newer, more robust solutions like Puppeteer have emerged. In this post, I'll walk you through the current landscape and show you how to use the ruby-puppeteer gem to convert HTML to PDF in your Rails application.
+  </p>
+
+  <h2>Legacy Solutions</h2>
+
+  <p>
+    <strong>WickedPDF</strong> has long been a popular choice for developers, utilizing the wkhtmltopdf command-line tool, which employs Webkit to render HTML and CSS. However, the maintenance and updates for WickedPDF have dwindled, raising concerns about its long-term sustainability. While it worked for some legacy projects, we faced significant challenges trying to get it functional again during our Ruby/Rails upgrade processes. With the wkhtmltopdf repository being archived and no updates in nearly five years, we had to question whether it was worth the effort to continue using it or if it was time to look for an alternative solution.
+  </p>
+
+  <p>
+    <strong>Prawn</strong> is another popular gem in the Rails ecosystem, known for its flexibility and powerful PDF generation capabilities. However, Prawn isn't designed to convert HTML to PDF. Instead, it provides a programmatic API to create PDFs from scratch, which can be time-consuming and less intuitive for those who prefer to work directly with HTML and CSS. We already had the HTML and CSS working in our project and wanted to find the "path of least resistance" to fix this relatively trivial problem from an outside perspective.
+  </p>
+
+  <h2>Enter Ruby-Puppeteer</h2>
+
+  <p>
+    After extensive research, I aimed to find a solution using Puppeteer. Initially, I developed a Node.js-based approach that involved spinning up a browser pool to handle incoming requests. However, this approach turned out to be too cumbersome to deploy, secure, and set up in our development environments.
+  </p>
+
+  <p>
+    I then discovered Ruby-Puppeteer. Ruby-puppeteer is a gem that wraps the functionality of Puppeteer, a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol. It can render HTML and CSS using the latest web standards, making it a powerful tool for converting HTML to PDF.
+  </p>
+
+  <p>
+    Here's how you can integrate ruby-puppeteer into your Rails application:
+  </p>
+
+  <h3>Setting Up Ruby-Puppeteer</h3>
+
+  <p>
+    First, you'll need to install the ruby-puppeteer gem. Add it to your Gemfile and bundle install:
+  </p>
+
+  <pre><code class="language-ruby"># Gemfile
+...
+gem 'puppeteer-ruby'
+...</code></pre>
+
+  <p>
+    Run the bundle command to install the gem:
+  </p>
+
+  <pre><code class="language-bash">bundle install</code></pre>
+
+  <h3>Creating a Service to Generate PDFs</h3>
+
+  <p>
+    Next, create a service in your Rails app to handle the PDF generation. You can place this service in <code>app/services</code> and name it <code>pdf_generator_service.rb</code>.
+  </p>
+
+  <pre><code class="language-ruby"># app/services/pdf_generator_service.rb
+require 'puppeteer-ruby'
+
+class PdfGeneratorService
+  def initialize(html_content)
+    @html_content = html_content
+  end
+
+  def generate_pdf
+    tempfile = Tempfile.new(['document', '.pdf'])
+
+    Puppeteer.launch do |browser|
+      page = browser.new_page
+      page.set_content(@html_content)
+      page.pdf(path: tempfile.path, format: 'A4')
+    end
+
+    File.read(tempfile.path)
+  ensure
+    tempfile.close
+    tempfile.unlink
+  end
+end</code></pre>
+
+  <h3>Using the Service in Your Controller</h3>
+
+  <p>
+    Now, you can use the <code>PdfGeneratorService</code> in your Rails controller to generate PDFs from HTML content.
+  </p>
+
+  <pre><code class="language-ruby"># app/controllers/documents_controller.rb
+class DocumentsController &lt; ApplicationController
+  def create_pdf
+    html_content = render_to_string(template: 'documents/show', layout: false)
+    pdf_content = PdfGeneratorService.new(html_content).generate_pdf
+
+    send_data pdf_content, filename: 'document.pdf', type: 'application/pdf'
+  end
+end</code></pre>
+
+  <h2>Drawbacks of Using Ruby-Puppeteer</h2>
+
+  <p>
+    While Ruby-Puppeteer is powerful, it's not without its challenges:
+  </p>
+
+  <ol>
+    <li><strong>Dependency on Node.js:</strong> Unlike Ruby gems, Puppeteer requires Node.js, adding another layer to your tech stack.</li>
+    <li><strong>Resource Intensive:</strong> Puppeteer runs a full instance of Chromium, which can be resource-intensive, especially under heavy load.</li>
+    <li><strong>Deployment Complexity:</strong> Ensuring that Puppeteer and Chromium are correctly installed and running on your production environment can be tricky. Docker can simplify this, but it adds complexity.</li>
+  </ol>
+
+  <h2>Conclusion</h2>
+
+  <p>
+    Switching from traditional tools like WickedPDF and Prawn to Ruby-Puppeteer can offer more flexibility and modern web standards support for converting HTML to PDF in Rails. While there are some drawbacks, the benefits of using a robust and actively maintained tool like Puppeteer can be significant, especially for complex PDF generation needs.
+  </p>
+</BlogLayout>

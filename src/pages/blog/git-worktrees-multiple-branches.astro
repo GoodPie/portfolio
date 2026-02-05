@@ -1,0 +1,226 @@
+---
+import BlogLayout from "@/layouts/BlogLayout.astro";
+import { posts } from "@/data/posts";
+
+const post = posts.find((p) => p.slug === "git-worktrees-multiple-branches")!;
+---
+
+<BlogLayout {...post} description={post.description} publishDate={post.publishDate} tags={post.tags} title={post.title}>
+  <img
+    src="https://miro.medium.com/v2/resize:fit:1400/1*nuXmFHXCOc2BQ_WYiB52XQ.png"
+    alt="Git Worktrees illustration"
+    class="rounded-lg mb-8"
+  />
+
+  <p>
+    I was neck-deep in refactoring our authentication system when Slack started going crazy. A bunch of notifications start popping off. Production was down.
+  </p>
+
+  <p>
+    A payment bug was blocking invoices from processing, and every minute meant lost revenue (not really, just a few annoyed customers). My working directory looked like a bomb went off with half-written code across a dozen files, experimental changes I wasn't ready to commit, a bunch of migrations and that one function where I'd been testing something risky or over engineering a simple feature.
+  </p>
+
+  <p>
+    Before I discovered worktrees, this scenario meant a frantic scramble with <code>git stash</code>, hoping nothing would conflict when I popped it later. Now? I just open a new terminal tab and fix the problem while my feature work sits untouched.
+  </p>
+
+  <h2>Understanding Git Worktrees</h2>
+
+  <p>
+    Git worktrees let you check out multiple branches of the same repository into different folders. Instead of constantly switching branches in one directory, you maintain several directories, each on its own branch, all sharing the same Git data.
+  </p>
+
+  <pre><code>/projects/myapp          # Feature branch work
+/projects/myapp-hotfix   # Emergency fixes
+/projects/myapp-review   # Code review</code></pre>
+
+  <p>
+    Each directory has its own working files, staged changes, and local state, but they all point to the same <code>.git</code> repository.
+  </p>
+
+  <h2>Why Worktrees Matter</h2>
+
+  <p>
+    Traditional Git workflows force you to abandon your current context whenever you need to switch branches. You stash changes, switch branches, do the work, switch back, pop the stash, and hope for the best. It's disruptive and error-prone.
+  </p>
+
+  <p>
+    With worktrees, you keep everything exactly where it is. Your uncommitted changes, your running dev server, your mental context, all stay intact while you handle other tasks in a separate directory.
+  </p>
+
+  <p>
+    Here's a real example from last week:
+  </p>
+
+  <pre><code class="language-bash"># From my feature directory
+git worktree add ../myapp-hotfix main
+cd ../myapp-hotfix
+git checkout -b hotfix/payment-validation
+
+# Fixed the bug, tested it properly
+git commit -m "Fix payment validation edge case"
+git push origin hotfix/payment-validation
+
+# Back to feature work, nothing to restore
+cd ../myapp</code></pre>
+
+  <p>
+    No having to compile assets or rebuild the project entirely and then losing your previous context. You can just switch back to your previous work without this annoying step.
+  </p>
+
+  <h2>Practical Use Cases</h2>
+
+  <h3>Production Emergencies</h3>
+
+  <p>
+    When bugs hit production, create a worktree from main and fix it there. Your feature branch stays exactly as you left it, uncommitted changes and all.
+  </p>
+
+  <h3>Code Reviews</h3>
+
+  <p>
+    Stop contaminating your working directory with other people's code. Check out pull requests in a dedicated worktree, run their tests, start their dev server, all without touching your current work.
+  </p>
+
+  <pre><code class="language-bash">git worktree add ../myapp-review
+cd ../myapp-review
+git fetch origin pull/234/head:pr-234
+git checkout pr-234
+npm install && npm test</code></pre>
+
+  <h3>Experiments</h3>
+
+  <p>
+    Want to try a radically different approach? Create a worktree from your current branch and go wild. If it doesn't work out, just delete the directory.
+  </p>
+
+  <h3>Parallel Features</h3>
+
+  <p>
+    Working on features that need different configurations or long-running processes? Keep them in separate worktrees with their own dependencies and servers.
+  </p>
+
+  <h2>Setting Up Worktrees</h2>
+
+  <p>
+    The commands are simple:
+  </p>
+
+  <pre><code class="language-bash"># Add a worktree
+git worktree add &lt;path&gt; &lt;branch&gt;
+
+# See what you have
+git worktree list
+
+# Remove when done
+git worktree remove &lt;path&gt;
+
+# Clean up references
+git worktree prune</code></pre>
+
+  <p>
+    I organize mine like this:
+  </p>
+
+  <pre><code>myproject/
+├── main/       # Primary working directory
+├── feature/    # Current feature work
+├── hotfix/     # Emergency fixes
+└── review/     # PR reviews</code></pre>
+
+  <h2>Things to Consider</h2>
+
+  <h3>Disk Space</h3>
+
+  <p>
+    Each worktree is a full working directory. Projects with massive dependencies will eat disk space quickly. Monitor usage if you create many worktrees.
+  </p>
+
+  <h3>Branch Limitations</h3>
+
+  <p>
+    You can't check out the same branch in multiple worktrees. Git prevents this to avoid conflicts. Plan accordingly.
+  </p>
+
+  <h3>Shared State</h3>
+
+  <p>
+    All worktrees share the same repository data. Branches, remotes, tags, and stashes are visible everywhere. Keep this in mind when managing your repository.
+  </p>
+
+  <h3>Tool Compatibility</h3>
+
+  <p>
+    Modern development tools handle multiple directories well. VS Code workspaces work great with worktrees. Some older tools might need tweaking. I've found GitKraken (and Gitlens) a useful paid tool for handling worktrees.
+  </p>
+
+  <h3>Ignored Files</h3>
+
+  <p>
+    You'll need to create a method for handling your ignored files as these will be reset for each worktree. A good strategy for this is to create a script to symlink these files to your worktree when required. When I am working on a project with a <code>.env</code> file, I'll often set this up in the core folder, and have a script that does something like:
+  </p>
+
+  <pre><code class="language-bash">ln -s ../&lt;base&gt;/.env .env</code></pre>
+
+  <h2>When to Skip Worktrees</h2>
+
+  <p>
+    Quick fixes like typos don't need worktrees. Regular branch switching works fine for small changes. Worktrees excel when you need to preserve state or work on multiple things simultaneously.
+  </p>
+
+  <p>
+    Projects with unusual build systems or hardcoded paths might struggle with worktrees. Test first before committing to this workflow.
+  </p>
+
+  <h2>Daily Workflow Example</h2>
+
+  <p>
+    My typical day with worktrees looks like this:
+  </p>
+
+  <p>
+    Morning standup reveals an urgent bug. Instead of postponing it until after my feature work, I create a hotfix worktree and address it immediately.
+  </p>
+
+  <p>
+    Colleague needs a PR review. I pull it into my review worktree, run it locally, test thoroughly, and provide feedback while my feature tests continue running.
+  </p>
+
+  <p>
+    I want to compare two implementation approaches. Temporary worktree, alternative implementation, benchmark both solutions side by side.
+  </p>
+
+  <p>
+    End of day cleanup: remove temporary worktrees, run <code>git worktree prune</code> to clean up any dangling references.
+  </p>
+
+  <h2>Getting Started</h2>
+
+  <p>
+    Try worktrees on your next multitasking challenge:
+  </p>
+
+  <pre><code class="language-bash">git worktree add ../project-fix main
+cd ../project-fix
+# Handle the urgent task
+cd -
+git worktree remove ../project-fix</code></pre>
+
+  <p>
+    Start small. Get comfortable with the basics before developing complex workflows.
+  </p>
+
+  <h2>Wrapping Up</h2>
+
+  <p>
+    Git worktrees solve a specific problem elegantly: managing multiple branches without losing context. They reduce the mental overhead of task switching and make handling interruptions less painful.
+  </p>
+
+  <p>
+    The best part? There's no need for complex third party tooling or setup. It's all a part of git. If worktrees don't fit your workflow, you simply don't use them. But if you regularly juggle multiple branches, they're worth exploring.
+  </p>
+
+  <p>
+    One last tip: <code>git worktree prune</code> is your friend. Run it occasionally to clean up references to deleted worktree directories. Git doesn't do this automatically.
+  </p>
+</BlogLayout>
