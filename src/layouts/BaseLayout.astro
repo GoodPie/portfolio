@@ -11,7 +11,9 @@ const {
   description = "Senior Software engineer from Perth, Western Australia building scalable systems and crafting delightful experiences for the education and healthcare sectors",
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+let canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+if (canonicalURL.endsWith("/")) canonicalURL = canonicalURL.slice(0, -1); // Remove trailing slash
+
 const ogImageURL = new URL("/og-image.png", Astro.site);
 ---
 
@@ -26,7 +28,7 @@ const ogImageURL = new URL("/og-image.png", Astro.site);
     <meta name="generator" content={Astro.generator} />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href={canonicalURL.href} />
+    <link rel="canonical" href={canonicalURL} />
 
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,14 +38,14 @@ const ogImageURL = new URL("/og-image.png", Astro.site);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL.href} />
-    <meta property="og:image" content={ogImageURL.href} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImageURL.href} />
+    <meta name="twitter:image" content={ogImageURL} />
 
     <title>{title}</title>
   </head>
