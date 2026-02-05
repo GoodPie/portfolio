@@ -9,10 +9,10 @@ export interface Post {
 export const posts: Post[] = [
   {
     slug: "reviving-modular-tree",
-    title: "Reviving Modular Tree for Blender 5",
+    title: "Reviving MTree: A Procedural Tree Generator for Blender 5",
     description:
-      "Forking an abandoned Blender addon to learn about procedural tree generation and reconnect with my game development roots.",
+      "MTree was the best Blender addon for procedural trees, but it stopped working after Blender 2.8. I forked it, fixed it for Blender 5, and added L-Systems and Weber-Penn crown shapes.",
     publishDate: "2026-01-15",
-    tags: ["Blender", "Python", "Game Dev", "Open Source"],
+    tags: ["Blender 5", "Procedural Generation", "UE5", "Open Source", "Python"],
   },
 ];
