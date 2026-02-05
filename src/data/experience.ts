@@ -24,7 +24,7 @@ export const experiences: Experience[] = [
     dateRange: "2024 — 2025",
     title: "Senior Software Engineer",
     company: "Ascend Health",
-    companyUrl: "https://ascendhealth.com.au",
+    companyUrl: "https://www.ascendhealthgroup.com.au",
     description:
       "Delivered healthcare software solutions improving patient care and clinical workflows for Allied Health practitioners. Drove technical leadership across an agile team while architecting scalable cloud infrastructure.",
     technologies: ["Ruby on Rails", "React", "PostgreSQL", "TypeScript", "AWS"],
