@@ -24,7 +24,7 @@ const { title, description, publishDate, slug, tags = [] } = Astro.props;
     { name: "Blog", url: "https://brandynbritton.com/blog" },
     { name: title, url: `https://brandynbritton.com/blog/${slug}` },
   ])} />
-  <article class="py-16 md:py-24">
+  <article class="max-w-prose mx-auto py-16 md:py-24">
     <a
       href="/blog"
       class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
@@ -33,7 +33,7 @@ const { title, description, publishDate, slug, tags = [] } = Astro.props;
       Back to blog
     </a>
 
-    <header class="mb-12 max-w-prose">
+    <header class="mb-12">
       <time class="text-sm text-muted-foreground" datetime={publishDate}>{formatDate(publishDate)}</time>
       <h1 class="text-4xl md:text-5xl font-serif font-medium tracking-tight mt-3 mb-4">
         {title}
@@ -54,7 +54,7 @@ const { title, description, publishDate, slug, tags = [] } = Astro.props;
     </header>
 
     <div
-      class="prose prose-invert prose-lg max-w-prose prose-blog
+      class="prose prose-invert prose-lg prose-blog
              prose-headings:font-serif prose-headings:font-medium prose-headings:tracking-tight
              prose-h2:mt-14 prose-h2:mb-5
              prose-h3:mt-10 prose-h3:mb-4
@@ -66,7 +66,7 @@ const { title, description, publishDate, slug, tags = [] } = Astro.props;
       <slot />
     </div>
 
-    <footer class="mt-16 pt-8 border-t border-border max-w-prose">
+    <footer class="mt-16 pt-8 border-t border-border">
       <a
         href="/"
         class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"

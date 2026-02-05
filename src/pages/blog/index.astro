@@ -24,7 +24,7 @@ const sortedPosts = [...posts].sort(
     { name: "Home", url: "https://brandynbritton.com" },
     { name: "Blog", url: "https://brandynbritton.com/blog" },
   ])} />
-  <section class="py-16 md:py-24">
+  <section class="max-w-prose mx-auto py-16 md:py-24">
     <a
       href="/"
       class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
@@ -40,7 +40,7 @@ const sortedPosts = [...posts].sort(
       </p>
     </header>
 
-    <div class="max-w-prose divide-y divide-border" role="feed" aria-label="Blog posts">
+    <div class="divide-y divide-border" role="feed" aria-label="Blog posts">
       {
         sortedPosts.map((post, index) => (
           <FadeIn client:visible delay={index * 0.08} className={index === 0 ? "py-8 pt-0" : "py-8"}>
