@@ -2,8 +2,10 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
 import Tag from "@/components/Tag.astro";
+import StructuredData from "@/components/StructuredData.astro";
 import { posts } from "@/data/posts";
 import { formatDate } from "@/lib/utils";
+import { blogSchema, breadcrumbSchema } from "@/lib/schema";
 
 // Sort posts by date (newest first)
 const sortedPosts = [...posts].sort(
@@ -16,6 +18,11 @@ const sortedPosts = [...posts].sort(
   title="Blog | Brandyn Britton"
   description="Thoughts on software engineering, game development, and creative coding."
 >
+  <StructuredData slot="head" schema={blogSchema(sortedPosts)} />
+  <StructuredData slot="head" schema={breadcrumbSchema([
+    { name: "Home", url: "https://brandynbritton.com" },
+    { name: "Blog", url: "https://brandynbritton.com/blog" },
+  ])} />
   <section class="py-16 md:py-24">
     <a
       href="/"
