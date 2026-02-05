@@ -1,37 +1,40 @@
 ---
 import Section from "@/components/Section.astro";
 import SectionLabel from "@/components/SectionLabel.astro";
+import FadeIn from "@/components/animations/FadeIn";
 ---
 
 <Section>
   <SectionLabel number="01" label="About" />
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
-    <div>
-      <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif leading-tight">
-        10+ years crafting<br />
-        <em class="text-teal italic">digital products</em><br />
-        that matter.
-      </h2>
+  <FadeIn client:visible direction="up">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+      <div>
+        <h2 class="text-4xl md:text-5xl lg:text-6xl font-serif leading-tight">
+          10+ years crafting<br />
+          <em class="text-teal italic">digital products</em><br />
+          that matter.
+        </h2>
+      </div>
+
+      <div class="space-y-6 text-muted-foreground leading-relaxed">
+        <p>
+          My work sits at the intersection of <strong class="text-foreground">healthcare technology</strong>,{" "}
+          <strong class="text-foreground">education platforms</strong>, and{" "}
+          <strong class="text-foreground">full-stack development</strong>.
+        </p>
+
+        <p>
+          Currently at <a href="https://healthengine.com.au" target="_blank" rel="noopener noreferrer" class="text-teal hover:underline">HealthEngine</a>,
+          building technology that connects patients with healthcare providers across Australia.
+        </p>
+
+        <p>
+          Background in game development shaped my approach to creating engaging, user-focused applications.
+          Open source contributor and mentor to emerging engineers. Experience with many frameworks including Expo, Next.js,
+          Rails, .NET, Laravel and many more. I enjoy working on applications that solve real world problems.
+        </p>
+      </div>
     </div>
-
-    <div class="space-y-6 text-muted-foreground leading-relaxed">
-      <p>
-        My work sits at the intersection of <strong class="text-foreground">healthcare technology</strong>,{" "}
-        <strong class="text-foreground">education platforms</strong>, and{" "}
-        <strong class="text-foreground">full-stack development</strong>.
-      </p>
-
-      <p>
-        Currently at <a href="https://healthengine.com.au" target="_blank" rel="noopener noreferrer" class="text-teal hover:underline">HealthEngine</a>,
-        building technology that connects patients with healthcare providers across Australia.
-      </p>
-
-      <p>
-        Background in game development shaped my approach to creating engaging, user-focused applications.
-        Open source contributor and mentor to emerging engineers. Experience with many frameworks including Expo, Next.js,
-        Rails, .NET, Laravel and many more. I enjoy working on applications that solve real world problems.
-      </p>
-    </div>
-  </div>
+  </FadeIn>
 </Section>

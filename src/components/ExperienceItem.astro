@@ -1,6 +1,6 @@
 ---
-import { Badge } from "@/components/ui/badge";
 import ExternalLinkIcon from "@/components/icons/ExternalLinkIcon.astro";
+import StaggeredBadges from "@/components/animations/StaggeredBadges";
 import type { Experience } from "@/data/experience";
 
 interface Props {
@@ -38,14 +38,6 @@ const { experience } = Astro.props;
       {experience.description}
     </p>
 
-    <div class="flex flex-wrap gap-2 pt-2">
-      {
-        experience.technologies.map((tech) => (
-          <Badge variant="secondary" className="text-xs font-normal">
-            {tech}
-          </Badge>
-        ))
-      }
-    </div>
+    <StaggeredBadges client:visible technologies={experience.technologies} className="flex flex-wrap gap-2 pt-2" />
   </div>
 </div>

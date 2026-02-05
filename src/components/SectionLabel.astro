@@ -1,4 +1,6 @@
 ---
+import LineReveal from "@/components/animations/LineReveal";
+
 interface Props {
   number: string;
   label: string;
@@ -12,5 +14,5 @@ const { number, label } = Astro.props;
   <span class="text-sm font-medium tracking-widest text-muted-foreground uppercase">
     {label}
   </span>
-  <div class="flex-1 h-px bg-border"></div>
+  <LineReveal client:visible className="flex-1 h-px bg-border" />
 </div>

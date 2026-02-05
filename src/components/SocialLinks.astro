@@ -2,6 +2,7 @@
 import GithubIcon from "@/components/icons/GithubIcon.astro";
 import LinkedinIcon from "@/components/icons/LinkedinIcon.astro";
 import MailIcon from "@/components/icons/MailIcon.astro";
+import HoverScale from "@/components/animations/HoverScale";
 
 interface Props {
   class?: string;
@@ -28,21 +29,23 @@ const links = [
 ];
 ---
 
-<div class:list={["flex items-center gap-6", className]}>
+<div class:list={["flex flex-wrap items-center gap-6", className]}>
   {
     links.map((link, index) => (
       <>
-        <a
-          href={link.href}
-          target={link.href.startsWith("mailto") ? undefined : "_blank"}
-          rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
-        >
-          {link.icon === "github" && <GithubIcon size={16} />}
-          {link.icon === "linkedin" && <LinkedinIcon size={16} />}
-          {link.icon === "email" && <MailIcon size={16} />}
-          {link.name}
-        </a>
+        <HoverScale client:load>
+          <a
+            href={link.href}
+            target={link.href.startsWith("mailto") ? undefined : "_blank"}
+            rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+            class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          >
+            {link.icon === "github" && <GithubIcon size={16} />}
+            {link.icon === "linkedin" && <LinkedinIcon size={16} />}
+            {link.icon === "email" && <MailIcon size={16} />}
+            {link.name}
+          </a>
+        </HoverScale>
         {index < links.length - 1 && (
           <span class="text-muted-foreground/30">/</span>
         )}

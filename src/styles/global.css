@@ -124,6 +124,10 @@
     --sidebar-ring: oklch(0.75 0.15 180);
 }
 
+/* SSR flash prevention — CSS hides content before JS hydrates */
+.motion-fade-in { opacity: 0; }
+.motion-line-reveal { transform: scaleX(0); transform-origin: left; }
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
@@ -158,6 +162,19 @@
   --tw-prose-code: var(--primary);
   --tw-prose-pre-bg: var(--card);
   --tw-prose-pre-code: var(--foreground);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(from var(--teal) l c h / 0%);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px oklch(from var(--teal) l c h / 20%);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 @layer base {
