@@ -1,0 +1,58 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
+import Tag from "@/components/Tag.astro";
+import { posts } from "@/data/posts";
+import { formatDate } from "@/lib/utils";
+
+// Sort posts by date (newest first)
+const sortedPosts = [...posts].sort(
+  (a, b) =>
+    new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+);
+---
+
+<BaseLayout
+  title="Blog | Brandyn Britton"
+  description="Thoughts on software engineering, game development, and creative coding."
+>
+  <section class="py-16 md:py-24">
+    <a
+      href="/"
+      class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+    >
+      <ArrowLeftIcon />
+      Back to home
+    </a>
+
+    <header class="mb-12">
+      <h1 class="text-4xl md:text-5xl font-serif font-medium mb-4">Blog</h1>
+      <p class="text-lg text-muted-foreground">
+        Thoughts on software engineering, game development, and creative coding.
+      </p>
+    </header>
+
+    <div class="space-y-8">
+      {
+        sortedPosts.map((post) => (
+          <article class="group">
+            <a href={`/blog/${post.slug}`} class="block">
+              <time class="text-sm text-muted-foreground">
+                {formatDate(post.publishDate)}
+              </time>
+              <h2 class="text-2xl font-serif font-medium mt-1 mb-2 group-hover:text-primary transition-colors">
+                {post.title}
+              </h2>
+              <p class="text-muted-foreground">{post.description}</p>
+              <div class="flex flex-wrap gap-2 mt-4">
+                {post.tags.map((tag) => (
+                  <Tag>{tag}</Tag>
+                ))}
+              </div>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

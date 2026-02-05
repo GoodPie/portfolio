@@ -1,0 +1,164 @@
+---
+import BlogLayout from "@/layouts/BlogLayout.astro";
+import TreeCanvas from "@/components/TreeCanvas.astro";
+import { posts } from "@/data/posts";
+
+const post = posts.find((p) => p.slug === "reviving-modular-tree")!;
+---
+
+<BlogLayout {...post}>
+  <TreeCanvas/>
+  <p>
+    Before I became a software engineer, I was a game developer. Not
+    professionally—just a teenager with too much free time and a copy of
+    GameMaker. Those late nights building multiplayer servers and RPG toolkits
+    were my first real introduction to programming outside of school. It's where
+    I fell in love with building things.
+  </p>
+
+  <p>
+    Fast forward to 2026, and I decided it was time to reconnect with that part
+    of myself. I wanted to get back into game development—specifically
+    environment art in Unreal Engine 5. The plan was simple: learn to create
+    beautiful, realistic forests.
+  </p>
+
+  <p>The reality was more complicated.</p>
+
+  <h2>The Problem with Abandoned Tools</h2>
+
+  <p>
+    Every tutorial I found for procedural tree generation in Blender pointed to
+    the same addon: <strong>MTree</strong>. It was elegant, powerful, and
+    exactly what I needed. There was just one problem—it hadn't been updated
+    since Blender 2.8, and I was running Blender 5.
+  </p>
+
+  <p>
+    The addon was completely broken. None of the node types registered
+    correctly, the UI was mangled, and half the features threw cryptic Python
+    errors. I could have downgraded Blender, but that felt like giving up.
+    Instead, I did what any developer with too much curiosity would do: I forked
+    it.
+  </p>
+
+  <h2>Enter Modular Tree</h2>
+
+  <p>
+    <a href="https://github.com/Goodpie/modular_tree">Modular Tree</a> started as
+    a simple compatibility fix. Get the addon running on Blender 5, call it a day.
+    But once I was in the codebase, I couldn't stop.
+  </p>
+
+  <p>
+    The original MTree was brilliant but showing its age. Years of Blender API
+    changes had left it held together with deprecated function calls and
+    workarounds. I spent the first few weeks just cleaning house—modernizing the
+    codebase, fixing registration issues, and making it work reliably across
+    Windows, macOS, and Linux.
+  </p>
+
+  <p>
+    Then I started actually understanding what the code was doing. And that's
+    when things got interesting.
+  </p>
+
+  <h2>Learning Tree Biology (Sort Of)</h2>
+
+  <p>
+    Procedural tree generation is a fascinating intersection of computer science
+    and biology. The algorithms aren't just random—they're based on real
+    research into how trees grow.
+  </p>
+
+  <p>I ended up implementing two major additions:</p>
+
+  <h3>L-Systems</h3>
+
+  <p>
+    <strong>L-Systems</strong> (Lindenmayer systems) are a formal grammar for
+    modeling plant growth. You define simple rules like "F → F[+F]F[-F]F" and
+    iterate them to produce complex branching structures. It's the same math
+    that generates fractals, applied to botany.
+  </p>
+
+  <p>
+    Implementing L-Systems taught me to think about recursion differently. Each
+    branch is just the trunk at a smaller scale, following the same rules. The
+    complexity emerges from simplicity—which is a principle I've started
+    applying to my day job code as well.
+  </p>
+
+  <h3>Weber-Penn Crown Shapes</h3>
+
+  <p>
+    The Weber-Penn model is a parametric approach to tree generation published
+    in the paper "Creation and Rendering of Realistic Trees." It defines crown
+    shapes—the overall silhouette of foliage—using mathematical envelopes.
+  </p>
+
+  <p>
+    Adding crown shape support meant trees could finally look like specific
+    species. An oak has a different crown than a pine, and now Modular Tree can
+    approximate both.
+  </p>
+
+  <h2>Why This Matters (To Me)</h2>
+
+  <p>
+    I've spent the last seven years building healthcare software. It's important
+    work—connecting patients with providers, improving clinical workflows,
+    helping people access care. But it's also relentlessly practical.
+    Requirements, sprints, stakeholders.
+  </p>
+
+  <p>
+    Modular Tree has been the opposite. There's no product manager asking for
+    the L-System implementation. No sprint deadline for crown shapes. It's just
+    me, some papers on tree biology, and the satisfaction of watching a
+    procedural forest render.
+  </p>
+
+  <p>
+    It's reminded me why I got into programming in the first place: the joy of
+    building something because it's interesting, not because it's required.
+  </p>
+
+  <h2>Current State</h2>
+
+  <p>The addon is now in a working state with:</p>
+
+  <ul>
+    <li>Full Blender 5 compatibility across all operating systems</li>
+    <li>Modernized codebase with cleaned-up architecture</li>
+    <li>L-System generation for algorithmic branching</li>
+    <li>Weber-Penn crown shapes for realistic silhouettes</li>
+    <li>All original MTree functionality preserved</li>
+  </ul>
+
+  <p>
+    It's still a "hodge-podge of ideas"—I'm learning as I go. But it works, it's
+    open source, and maybe it'll help someone else who just wants to make some
+    trees.
+  </p>
+
+  <h2>What's Next</h2>
+
+  <p>
+    I'm planning to add wind animation support and better leaf distribution
+    algorithms. Eventually, I'd like to create proper UE5 export presets so the
+    trees can go straight into a game engine.
+  </p>
+
+  <p>
+    But honestly? The destination matters less than the journey. Every feature I
+    add teaches me something new—about Blender's API, about procedural
+    generation, about the surprisingly complex mathematics of trees.
+  </p>
+
+  <p>
+    If you're interested in the project, check it out on
+    <a href="https://github.com/Goodpie/modular_tree">GitHub</a>. Contributions
+    welcome—especially if you know more about tree biology than I do.
+  </p>
+</BlogLayout>
