@@ -1,8 +1,8 @@
 {
   "$schema": "https://turborepo.dev/microfrontends/schema.json",
   "applications": {
-    "web": {
-      "packageName": "@goodpie/web",
+    "portfolio": {
+      "packageName": "@goodpie/portfolio",
       "development": {
         "local": {
           "port": 4300

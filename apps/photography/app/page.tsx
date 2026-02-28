@@ -5,6 +5,11 @@ import { Badge } from "@goodpie/ui/components/badge";
 import { Button } from "@goodpie/ui/components/button";
 import { client, urlFor, getLqip } from "@/lib/sanity";
 
+interface SiteSettings {
+  title?: string;
+  description?: string;
+}
+
 interface Gallery {
   _id: string;
   title: string;
@@ -22,6 +27,14 @@ interface Gallery {
     };
   };
   imageCount?: number;
+}
+
+async function getSiteSettings(): Promise<SiteSettings> {
+  return client.fetch(
+    `*[_type == "siteSettings"][0] { title, description }`,
+    {},
+    { next: { revalidate: 60 } }
+  ) ?? {};
 }
 
 async function getGalleries(): Promise<Gallery[]> {
@@ -51,18 +64,23 @@ async function getGalleries(): Promise<Gallery[]> {
 }
 
 export default async function GalleriesPage() {
-  const galleries = await getGalleries();
+  const [settings, galleries] = await Promise.all([
+    getSiteSettings(),
+    getGalleries(),
+  ]);
 
   return (
     <>
       {/* Hero */}
       <section className="mb-12 text-center">
         <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl">
-          Photography
+          {settings?.title || "Photography"}
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          A collection of moments captured through the lens.
-        </p>
+        {(settings?.description) && (
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+            {settings.description}
+          </p>
+        )}
       </section>
 
       {/* Gallery grid */}
