@@ -13,7 +13,7 @@ export const experiences: Experience[] = [
     id: "01",
     dateRange: "2025 — PRESENT",
     title: "Senior Full Stack Engineer",
-    company: "HealthEngine",
+    company: "Healthengine",
     companyUrl: "https://healthengine.com.au",
     description:
       "Building healthcare technology that connects millions of Australians with healthcare providers. Contributing to providing telehealth services in a hybrid team environment.",

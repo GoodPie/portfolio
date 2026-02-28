@@ -9,7 +9,7 @@ import { experiences } from "@/data/experience";
 <Section>
   <SectionLabel number="02" label="Experience" />
 
-  <div class="space-y-24">
+  <div class="mt-24 space-y-12">
     {experiences.map((exp, index) => (
       <FadeIn client:visible delay={index * 0.15}>
         <ExperienceItem experience={exp} />
