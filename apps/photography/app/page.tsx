@@ -3,11 +3,6 @@ import Link from "next/link";
 import { PhotoFocusCards } from "@/components/photo-focus-cards";
 import { client, urlFor } from "@/lib/sanity";
 
-interface SiteSettings {
-  title?: string;
-  description?: string;
-}
-
 interface GalleryImage {
   _key: string;
   caption?: string;
@@ -27,16 +22,6 @@ interface GalleryImage {
       };
     };
   };
-}
-
-async function getSiteSettings(): Promise<SiteSettings> {
-  return (
-    client.fetch(
-      `*[_type == "siteSettings"][0] { title, description }`,
-      {},
-      { next: { revalidate: 60 } }
-    ) ?? {}
-  );
 }
 
 async function getAllPhotos(): Promise<GalleryImage[]> {
@@ -64,10 +49,7 @@ async function getAllPhotos(): Promise<GalleryImage[]> {
 }
 
 export default async function PhotosPage() {
-  const [settings, photos] = await Promise.all([
-    getSiteSettings(),
-    getAllPhotos(),
-  ]);
+  const photos = await getAllPhotos();
 
   const cards = photos.map((image) => ({
     title: image.alt || image.caption || image.galleryTitle,
@@ -79,15 +61,16 @@ export default async function PhotosPage() {
   return (
     <>
       {/* Hero */}
-      <section className="mb-12 text-center">
-        <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl">
-          {settings?.title || "Photography"}
+      <section className="mb-16 max-w-2xl">
+        <p className="text-sm tracking-widest text-muted-foreground uppercase mb-4">
+          Photography
+        </p>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium tracking-tight mb-6">
+          Mostly birds<span className="text-teal">.</span>
         </h1>
-        {settings?.description && (
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            {settings.description}
-          </p>
-        )}
+        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+          Sometimes landscapes. Occasionally something else entirely.
+        </p>
       </section>
 
       {/* Photos */}
