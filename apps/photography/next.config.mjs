@@ -1,7 +1,6 @@
-import { withMicrofrontends } from "@vercel/microfrontends/next/config";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  basePath: "/photography",
   images: {
     remotePatterns: [
       {
@@ -12,4 +11,4 @@ const nextConfig = {
   },
 };
 
-export default withMicrofrontends(nextConfig);
+export default nextConfig;
