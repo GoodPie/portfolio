@@ -1,0 +1,30 @@
+{
+  "name": "@goodpie/photography",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port ${TURBO_MFE_PORT:-4400}",
+    "build": "next build",
+    "start": "next start",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@goodpie/ui": "*",
+    "@sanity/image-url": "^1.1.0",
+    "@sanity/vision": "^3.77.2",
+    "@tailwindcss/postcss": "^4.1.18",
+    "next": "^15.3.3",
+    "next-sanity": "^9.8.38",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "sanity": "^3.77.2",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@goodpie/tsconfig": "*",
+    "@types/react": "^19.2.11",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.9.3"
+  }
+}

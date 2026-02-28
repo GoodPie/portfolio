@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/microfrontends.json",
+  "applications": {
+    "portfolio": {},
+    "photography": {
+      "routing": [
+        {
+          "paths": ["/photography", "/photography/:path*"]
+        }
+      ]
+    }
+  }
+}
