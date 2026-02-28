@@ -4,6 +4,9 @@
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../packages/ui/src/styles/globals.css";
 
+/* Ensure Tailwind scans shared UI components for utility classes */
+@source "../../../packages/ui/src";
+
 @theme inline {
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-serif: "Playfair Display", ui-serif, Georgia, serif;
