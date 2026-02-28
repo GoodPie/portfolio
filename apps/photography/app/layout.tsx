@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" data-scroll-behavior="smooth">
       <body className="min-h-screen bg-background text-foreground">
         {/* Navigation */}
         <nav className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-sm">
