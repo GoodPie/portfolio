@@ -1,9 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "ui": "tui",
   "tasks": {
     "build": {
-      "outputs": ["dist/**", ".astro/**"],
-      "inputs": ["src/**", "public/**", "astro.config.*", "tsconfig.json", "tailwind.config.*"]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".astro/**"]
+    },
+    "check": {
+      "dependsOn": ["^build"]
     },
     "dev": {
       "cache": false,
@@ -13,10 +18,6 @@
       "dependsOn": ["build"],
       "cache": false,
       "persistent": true
-    },
-    "check": {
-      "dependsOn": ["build"],
-      "outputs": []
     }
   }
 }
