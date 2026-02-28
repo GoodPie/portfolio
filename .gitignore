@@ -4,6 +4,7 @@ dist/
 # generated types
 .astro/
 next-env.d.ts
+*.tsbuildinfo
 
 # dependencies
 node_modules/
@@ -31,3 +32,4 @@ pnpm-debug.log*
 
 # Turborepo
 .turbo
+
