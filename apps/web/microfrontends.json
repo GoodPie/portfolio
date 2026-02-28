@@ -1,14 +1,15 @@
 {
-  "$schema": "https://turborepo.dev/microfrontends/schema.json",
+  "$schema": "https://openapi.vercel.sh/microfrontends.json",
   "applications": {
-    "@goodpie/web": {
+    "portfolio": {
       "development": {
+        "fallback": "https://www.brandynbritton.com",
         "local": {
           "port": 4300
         }
       }
     },
-    "@goodpie/photography": {
+    "photography": {
       "development": {
         "local": {
           "port": 4400
