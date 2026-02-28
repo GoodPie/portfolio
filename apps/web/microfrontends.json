@@ -1,20 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/microfrontends.json",
   "applications": {
-    "portfolio": {
-      "development": {
-        "fallback": "https://www.brandynbritton.com",
-        "local": {
-          "port": 4300
-        }
-      }
-    },
+    "portfolio": {},
     "photography": {
-      "development": {
-        "local": {
-          "port": 4400
-        }
-      },
       "routing": [
         {
           "paths": ["/photography", "/photography/:path*"]
