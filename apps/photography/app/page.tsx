@@ -1,5 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Card, CardContent } from "@goodpie/ui/components/card";
+import { Badge } from "@goodpie/ui/components/badge";
+import { Button } from "@goodpie/ui/components/button";
 import { client, urlFor, getLqip } from "@/lib/sanity";
 
 interface Gallery {
@@ -71,44 +74,46 @@ export default async function GalleriesPage() {
               <Link
                 key={gallery._id}
                 href={`/gallery/${gallery.slug.current}`}
-                className="group relative overflow-hidden rounded-lg border border-border/40 bg-card transition-all hover:border-primary/40 hover:shadow-lg"
+                className="group"
               >
-                <div className="aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={urlFor(gallery.coverImage)
-                      .width(800)
-                      .auto("format")
-                      .url()}
-                    alt={gallery.title}
-                    width={800}
-                    height={600}
-                    placeholder={lqip ? "blur" : "empty"}
-                    blurDataURL={lqip}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="font-serif text-lg font-medium">
-                      {gallery.title}
-                    </h2>
-                    {gallery.imageCount && (
-                      <span className="text-xs text-muted-foreground">
-                        {gallery.imageCount} photos
-                      </span>
-                    )}
+                <Card className="overflow-hidden border-border/40 py-0 transition-all hover:border-primary/40 hover:shadow-lg">
+                  <div className="aspect-[4/3] overflow-hidden">
+                    <Image
+                      src={urlFor(gallery.coverImage)
+                        .width(800)
+                        .auto("format")
+                        .url()}
+                      alt={gallery.title}
+                      width={800}
+                      height={600}
+                      placeholder={lqip ? "blur" : "empty"}
+                      blurDataURL={lqip}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
-                  {gallery.category && (
-                    <span className="mt-1 inline-block text-xs text-primary">
-                      {gallery.category}
-                    </span>
-                  )}
-                  {gallery.description && (
-                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                      {gallery.description}
-                    </p>
-                  )}
-                </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-serif text-lg font-medium">
+                        {gallery.title}
+                      </h2>
+                      {gallery.imageCount && (
+                        <span className="text-xs text-muted-foreground">
+                          {gallery.imageCount} photos
+                        </span>
+                      )}
+                    </div>
+                    {gallery.category && (
+                      <Badge variant="secondary" className="mt-1">
+                        {gallery.category}
+                      </Badge>
+                    )}
+                    {gallery.description && (
+                      <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                        {gallery.description}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               </Link>
             );
           })}
@@ -116,12 +121,11 @@ export default async function GalleriesPage() {
       ) : (
         <div className="text-center py-24">
           <p className="text-muted-foreground">No galleries yet.</p>
-          <Link
-            href="/studio"
-            className="mt-4 inline-block text-sm text-primary hover:underline"
-          >
-            Open Studio to create your first gallery &rarr;
-          </Link>
+          <Button asChild variant="link" className="mt-4">
+            <Link href="/studio">
+              Open Studio to create your first gallery &rarr;
+            </Link>
+          </Button>
         </div>
       )}
     </>

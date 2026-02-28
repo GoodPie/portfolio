@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Badge } from "@goodpie/ui/components/badge";
+import { Button } from "@goodpie/ui/components/button";
 import { client, urlFor, getLqip, responsiveSrcSet } from "@/lib/sanity";
 
 interface GalleryImage {
@@ -61,6 +63,13 @@ async function getGallery(slug: string): Promise<Gallery | null> {
   );
 }
 
+export async function generateStaticParams() {
+  const galleries = await client.fetch<{ slug: string }[]>(
+    `*[_type == "gallery"]{ "slug": slug.current }`
+  );
+  return galleries.map((g) => ({ slug: g.slug }));
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -89,17 +98,14 @@ export default async function GalleryPage({
     <>
       {/* Header */}
       <div className="mb-8">
-        <Link
-          href="/"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          &larr; All Galleries
-        </Link>
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/">&larr; All Galleries</Link>
+        </Button>
         <h1 className="mt-4 font-serif text-3xl font-bold tracking-tight sm:text-4xl">
           {gallery.title}
         </h1>
         <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
-          {gallery.category && <span className="text-primary">{gallery.category}</span>}
+          {gallery.category && <Badge variant="secondary">{gallery.category}</Badge>}
           {gallery.date && (
             <time dateTime={gallery.date}>
               {new Date(gallery.date).toLocaleDateString("en-AU", {

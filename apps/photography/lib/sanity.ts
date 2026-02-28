@@ -6,7 +6,7 @@ export const client = createClient({
   projectId: "acr6dsfp",
   dataset: "production",
   apiVersion: "2025-01-28",
-  useCdn: true,
+  useCdn: process.env.NODE_ENV === "production",
 });
 
 const builder = imageUrlBuilder(client);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Button } from "@goodpie/ui/components/button";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,19 +25,13 @@ export default function RootLayout({
             >
               Photography
             </Link>
-            <div className="flex items-center gap-6">
-              <Link
-                href="/"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Galleries
-              </Link>
-              <a
-                href="https://brandynbritton.com"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                &larr; Main Site
-              </a>
+            <div className="flex items-center gap-1">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/">Galleries</Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <a href="https://brandynbritton.com">&larr; Main Site</a>
+              </Button>
             </div>
           </div>
         </nav>

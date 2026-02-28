@@ -1,8 +1,21 @@
 {
-  "$schema": "https://openapi.vercel.sh/microfrontends.json",
+  "$schema": "https://turborepo.dev/microfrontends/schema.json",
   "applications": {
-    "portfolio": {},
+    "web": {
+      "packageName": "@goodpie/web",
+      "development": {
+        "local": {
+          "port": 4300
+        }
+      }
+    },
     "photography": {
+      "packageName": "@goodpie/photography",
+      "development": {
+        "local": {
+          "port": 4400
+        }
+      },
       "routing": [
         {
           "paths": ["/photography", "/photography/:path*"]

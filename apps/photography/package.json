@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port ${TURBO_MFE_PORT:-4400}",
+    "dev": "next dev --port $(turbo get-mfe-port)",
     "build": "next build",
     "start": "next start",
     "check": "tsc --noEmit"

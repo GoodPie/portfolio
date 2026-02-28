@@ -2,6 +2,7 @@
 import Section from "@/components/Section.astro";
 import SocialLinks from "@/components/SocialLinks.astro";
 import BookIcon from "@/components/icons/BookIcon.astro";
+import CameraIcon from "@/components/icons/CameraIcon.astro";
 import FadeIn from "@/components/animations/FadeIn";
 ---
 
@@ -36,6 +37,14 @@ import FadeIn from "@/components/animations/FadeIn";
         >
           <BookIcon size={16} />
           Blog
+        </a>
+        <span class="text-muted-foreground/30">/</span>
+        <a
+          href="/photography"
+          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+        >
+          <CameraIcon size={16} />
+          Photography
         </a>
       </div>
     </FadeIn>
