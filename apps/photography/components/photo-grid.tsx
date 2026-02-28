@@ -1,0 +1,89 @@
+"use client";
+
+import { ViewTransition, useState } from "react";
+import Link from "next/link";
+import { cn } from "@goodpie/ui/lib/utils";
+
+interface PhotoCard {
+  photoKey: string;
+  title: string;
+  src: string;
+  caption?: string;
+  exif?: {
+    FocalLength?: number;
+    FNumber?: number;
+    ISO?: number;
+    ExposureTime?: number;
+    LensModel?: string;
+  };
+}
+
+function ExifOverlay({ card }: { card: PhotoCard }) {
+  const { exif } = card;
+  const exifParts = exif
+    ? [
+        exif.FocalLength && `${exif.FocalLength}mm`,
+        exif.FNumber && `f/${exif.FNumber}`,
+        exif.ExposureTime &&
+          `${exif.ExposureTime >= 1 ? exif.ExposureTime : `1/${Math.round(1 / exif.ExposureTime)}`}s`,
+        exif.ISO && `ISO ${exif.ISO}`,
+      ].filter(Boolean)
+    : [];
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="text-xl md:text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-200">
+        {card.caption || card.title}
+      </div>
+      {exifParts.length > 0 && (
+        <div className="text-xs text-neutral-400">{exifParts.join(" · ")}</div>
+      )}
+      {exif?.LensModel && (
+        <div className="text-xs text-neutral-500">{exif.LensModel}</div>
+      )}
+    </div>
+  );
+}
+
+export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
+      {photos.map((photo, index) => (
+        <Link
+          key={photo.photoKey}
+          href={`/photo/${photo.photoKey}`}
+          className="block"
+        >
+          <ViewTransition name={`photo-${photo.photoKey}`}>
+            <div
+              onMouseEnter={() => setHovered(index)}
+              onMouseLeave={() => setHovered(null)}
+              className={cn(
+                "rounded-lg relative bg-neutral-900 overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out",
+                hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
+              )}
+            >
+              <img
+                src={photo.src}
+                alt={photo.title}
+                loading="lazy"
+                decoding="async"
+                className="object-cover absolute inset-0 w-full h-full"
+              />
+              <div
+                className={cn(
+                  "absolute inset-0 bg-black/50 flex items-end py-8 px-4 transition-opacity duration-300",
+                  hovered === index ? "opacity-100" : "opacity-0"
+                )}
+              >
+                <ExifOverlay card={photo} />
+              </div>
+            </div>
+          </ViewTransition>
+        </Link>
+      ))}
+    </div>
+  );
+}

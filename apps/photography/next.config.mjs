@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath: "/photography",
+  experimental: {
+    viewTransition: true,
+  },
   images: {
     remotePatterns: [
       {

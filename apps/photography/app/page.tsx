@@ -1,6 +1,6 @@
 import { Button } from "@goodpie/ui/components/button";
 import Link from "next/link";
-import { PhotoFocusCards } from "@/components/photo-focus-cards";
+import { PhotoGrid } from "@/components/photo-grid";
 import { client, urlFor } from "@/lib/sanity";
 
 interface GalleryImage {
@@ -52,6 +52,7 @@ export default async function PhotosPage() {
   const photos = await getAllPhotos();
 
   const cards = photos.map((image) => ({
+    photoKey: image._key,
     title: image.alt || image.caption || image.galleryTitle,
     src: urlFor(image).width(1200).auto("format").url(),
     caption: image.caption,
@@ -75,7 +76,7 @@ export default async function PhotosPage() {
 
       {/* Photos */}
       {cards.length > 0 ? (
-        <PhotoFocusCards photos={cards} />
+        <PhotoGrid photos={cards} />
       ) : (
         <div className="text-center py-24">
           <p className="text-muted-foreground">No photos yet.</p>
