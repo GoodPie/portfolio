@@ -32,6 +32,8 @@ const FocusCard = React.memo(
       <img
         src={card.src}
         alt={card.title}
+        loading="lazy"
+        decoding="async"
         className="object-cover absolute inset-0 w-full h-full"
       />
       <div
@@ -61,7 +63,7 @@ export function FocusCards({ cards }: { cards: Card[] }) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
       {cards.map((card, index) => (
         <FocusCard
-          key={card.title}
+          key={`${card.title}-${index}`}
           card={card}
           index={index}
           hovered={hovered}

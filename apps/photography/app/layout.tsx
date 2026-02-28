@@ -25,14 +25,9 @@ export default function RootLayout({
             >
               Photography
             </Link>
-            <div className="flex items-center gap-1">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/">Galleries</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <a href="https://brandynbritton.com">&larr; Main Site</a>
-              </Button>
-            </div>
+            <Button asChild variant="ghost" size="sm">
+              <a href="https://brandynbritton.com">&larr; Main Site</a>
+            </Button>
           </div>
         </nav>
 
