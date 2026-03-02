@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,6 +7,89 @@ import type { PhotoDoc } from "@/lib/payload";
 import { BirdInfo } from "@/components/bird-info";
 
 export const revalidate = 60;
+
+async function getPhoto(id: string): Promise<PhotoDoc | null> {
+  const payload = await getPayloadClient();
+  try {
+    const raw = await payload.findByID({ collection: "photos", id, depth: 2 });
+    return raw ? (raw as unknown as PhotoDoc) : null;
+  } catch {
+    return null;
+  }
+}
+
+function buildDescription(photo: PhotoDoc): string {
+  const parts: string[] = [];
+  if (photo.caption) parts.push(photo.caption);
+  if (photo.description) parts.push(photo.description);
+
+  const bird =
+    photo.bird && typeof photo.bird === "object" ? photo.bird : null;
+  const category =
+    photo.category && typeof photo.category === "object"
+      ? photo.category
+      : null;
+
+  if (bird && "name" in bird) {
+    parts.push(
+      bird.scientificName
+        ? `${bird.name} (${bird.scientificName})`
+        : bird.name!,
+    );
+  }
+  if (category?.title) parts.push(category.title);
+  if (photo.location) parts.push(`Taken in ${photo.location}`);
+
+  return parts.join(" — ") || "Photo by Brandyn Britton";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const photo = await getPhoto(id);
+  if (!photo) return { title: "Photo Not Found" };
+
+  const title = photo.caption || photo.title;
+  const description = buildDescription(photo);
+  const imageUrl = getImageUrl(photo, 1200);
+
+  const ogWidth = 1200;
+  const ogHeight =
+    photo.width && photo.height
+      ? Math.round((ogWidth * photo.height) / photo.width)
+      : undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      images: [
+        {
+          url: imageUrl,
+          width: ogWidth,
+          ...(ogHeight && { height: ogHeight }),
+          alt: title,
+        },
+      ],
+      ...(photo.dateTaken && { publishedTime: photo.dateTaken }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: `/photo/${id}`,
+    },
+  };
+}
 
 function formatExposure(time: number): string {
   if (time >= 1) return `${time}s`;
@@ -26,22 +110,8 @@ export default async function PhotoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const payload = await getPayloadClient();
-
-  let raw;
-  try {
-    raw = await payload.findByID({
-      collection: "photos",
-      id,
-      depth: 2,
-    });
-  } catch {
-    notFound();
-  }
-
-  if (!raw) notFound();
-
-  const photo = raw as unknown as PhotoDoc;
+  const photo = await getPhoto(id);
+  if (!photo) notFound();
   const exif = photo.exif;
   const lqip = getLqip(photo);
 
@@ -178,6 +248,83 @@ export default async function PhotoPage({
           </div>
         </ViewTransition>
       </div>
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Photograph",
+            name: photo.caption || photo.title,
+            description: buildDescription(photo),
+            contentUrl: getImageUrl(photo, 1800),
+            url: `https://brandynbritton.com/photography/photo/${id}`,
+            author: {
+              "@type": "Person",
+              name: "Brandyn Britton",
+              url: "https://brandynbritton.com",
+            },
+            creator: {
+              "@type": "Person",
+              name: "Brandyn Britton",
+              url: "https://brandynbritton.com",
+            },
+            ...(photo.dateTaken && { dateCreated: photo.dateTaken }),
+            ...(photo.location && {
+              contentLocation: {
+                "@type": "Place",
+                name: photo.location,
+              },
+            }),
+            ...(photo.width &&
+              photo.height && {
+                width: {
+                  "@type": "QuantitativeValue",
+                  value: photo.width,
+                  unitCode: "E37",
+                },
+                height: {
+                  "@type": "QuantitativeValue",
+                  value: photo.height,
+                  unitCode: "E37",
+                },
+              }),
+            encodingFormat: "image/jpeg",
+            ...(exifEntries.length > 0 && {
+              exifData: exifEntries.map((e) => ({
+                "@type": "PropertyValue",
+                name: e.label,
+                value: e.value,
+              })),
+            }),
+            ...(bird &&
+              "name" in bird && {
+                about: {
+                  "@type": "Thing",
+                  name: bird.name,
+                  ...(bird.scientificName && {
+                    alternateName: bird.scientificName,
+                  }),
+                  ...(bird.habitat &&
+                    bird.diet &&
+                    bird.conservationStatus && {
+                      description: `Habitat: ${bird.habitat}. Diet: ${bird.diet}. Conservation status: ${bird.conservationStatus}.`,
+                    }),
+                  ...(bird.facts &&
+                    bird.facts.length > 0 && {
+                      additionalProperty: bird.facts.map((f) => ({
+                        "@type": "PropertyValue",
+                        name: "fact",
+                        value: f.fact,
+                      })),
+                    }),
+                },
+              }),
+            ...(category?.title && { genre: category.title }),
+          }),
+        }}
+      />
     </div>
   );
 }

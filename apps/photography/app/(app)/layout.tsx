@@ -3,7 +3,15 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Photography | Brandyn Britton",
+  metadataBase: new URL(
+    (
+      process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:3024/photography"
+    ).replace(/\/photography$/, ""),
+  ),
+  title: {
+    template: "%s | Photography | Brandyn Britton",
+    default: "Photography | Brandyn Britton",
+  },
   description:
     "A personal photography collection by Brandyn Britton — scenes and details captured between projects.",
 };

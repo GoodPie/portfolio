@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Button } from "@goodpie/ui/components/button";
 import Link from "next/link";
 import { PhotoGrid } from "@/components/photo-grid";
@@ -5,6 +6,18 @@ import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip } from "@/lib/
 import type { PhotoDoc } from "@/lib/payload";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "Gallery",
+  description:
+    "A personal photography collection by Brandyn Britton — scenes and details captured between projects.",
+  openGraph: {
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
+};
 
 export default async function PhotosPage() {
   const payload = await getPayloadClient();
