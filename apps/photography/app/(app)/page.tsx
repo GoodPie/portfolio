@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Button } from "@goodpie/ui/components/button";
 import Link from "next/link";
 import { PhotoGrid } from "@/components/photo-grid";
+import { FilterBar } from "@/components/filter-bar";
 import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
+import { buildFilterOptions, filterPhotos, getActiveFilterNames } from "@/lib/photos";
 
 export const revalidate = 60;
 
@@ -19,18 +22,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function PhotosPage() {
-  const payload = await getPayloadClient();
-  const { docs } = await payload.find({
-    collection: "photos",
-    sort: "-dateTaken",
-    depth: 1,
-    limit: 100,
-  });
-
-  const photos = docs as unknown as PhotoDoc[];
-
-  const cards = photos.map((photo) => ({
+function toPhotoCard(photo: PhotoDoc) {
+  return {
     photoKey: String(photo.id),
     title: photo.caption || photo.title,
     src: getImageUrl(photo, 1200),
@@ -49,7 +42,32 @@ export default async function PhotosPage() {
     lqip: getLqip(photo),
     width: photo.width ?? undefined,
     height: photo.height ?? undefined,
-  }));
+  };
+}
+
+export default async function PhotosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ bird?: string; category?: string }>;
+}) {
+  const { bird: birdId, category: categoryId } = await searchParams;
+
+  const payload = await getPayloadClient();
+  const { docs } = await payload.find({
+    collection: "photos",
+    sort: "-dateTaken",
+    depth: 1,
+    limit: 100,
+  });
+
+  const allPhotos = docs as unknown as PhotoDoc[];
+  const { categories, birds } = buildFilterOptions(allPhotos);
+  const filtered = filterPhotos(allPhotos, { categoryId, birdId });
+  const cards = filtered.map(toPhotoCard);
+
+  const hasFilters = categoryId || birdId;
+  const showFilterBar = categories.length > 0 || birds.length > 0;
+  const activeFilterNames = getActiveFilterNames(categories, birds, { categoryId, birdId });
 
   return (
     <>
@@ -66,10 +84,13 @@ export default async function PhotosPage() {
         </p>
       </section>
 
-      {/* Photos */}
-      {cards.length > 0 ? (
-        <PhotoGrid photos={cards} />
-      ) : (
+      {showFilterBar && (
+        <Suspense>
+          <FilterBar categories={categories} birds={birds} />
+        </Suspense>
+      )}
+
+      {allPhotos.length === 0 ? (
         <div className="text-center py-24">
           <p className="text-muted-foreground">No photos yet.</p>
           <Button asChild variant="link" className="mt-4">
@@ -78,7 +99,18 @@ export default async function PhotosPage() {
             </Link>
           </Button>
         </div>
-      )}
+      ) : cards.length > 0 ? (
+        <PhotoGrid photos={cards} />
+      ) : hasFilters ? (
+        <div className="text-center py-24">
+          <p className="text-muted-foreground">
+            No photos found for {activeFilterNames.join(" + ")}.
+          </p>
+          <Button asChild variant="link" className="mt-4">
+            <Link href="/">Clear filters &rarr;</Link>
+          </Button>
+        </div>
+      ) : null}
     </>
   );
 }
