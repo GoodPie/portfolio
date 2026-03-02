@@ -2,6 +2,16 @@ import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { client, urlFor, responsiveSrcSet, getLqip } from "@/lib/sanity";
+import { BirdInfo } from "@/components/bird-info";
+
+interface BirdData {
+  name: string;
+  scientificName?: string;
+  habitat?: string;
+  diet?: string;
+  conservationStatus?: string;
+  facts?: string[];
+}
 
 interface PhotoDetail {
   galleryTitle: string;
@@ -11,6 +21,12 @@ interface PhotoDetail {
     _key: string;
     caption?: string;
     alt?: string;
+    camera?: { name: string; manufacturer?: string };
+    lens?: { name: string; manufacturer?: string };
+    bird?: BirdData;
+    location?: string;
+    description?: string;
+    dateTaken?: string;
     asset: {
       _id: string;
       metadata?: {
@@ -39,6 +55,19 @@ async function getPhoto(key: string): Promise<PhotoDetail | null> {
         _key,
         caption,
         alt,
+        location,
+        description,
+        dateTaken,
+        camera-> { name, manufacturer },
+        lens-> { name, manufacturer },
+        bird-> {
+          name,
+          scientificName,
+          habitat,
+          diet,
+          conservationStatus,
+          facts
+        },
         asset-> {
           _id,
           metadata {
@@ -84,46 +113,47 @@ export default async function PhotoPage({
   const dimensions = image.asset?.metadata?.dimensions;
   const lqip = getLqip(image);
 
-  const exifEntries = exif
-    ? [
-        exif.FocalLength && { label: "Focal Length", value: `${exif.FocalLength}mm` },
-        exif.FNumber && { label: "Aperture", value: `f/${exif.FNumber}` },
-        exif.ExposureTime && { label: "Shutter Speed", value: formatExposure(exif.ExposureTime) },
-        exif.ISO && { label: "ISO", value: `${exif.ISO}` },
-        exif.LensModel && { label: "Lens", value: exif.LensModel },
-      ].filter(Boolean) as { label: string; value: string }[]
-    : [];
+  const lensName = exif?.LensModel || image.lens?.name;
+
+  const exifEntries = [
+    image.camera && { label: "Body", value: image.camera.name },
+    exif?.FocalLength && { label: "Focal Length", value: `${exif.FocalLength}mm` },
+    exif?.FNumber && { label: "Aperture", value: `f/${exif.FNumber}` },
+    exif?.ExposureTime && { label: "Shutter Speed", value: formatExposure(exif.ExposureTime) },
+    exif?.ISO && { label: "ISO", value: `${exif.ISO}` },
+    lensName && { label: "Lens", value: lensName },
+  ].filter(Boolean) as { label: string; value: string }[];
+
+  const hasPhotoDetails = image.location || image.description || image.dateTaken;
 
   return (
     <div>
       <Link
         href="/"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
+        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors mb-6 lg:mb-8"
       >
         &larr; Back to gallery
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 lg:gap-16 items-start">
         {/* Meta — on mobile this renders below the photo (via order) */}
         <ViewTransition enter="meta-enter" default="none">
-          <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-6">
+          <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-8">
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight mb-3">
                 {image.caption || image.alt || galleryTitle}
               </h1>
-              {image.caption && image.alt && image.alt !== image.caption && (
-                <p className="mt-2 text-muted-foreground">{image.alt}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-              <span>{galleryTitle}</span>
-              {category && <span>{category}</span>}
-              {galleryDate && <span>{formatDate(galleryDate)}</span>}
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                {category && <span>{category}</span>}
+                {category && galleryDate && (
+                  <span className="text-border">·</span>
+                )}
+                {galleryDate && <span>{formatDate(galleryDate)}</span>}
+              </div>
             </div>
 
             {exifEntries.length > 0 && (
-              <div className="border-t border-border/40 pt-4">
+              <div className="border-t border-border/40 pt-6">
                 <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
                   Camera
                 </h2>
@@ -138,10 +168,44 @@ export default async function PhotoPage({
               </div>
             )}
 
-            {dimensions && (
-              <div className="text-xs text-muted-foreground">
-                {dimensions.width} &times; {dimensions.height}
+            {image.bird && (
+              <BirdInfo
+                bird={image.bird}
+                location={image.location}
+                dateTaken={image.dateTaken}
+                description={image.description}
+              />
+            )}
+
+            {!image.bird && hasPhotoDetails && (
+              <div className="border-t border-border/40 pt-6 flex flex-col gap-3">
+                <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
+                  Photo Details
+                </h2>
+                {image.description && (
+                  <p className="text-sm text-muted-foreground">{image.description}</p>
+                )}
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  {image.location && (
+                    <div>
+                      <dt className="text-muted-foreground text-xs">Location</dt>
+                      <dd className="text-foreground">{image.location}</dd>
+                    </div>
+                  )}
+                  {image.dateTaken && (
+                    <div>
+                      <dt className="text-muted-foreground text-xs">Date Taken</dt>
+                      <dd className="text-foreground">{formatDate(image.dateTaken)}</dd>
+                    </div>
+                  )}
+                </dl>
               </div>
+            )}
+
+            {dimensions && (
+              <p className="text-xs text-muted-foreground/50">
+                {dimensions.width} &times; {dimensions.height}
+              </p>
             )}
           </aside>
         </ViewTransition>

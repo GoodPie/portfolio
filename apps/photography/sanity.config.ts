@@ -28,6 +28,13 @@ export default defineConfig({
             S.documentTypeListItem("gallery").title("Galleries"),
             // Categories
             S.documentTypeListItem("category").title("Categories"),
+            S.divider(),
+            // Equipment
+            S.documentTypeListItem("camera").title("Cameras"),
+            S.documentTypeListItem("lens").title("Lenses"),
+            S.divider(),
+            // Birds
+            S.documentTypeListItem("bird").title("Birds"),
           ]),
     }),
     visionTool(),

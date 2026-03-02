@@ -67,6 +67,42 @@ export const gallery = defineType({
               title: "Alt Text",
               type: "string",
             }),
+            defineField({
+              name: "camera",
+              title: "Camera",
+              type: "reference",
+              to: [{ type: "camera" }],
+            }),
+            defineField({
+              name: "lens",
+              title: "Lens",
+              type: "reference",
+              to: [{ type: "lens" }],
+              description:
+                "Used when lens info is not available in EXIF data",
+            }),
+            defineField({
+              name: "bird",
+              title: "Bird",
+              type: "reference",
+              to: [{ type: "bird" }],
+            }),
+            defineField({
+              name: "location",
+              title: "Location",
+              type: "string",
+            }),
+            defineField({
+              name: "description",
+              title: "Description",
+              type: "text",
+              rows: 3,
+            }),
+            defineField({
+              name: "dateTaken",
+              title: "Date Taken",
+              type: "date",
+            }),
           ],
         }),
       ],
