@@ -8,6 +8,8 @@ interface PhotoCard {
   photoKey: string;
   title: string;
   src: string;
+  srcSet?: string;
+  sizes?: string;
   caption?: string;
   exif?: {
     FocalLength?: number;
@@ -16,6 +18,9 @@ interface PhotoCard {
     ExposureTime?: number;
     LensModel?: string;
   };
+  lqip?: string;
+  width?: number;
+  height?: number;
 }
 
 function ExifOverlay({ card }: { card: PhotoCard }) {
@@ -67,10 +72,22 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
             >
               <img
                 src={photo.src}
+                srcSet={photo.srcSet}
+                sizes={photo.sizes}
                 alt={photo.title}
-                loading="lazy"
-                decoding="async"
+                width={photo.width}
+                height={photo.height}
+                loading={index < 6 ? "eager" : "lazy"}
+                fetchPriority={index < 6 ? "high" : undefined}
+                decoding={index < 6 ? "sync" : "async"}
                 className="object-cover absolute inset-0 w-full h-full"
+                {...(photo.lqip && {
+                  style: {
+                    backgroundImage: `url(${photo.lqip})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  },
+                })}
               />
               <div
                 className={cn(

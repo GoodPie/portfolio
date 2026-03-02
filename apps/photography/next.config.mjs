@@ -1,17 +1,15 @@
+import { withPayload } from "@payloadcms/next/withPayload";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath: "/photography",
+  allowedDevOrigins: ["localhost:3024"],
   experimental: {
     viewTransition: true,
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.sanity.io",
-      },
-    ],
+    serverActions: {
+      allowedOrigins: ["localhost:3024"],
+    },
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);

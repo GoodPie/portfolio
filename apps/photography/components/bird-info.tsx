@@ -5,7 +5,7 @@ interface BirdInfoProps {
     habitat?: string;
     diet?: string;
     conservationStatus?: string;
-    facts?: string[];
+    facts?: { fact: string }[];
   };
   location?: string;
   dateTaken?: string;
@@ -74,8 +74,8 @@ export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoPro
             Fun Facts
           </h3>
           <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {bird.facts.map((fact, i) => (
-              <li key={i}>{fact}</li>
+            {bird.facts.map((f, i) => (
+              <li key={i}>{f.fact}</li>
             ))}
           </ul>
         </div>
