@@ -51,7 +51,7 @@ export interface PhotoDoc {
   } | null;
 }
 
-const sizeWidths = [
+const allSizes = [
   { key: "thumbnail" as const, width: 400 },
   { key: "card" as const, width: 800 },
   { key: "large" as const, width: 1200 },
@@ -59,12 +59,15 @@ const sizeWidths = [
   { key: "full" as const, width: 2400 },
 ];
 
+/** Public-facing sizes — excludes full (2400w) to cap resolution at 1800px. */
+const publicSizes = allSizes.filter(({ key }) => key !== "full");
+
 /**
  * Build a responsive srcset string from Payload photo sizes.
- * Matches the Sanity widths: 400, 800, 1200, 1800, 2400.
+ * Capped at xl (1800w) — full resolution is only available via authenticated download.
  */
 export function responsiveSrcSet(photo: PhotoDoc): string {
-  return sizeWidths
+  return publicSizes
     .map(({ key, width }) => {
       const url = photo.sizes?.[key]?.url;
       return url ? `${url} ${width}w` : null;
@@ -75,16 +78,17 @@ export function responsiveSrcSet(photo: PhotoDoc): string {
 
 /**
  * Get the best image URL for a target display width.
+ * Capped at xl (1800w) for public display.
  */
 export function getImageUrl(photo: PhotoDoc, targetWidth: number): string {
-  for (const { key, width } of sizeWidths) {
+  for (const { key, width } of publicSizes) {
     if (width >= targetWidth) {
       const url = photo.sizes?.[key]?.url;
       if (url) return url;
     }
   }
-  // Fallback to largest available or original
-  return photo.sizes?.full?.url || photo.url || "";
+  // Fallback to largest public size
+  return photo.sizes?.xl?.url || photo.sizes?.large?.url || "";
 }
 
 /**

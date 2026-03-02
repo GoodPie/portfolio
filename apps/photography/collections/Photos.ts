@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { generateBlurPlaceholder } from "@/hooks/generateBlurPlaceholder";
 import { extractExifData } from "@/hooks/extractExifData";
+import { stripFullResolution } from "@/hooks/stripFullResolution";
 
 export const Photos: CollectionConfig = {
   slug: "photos",
@@ -27,6 +28,7 @@ export const Photos: CollectionConfig = {
     mimeTypes: ["image/*"],
   },
   hooks: {
+    afterRead: [stripFullResolution],
     afterChange: [generateBlurPlaceholder, extractExifData],
   },
   fields: [

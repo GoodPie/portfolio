@@ -8,6 +8,7 @@
     "build": "payload generate:types && next build",
     "start": "next start",
     "check": "tsc --noEmit",
+    "test": "vitest run",
     "generate:types": "payload generate:types"
   },
   "dependencies": {
@@ -30,6 +31,8 @@
     "@goodpie/tsconfig": "*",
     "@types/react": "^19.2.11",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18"
   }
 }
