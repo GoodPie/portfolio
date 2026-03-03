@@ -145,9 +145,9 @@ export default async function PhotoPage({
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 lg:gap-16 items-start">
         {/* Meta — on mobile this renders below the photo (via order) */}
         <ViewTransition enter="meta-enter" default="none">
-          <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-8">
+          <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight mb-3">
+              <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight mb-2">
                 {photo.caption || photo.title}
               </h1>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -158,22 +158,6 @@ export default async function PhotoPage({
                 {photo.dateTaken && <span>{formatDate(photo.dateTaken)}</span>}
               </div>
             </div>
-
-            {exifEntries.length > 0 && (
-              <div className="border-t border-border/40 pt-6">
-                <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-                  Camera
-                </h2>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  {exifEntries.map((entry) => (
-                    <div key={entry.label}>
-                      <dt className="text-muted-foreground text-xs">{entry.label}</dt>
-                      <dd className="text-foreground">{entry.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            )}
 
             {bird && "name" in bird && (
               <BirdInfo
@@ -192,7 +176,7 @@ export default async function PhotoPage({
             )}
 
             {!(bird && "name" in bird) && hasPhotoDetails && (
-              <div className="border-t border-border/40 pt-6 flex flex-col gap-3">
+              <div className="border-t border-border/40 pt-4 flex flex-col gap-3">
                 <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
                   Photo Details
                 </h2>
@@ -214,6 +198,22 @@ export default async function PhotoPage({
                   )}
                 </dl>
               </div>
+            )}
+
+            {exifEntries.length > 0 && (
+                <div className="border-t border-border/40 pt-6">
+                  <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                    Camera
+                  </h2>
+                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    {exifEntries.map((entry) => (
+                        <div key={entry.label}>
+                          <dt className="text-muted-foreground text-xs">{entry.label}</dt>
+                          <dd className="text-foreground">{entry.value}</dd>
+                        </div>
+                    ))}
+                  </dl>
+                </div>
             )}
 
             {photo.width && photo.height && (

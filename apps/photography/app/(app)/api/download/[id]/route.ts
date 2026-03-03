@@ -40,6 +40,18 @@ export async function GET(
     return NextResponse.json({ error: "File not available" }, { status: 404 });
   }
 
+  // Validate URL origin to prevent SSRF
+  try {
+    const parsed = new URL(fileUrl);
+    const isVercelBlob = parsed.hostname.endsWith(".public.blob.vercel-storage.com");
+    const isLocalhost = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+    if (!isVercelBlob && !isLocalhost) {
+      return NextResponse.json({ error: "Forbidden origin" }, { status: 403 });
+    }
+  } catch {
+    return NextResponse.json({ error: "Invalid file URL" }, { status: 400 });
+  }
+
   // Fetch and stream the original file
   const fileResponse = await fetch(fileUrl);
   if (!fileResponse.ok) {
