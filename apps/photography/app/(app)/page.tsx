@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { Button } from "@goodpie/ui/components/button";
-import Link from "next/link";
-import { PhotoGrid } from "@/components/photo-grid";
-import { FilterBar } from "@/components/filter-bar";
 import { getPayloadClient, getImageUrl, getLqip } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
-import { buildFilterOptions, filterPhotos, getActiveFilterNames } from "@/lib/photos";
+import { buildFilterOptions } from "@/lib/photos";
+import { GalleryShell } from "@/components/gallery-shell";
 
 export const revalidate = 60;
 
@@ -21,6 +17,15 @@ export const metadata: Metadata = {
     card: "summary",
   },
 };
+
+/** Extract the string ID from a Payload relation (populated object or raw ID). */
+function getRelationId(
+  relation: { id: string | number } | string | number | null | undefined,
+): string | undefined {
+  if (relation == null) return undefined;
+  if (typeof relation === "object") return String(relation.id);
+  return String(relation);
+}
 
 function toPhotoCard(photo: PhotoDoc) {
   return {
@@ -47,6 +52,8 @@ function toPhotoCard(photo: PhotoDoc) {
       large: photo.sizes?.large?.url ?? undefined,
       xl: photo.sizes?.xl?.url ?? undefined,
     },
+    birdId: getRelationId(photo.bird),
+    categoryId: getRelationId(photo.category),
   };
 }
 
@@ -67,12 +74,7 @@ export default async function PhotosPage({
 
   const allPhotos = docs as unknown as PhotoDoc[];
   const { categories, birds } = buildFilterOptions(allPhotos);
-  const filtered = filterPhotos(allPhotos, { categoryId, birdId });
-  const cards = filtered.map(toPhotoCard);
-
-  const hasFilters = categoryId || birdId;
-  const showFilterBar = categories.length > 0 || birds.length > 0;
-  const activeFilterNames = getActiveFilterNames(categories, birds, { categoryId, birdId });
+  const allCards = allPhotos.map(toPhotoCard);
 
   return (
     <>
@@ -89,33 +91,13 @@ export default async function PhotosPage({
         </p>
       </section>
 
-      {showFilterBar && (
-        <Suspense>
-          <FilterBar categories={categories} birds={birds} />
-        </Suspense>
-      )}
-
-      {allPhotos.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="text-muted-foreground">No photos yet.</p>
-          <Button asChild variant="link" className="mt-4">
-            <Link href="/admin">
-              Open Admin to upload your first photo &rarr;
-            </Link>
-          </Button>
-        </div>
-      ) : cards.length > 0 ? (
-        <PhotoGrid photos={cards} />
-      ) : hasFilters ? (
-        <div className="text-center py-24">
-          <p className="text-muted-foreground">
-            No photos found for {activeFilterNames.join(" + ")}.
-          </p>
-          <Button asChild variant="link" className="mt-4">
-            <Link href="/">Clear filters &rarr;</Link>
-          </Button>
-        </div>
-      ) : null}
+      <GalleryShell
+        allCards={allCards}
+        categories={categories}
+        birds={birds}
+        initialCategory={categoryId ?? null}
+        initialBird={birdId ?? null}
+      />
     </>
   );
 }

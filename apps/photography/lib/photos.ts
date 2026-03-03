@@ -1,4 +1,5 @@
 import type { PhotoDoc } from "./payload";
+import type { PhotoCard } from "@/components/photo-grid";
 
 export interface FilterOption {
   id: string;
@@ -61,6 +62,21 @@ export function filterPhotos(
   return photos.filter((photo) => {
     if (categoryId && getRelationId(photo.category) !== categoryId) return false;
     if (birdId && getRelationId(photo.bird) !== birdId) return false;
+    return true;
+  });
+}
+
+/** Filter PhotoCards by flat string IDs (AND logic). */
+export function filterPhotoCards(
+  cards: PhotoCard[],
+  filters: { categoryId?: string; birdId?: string },
+): PhotoCard[] {
+  const { categoryId, birdId } = filters;
+  if (!categoryId && !birdId) return cards;
+
+  return cards.filter((card) => {
+    if (categoryId && card.categoryId !== categoryId) return false;
+    if (birdId && card.birdId !== birdId) return false;
     return true;
   });
 }

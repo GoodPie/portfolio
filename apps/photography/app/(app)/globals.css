@@ -67,9 +67,42 @@
     animation: vt-meta-enter 0.5s ease-out 0.15s both;
 }
 
+/* View Transition: photo cards enter/exit during filtering */
+@keyframes vt-photo-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes vt-photo-exit {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+}
+
+::view-transition-new(.photo-filter) {
+    animation: vt-photo-enter 0.3s ease-out both;
+}
+
+::view-transition-old(.photo-filter) {
+    animation: vt-photo-exit 0.2s ease-in both;
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(.meta-enter) {
+    ::view-transition-new(.meta-enter),
+    ::view-transition-new(.photo-filter),
+    ::view-transition-old(.photo-filter) {
         animation: none;
     }
 }

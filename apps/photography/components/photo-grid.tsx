@@ -33,6 +33,10 @@ export interface PhotoCard {
   height?: number;
   /** Map of Payload size key → URL for the custom loader */
   sizeUrls?: Partial<Record<SizeKey, string>>;
+  /** Relation ID for client-side filtering */
+  birdId?: string;
+  /** Relation ID for client-side filtering */
+  categoryId?: string;
 }
 
 /**
@@ -93,7 +97,7 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
           href={`/photo/${photo.photoKey}`}
           className="block mb-10 break-inside-avoid"
         >
-          <ViewTransition name={`photo-${photo.photoKey}`}>
+          <ViewTransition name={`photo-${photo.photoKey}`} enter="photo-filter" exit="photo-filter">
             <div
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}

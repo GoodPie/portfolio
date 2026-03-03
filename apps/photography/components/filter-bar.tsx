@@ -1,12 +1,13 @@
-"use client";
-
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Badge } from "@goodpie/ui/components/badge";
 import type { FilterOption } from "@/lib/photos";
 
 interface FilterBarProps {
   categories: FilterOption[];
   birds: FilterOption[];
+  activeCategory: string | null;
+  activeBird: string | null;
+  onFilterChange: (key: string, value: string | null) => void;
+  onClearAll: () => void;
 }
 
 function FilterGroup({
@@ -56,25 +57,15 @@ function FilterGroup({
   );
 }
 
-export function FilterBar({ categories, birds }: FilterBarProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const activeCategory = searchParams.get("category");
-  const activeBird = searchParams.get("bird");
+export function FilterBar({
+  categories,
+  birds,
+  activeCategory,
+  activeBird,
+  onFilterChange,
+  onClearAll,
+}: FilterBarProps) {
   const hasFilters = activeCategory || activeBird;
-
-  function setFilter(key: string, value: string | null) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    const qs = params.toString();
-    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }
 
   return (
     <div className="mb-10 space-y-3">
@@ -83,19 +74,19 @@ export function FilterBar({ categories, birds }: FilterBarProps) {
         paramKey="category"
         options={categories}
         activeId={activeCategory}
-        onSelect={setFilter}
+        onSelect={onFilterChange}
       />
       <FilterGroup
         label="Bird"
         paramKey="bird"
         options={birds}
         activeId={activeBird}
-        onSelect={setFilter}
+        onSelect={onFilterChange}
       />
 
       {hasFilters && (
         <button
-          onClick={() => router.push(pathname, { scroll: false })}
+          onClick={onClearAll}
           className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
         >
           Clear all filters
