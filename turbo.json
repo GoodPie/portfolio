@@ -5,7 +5,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".astro/**", ".next/**"]
+      "outputs": ["dist/**", ".astro/**", ".next/**"],
+      "env": [
+        "DATABASE_URL",
+        "PAYLOAD_SECRET",
+        "BLOB_READ_WRITE_TOKEN",
+        "POSTGRES_URL"
+      ]
     },
     "check": {
       "dependsOn": ["^build"]

@@ -77,6 +77,19 @@ export const processUploadData: CollectionAfterChangeHook = async ({
     req.payload.logger.error(`Failed to extract EXIF data: ${e}`);
   }
 
+  // 2b. Extract GPS coordinates
+  try {
+    const gps = await exifr.gps(buffer);
+    if (gps?.latitude != null && gps?.longitude != null) {
+      updates.geolocation = {
+        latitude: gps.latitude,
+        longitude: gps.longitude,
+      };
+    }
+  } catch (e) {
+    req.payload.logger.error(`Failed to extract GPS data: ${e}`);
+  }
+
   // 3. Auto-match camera
   if (!doc.camera && parsedModel) {
     try {

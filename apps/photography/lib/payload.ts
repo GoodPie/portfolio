@@ -32,6 +32,10 @@ export interface PhotoDoc {
     lensModel?: string | null;
     cameraModel?: string | null;
   } | null;
+  geolocation?: {
+    latitude?: number | null;
+    longitude?: number | null;
+  } | null;
   category?: { id: string | number; title?: string } | string | number | null;
   bird?: {
     id: string | number;

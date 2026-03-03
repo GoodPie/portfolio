@@ -95,6 +95,20 @@ export const Photos: CollectionConfig = {
         { name: "cameraModel", type: "text" },
       ],
     },
+    // Geolocation (auto-populated by hook)
+    {
+      name: "geolocation",
+      type: "group",
+      admin: {
+        readOnly: true,
+        condition: (data) =>
+          !!(data?.geolocation?.latitude && data?.geolocation?.longitude),
+      },
+      fields: [
+        { name: "latitude", type: "number" },
+        { name: "longitude", type: "number" },
+      ],
+    },
     // LQIP (auto-populated by hook)
     {
       name: "lqip",

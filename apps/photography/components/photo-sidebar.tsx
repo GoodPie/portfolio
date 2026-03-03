@@ -1,7 +1,13 @@
+import dynamic from "next/dynamic";
 import { formatDate, formatExposure } from "@/lib/format";
 import { resolveRelation } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
 import { BirdInfo } from "@/components/bird-info";
+
+const LocationMap = dynamic(
+  () => import("@/components/location-map").then((m) => m.LocationMap),
+  { ssr: false },
+);
 
 function buildExifEntries(photo: PhotoDoc) {
   const exif = photo.exif;
@@ -98,6 +104,19 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
           </dl>
         </div>
       )}
+
+      {photo.geolocation?.latitude != null &&
+        photo.geolocation?.longitude != null && (
+          <div className="border-t border-border/40 pt-6">
+            <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+              Location
+            </h2>
+            <LocationMap
+              latitude={photo.geolocation.latitude}
+              longitude={photo.geolocation.longitude}
+            />
+          </div>
+        )}
 
       {photo.width && photo.height && (
         <p className="text-xs text-muted-foreground/50">
