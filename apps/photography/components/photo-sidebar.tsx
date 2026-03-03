@@ -49,6 +49,7 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
             diet: bird.diet,
             conservationStatus: bird.conservationStatus,
             facts: bird.facts,
+            ebirdSpeciesCode: bird.ebirdSpeciesCode,
           }}
           slug={bird.slug}
           location={photo.location ?? undefined}

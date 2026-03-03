@@ -3,14 +3,16 @@ import { cn } from "@goodpie/ui/lib/utils";
 import type { BirdDoc } from "@/lib/payload";
 import { resolveRelation, getImageUrl } from "@/lib/payload";
 import { conservationStatusBgColors } from "@/lib/bird-utils";
+import { formatShortDate } from "@/lib/format";
 import type { PhotoDoc } from "@/lib/payload";
 
 interface BirdHeroProps {
   bird: BirdDoc;
   photoCount: number;
+  firstSeen?: string | null;
 }
 
-export function BirdHero({ bird, photoCount }: BirdHeroProps) {
+export function BirdHero({ bird, photoCount, firstSeen }: BirdHeroProps) {
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
   const coverUrl = coverPhoto ? getImageUrl(coverPhoto, 1800) : null;
 
@@ -45,6 +47,11 @@ export function BirdHero({ bird, photoCount }: BirdHeroProps) {
               <span className="text-sm text-white/60">
                 {photoCount} {photoCount === 1 ? "photo" : "photos"}
               </span>
+              {firstSeen && (
+                <span className="text-sm text-white/50">
+                  · First seen {formatShortDate(firstSeen)}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -72,6 +79,11 @@ export function BirdHero({ bird, photoCount }: BirdHeroProps) {
             <span className="text-sm text-muted-foreground">
               {photoCount} {photoCount === 1 ? "photo" : "photos"}
             </span>
+            {firstSeen && (
+              <span className="text-sm text-muted-foreground/60">
+                · First seen {formatShortDate(firstSeen)}
+              </span>
+            )}
           </div>
         </div>
       )}

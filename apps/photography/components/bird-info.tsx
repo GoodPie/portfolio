@@ -10,6 +10,7 @@ interface BirdInfoProps {
     diet?: string;
     conservationStatus?: string;
     facts?: { fact: string }[];
+    ebirdSpeciesCode?: string;
   };
   slug?: string;
   location?: string;
@@ -48,6 +49,16 @@ export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdI
         )}
         {bird.scientificName && (
           <p className="text-sm text-muted-foreground italic">{bird.scientificName}</p>
+        )}
+        {bird.ebirdSpeciesCode && (
+          <a
+            href={`https://ebird.org/species/${bird.ebirdSpeciesCode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            eBird &#8599;
+          </a>
         )}
       </div>
 

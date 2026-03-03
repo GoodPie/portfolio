@@ -77,6 +77,11 @@ export default async function BirdPage({
   const photos = await getPhotosByBirdId(bird.id);
   const photoCards = photos.map(toPhotoCard);
 
+  const firstSeen = photos.reduce((earliest, p) => {
+    if (!p.dateTaken) return earliest;
+    return !earliest || p.dateTaken < earliest ? p.dateTaken : earliest;
+  }, null as string | null);
+
   return (
     <div>
       <Link
@@ -86,7 +91,7 @@ export default async function BirdPage({
         &larr; All species
       </Link>
 
-      <BirdHero bird={bird} photoCount={photos.length} />
+      <BirdHero bird={bird} photoCount={photos.length} firstSeen={firstSeen} />
       <BirdBio bird={bird} />
 
       {photoCards.length > 0 && (

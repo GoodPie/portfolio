@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge } from "@goodpie/ui/components/badge";
 import { cn } from "@goodpie/ui/lib/utils";
 import { conservationStatusBgColors } from "@/lib/bird-utils";
+import { formatShortDate } from "@/lib/format";
 
 interface BirdCardData {
   slug: string;
@@ -13,6 +14,9 @@ interface BirdCardData {
   conservationStatus?: string | null;
   coverUrl?: string | null;
   photoCount: number;
+  firstSeen?: string | null;
+  taxonomicOrder?: string | null;
+  family?: string | null;
 }
 
 const BirdCard = React.memo(
@@ -67,6 +71,11 @@ const BirdCard = React.memo(
             <span className="text-xs text-white/50">
               {bird.photoCount} {bird.photoCount === 1 ? "photo" : "photos"}
             </span>
+            {bird.firstSeen && (
+              <span className="text-xs text-white/50">
+                · First seen {formatShortDate(bird.firstSeen)}
+              </span>
+            )}
           </div>
         </div>
       </div>

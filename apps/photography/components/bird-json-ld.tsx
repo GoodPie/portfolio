@@ -5,6 +5,22 @@ import type { PhotoDoc } from "@/lib/payload";
 function buildJsonLd(bird: BirdDoc) {
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
 
+  const properties = [
+    ...(bird.taxonomicOrder
+      ? [{ "@type": "PropertyValue", name: "taxonomicOrder", value: bird.taxonomicOrder }]
+      : []),
+    ...(bird.family
+      ? [{ "@type": "PropertyValue", name: "family", value: bird.family }]
+      : []),
+    ...(bird.facts && bird.facts.length > 0
+      ? bird.facts.map((f) => ({
+          "@type": "PropertyValue",
+          name: "fact",
+          value: f.fact,
+        }))
+      : []),
+  ];
+
   return {
     "@context": "https://schema.org",
     "@type": "Thing",
@@ -12,19 +28,15 @@ function buildJsonLd(bird: BirdDoc) {
     ...(bird.scientificName && { alternateName: bird.scientificName }),
     url: `https://brandynbritton.com/photography/birds/${bird.slug}`,
     ...(coverPhoto && { image: getImageUrl(coverPhoto, 1200) }),
+    ...(bird.ebirdSpeciesCode && {
+      sameAs: `https://ebird.org/species/${bird.ebirdSpeciesCode}`,
+    }),
     ...(bird.habitat &&
       bird.diet &&
       bird.conservationStatus && {
         description: `Habitat: ${bird.habitat}. Diet: ${bird.diet}. Conservation status: ${bird.conservationStatus}.`,
       }),
-    ...(bird.facts &&
-      bird.facts.length > 0 && {
-        additionalProperty: bird.facts.map((f) => ({
-          "@type": "PropertyValue",
-          name: "fact",
-          value: f.fact,
-        })),
-      }),
+    ...(properties.length > 0 && { additionalProperty: properties }),
   };
 }
 

@@ -39,6 +39,29 @@ export const Birds: CollectionConfig = {
       type: "text",
     },
     {
+      name: "taxonomicOrder",
+      type: "text",
+      admin: {
+        description: "e.g. Passeriformes, Accipitriformes",
+      },
+    },
+    {
+      name: "family",
+      type: "text",
+      admin: {
+        description: "e.g. Corvidae, Accipitridae",
+      },
+    },
+    {
+      name: "ebirdSpeciesCode",
+      type: "text",
+      admin: {
+        position: "sidebar",
+        description:
+          "6-letter eBird code (e.g. amerob). Find at ebird.org/species",
+      },
+    },
+    {
       name: "habitat",
       type: "textarea",
     },
@@ -72,6 +95,12 @@ export const Birds: CollectionConfig = {
       name: "coverImage",
       type: "upload",
       relationTo: "photos",
+    },
+    {
+      name: "photos",
+      type: "join",
+      collection: "photos",
+      on: "bird",
     },
   ],
 };

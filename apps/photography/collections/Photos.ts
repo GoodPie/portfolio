@@ -1,6 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { generateBlurPlaceholder } from "@/hooks/generateBlurPlaceholder";
-import { extractExifData } from "@/hooks/extractExifData";
+import { processUploadData } from "@/hooks/processUploadData";
 import { stripFullResolution } from "@/hooks/stripFullResolution";
 
 export const Photos: CollectionConfig = {
@@ -29,7 +28,7 @@ export const Photos: CollectionConfig = {
   },
   hooks: {
     afterRead: [stripFullResolution],
-    afterChange: [generateBlurPlaceholder, extractExifData],
+    beforeChange: [processUploadData],
   },
   fields: [
     {

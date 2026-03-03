@@ -38,6 +38,9 @@ export interface PhotoDoc {
     name?: string;
     slug?: string;
     scientificName?: string;
+    taxonomicOrder?: string;
+    family?: string;
+    ebirdSpeciesCode?: string;
     habitat?: string;
     diet?: string;
     conservationStatus?: string;
@@ -121,13 +124,59 @@ export interface BirdDoc {
   name: string;
   slug: string;
   scientificName?: string | null;
+  taxonomicOrder?: string | null;
+  family?: string | null;
+  ebirdSpeciesCode?: string | null;
   habitat?: string | null;
   diet?: string | null;
   conservationStatus?: string | null;
   facts?: { fact: string }[];
   coverImage?: PhotoDoc | string | number | null;
+  photos?: {
+    docs?: PhotoDoc[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  } | null;
   updatedAt?: string;
   createdAt?: string;
+}
+
+export interface BirdPhotoStats {
+  photoCount: number;
+  firstSeen: string | null; // earliest dateTaken ISO string
+}
+
+/** Fetch photo counts and first-sighted dates for all birds. */
+export async function getBirdPhotoStats(): Promise<Map<string, BirdPhotoStats>> {
+  const payload = await getPayloadClient();
+  const { docs } = await payload.find({
+    collection: "photos",
+    depth: 0,
+    limit: 1000,
+    where: { bird: { exists: true } },
+  });
+
+  const stats = new Map<string, BirdPhotoStats>();
+  for (const doc of docs) {
+    const photo = doc as unknown as PhotoDoc;
+    const birdId = photo.bird
+      ? typeof photo.bird === "object"
+        ? String((photo.bird as { id: string | number }).id)
+        : String(photo.bird)
+      : null;
+    if (!birdId) continue;
+    const dateTaken = photo.dateTaken ?? null;
+    const existing = stats.get(birdId);
+    if (existing) {
+      existing.photoCount++;
+      if (dateTaken && (!existing.firstSeen || dateTaken < existing.firstSeen)) {
+        existing.firstSeen = dateTaken;
+      }
+    } else {
+      stats.set(birdId, { photoCount: 1, firstSeen: dateTaken });
+    }
+  }
+  return stats;
 }
 
 /** Fetch all birds sorted by name. */
