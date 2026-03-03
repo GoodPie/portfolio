@@ -1,8 +1,13 @@
 import type { GlobalConfig } from "payload";
+import { publicRead, isAdmin } from "@/lib/access";
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
   label: "Site Settings",
+  access: {
+    read: publicRead,
+    update: isAdmin,
+  },
   fields: [
     {
       name: "title",

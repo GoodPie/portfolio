@@ -1,9 +1,16 @@
 import type { CollectionConfig } from "payload";
+import { publicRead, isAuthenticated } from "@/lib/access";
 
 export const Categories: CollectionConfig = {
   slug: "categories",
   admin: {
     useAsTitle: "title",
+  },
+  access: {
+    read: publicRead,
+    create: isAuthenticated,
+    update: isAuthenticated,
+    delete: isAuthenticated,
   },
   fields: [
     {
