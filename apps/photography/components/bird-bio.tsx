@@ -1,4 +1,5 @@
 import type { BirdDoc } from "@/lib/payload";
+import { getEbirdSpeciesUrl } from "@/lib/bird-utils";
 
 interface BirdBioProps {
   bird: BirdDoc;
@@ -48,7 +49,7 @@ export function BirdBio({ bird }: BirdBioProps) {
             </dt>
             <dd className="flex flex-col gap-1.5">
               <a
-                href={`https://ebird.org/species/${bird.ebirdSpeciesCode}`}
+                href={getEbirdSpeciesUrl(bird.ebirdSpeciesCode!)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"

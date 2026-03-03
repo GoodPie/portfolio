@@ -1,6 +1,7 @@
 import type { BirdDoc } from "@/lib/payload";
 import { resolveRelation, getImageUrl } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
+import { getEbirdSpeciesUrl } from "@/lib/bird-utils";
 
 function buildJsonLd(bird: BirdDoc) {
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
@@ -29,7 +30,7 @@ function buildJsonLd(bird: BirdDoc) {
     url: `https://brandynbritton.com/photography/birds/${bird.slug}`,
     ...(coverPhoto && { image: getImageUrl(coverPhoto, 1200) }),
     ...(bird.ebirdSpeciesCode && {
-      sameAs: `https://ebird.org/species/${bird.ebirdSpeciesCode}`,
+      sameAs: getEbirdSpeciesUrl(bird.ebirdSpeciesCode),
     }),
     ...(bird.habitat &&
       bird.diet &&

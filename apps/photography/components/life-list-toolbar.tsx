@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Badge } from "@goodpie/ui/components/badge";
 import { cn } from "@goodpie/ui/lib/utils";
 import { conservationStatusBgColors } from "@/lib/bird-utils";
@@ -47,11 +47,18 @@ export function LifeListToolbar({
   resultCount,
   totalCount,
 }: LifeListToolbarProps) {
+  const [inputValue, setInputValue] = useState(search);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  // Sync when the parent resets search (e.g. clearAll)
+  useEffect(() => {
+    setInputValue(search);
+  }, [search]);
 
   const handleSearch = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
+      setInputValue(value);
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         onSearchChange(value);
@@ -80,7 +87,7 @@ export function LifeListToolbar({
           </svg>
           <input
             type="text"
-            defaultValue={search}
+            value={inputValue}
             onChange={handleSearch}
             placeholder="Search species..."
             className="w-full rounded-md border border-border/40 bg-muted/30 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"

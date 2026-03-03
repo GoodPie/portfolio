@@ -28,7 +28,7 @@ export const Photos: CollectionConfig = {
   },
   hooks: {
     afterRead: [stripFullResolution],
-    beforeChange: [processUploadData],
+    afterChange: [processUploadData],
   },
   fields: [
     {

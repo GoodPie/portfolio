@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/format";
-import { conservationStatusColors } from "@/lib/bird-utils";
+import { conservationStatusColors, getEbirdSpeciesUrl } from "@/lib/bird-utils";
 
 interface BirdInfoProps {
   bird: {
@@ -52,7 +52,7 @@ export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdI
         )}
         {bird.ebirdSpeciesCode && (
           <a
-            href={`https://ebird.org/species/${bird.ebirdSpeciesCode}`}
+            href={getEbirdSpeciesUrl(bird.ebirdSpeciesCode)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground hover:text-primary transition-colors"

@@ -7,6 +7,11 @@ export const conservationStatusColors: Record<string, string> = {
   "Critically Endangered": "text-status-critical",
 };
 
+/** Build an eBird species page URL from a species code. */
+export function getEbirdSpeciesUrl(code: string): string {
+  return `https://ebird.org/species/${code}`;
+}
+
 /** Conservation status → badge variant-friendly bg color class. */
 export const conservationStatusBgColors: Record<string, string> = {
   "Least Concern": "bg-status-safe/20 text-status-safe",

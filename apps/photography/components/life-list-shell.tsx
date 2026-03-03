@@ -10,6 +10,7 @@ import { TaxonomyGroupedGrid } from "@/components/taxonomy-grouped-grid";
 interface LifeListShellProps {
   birds: BirdCardData[];
   availableYears: number[];
+  availableStatuses: { status: string; count: number }[];
   initialSearch?: string;
   initialStatus?: string;
   initialSort?: string;
@@ -28,6 +29,7 @@ function isValidView(v: string | undefined): v is ViewMode {
 export function LifeListShell({
   birds,
   availableYears,
+  availableStatuses,
   initialSearch,
   initialStatus,
   initialSort,
@@ -47,18 +49,6 @@ export function LifeListShell({
   const [viewMode, setViewMode] = useState<ViewMode>(
     isValidView(initialView) ? initialView : "grid",
   );
-
-  // Compute available statuses from full bird list
-  const availableStatuses = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const bird of birds) {
-      if (bird.conservationStatus) {
-        counts[bird.conservationStatus] =
-          (counts[bird.conservationStatus] || 0) + 1;
-      }
-    }
-    return Object.entries(counts).map(([status, count]) => ({ status, count }));
-  }, [birds]);
 
   // Filter + sort pipeline
   const filtered = useMemo(() => {

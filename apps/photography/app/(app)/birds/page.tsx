@@ -115,6 +115,7 @@ export default async function BirdsPage({
       <LifeListShell
         birds={birdCards}
         availableYears={availableYears}
+        availableStatuses={statusBreakdown}
         initialSearch={params.q}
         initialStatus={params.status}
         initialSort={params.sort}

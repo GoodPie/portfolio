@@ -1,19 +1,24 @@
-import type { CollectionBeforeChangeHook } from "payload";
+import type { CollectionAfterChangeHook } from "payload";
 import sharp from "sharp";
 import exifr from "exifr";
 
-export const processUploadData: CollectionBeforeChangeHook = async ({
-  data,
+export const processUploadData: CollectionAfterChangeHook = async ({
+  doc,
   req,
   operation,
+  context,
 }) => {
+  // Prevent infinite loop — this hook calls payload.update which triggers afterChange again
+  if (context.skipProcessUpload) return doc;
+
   // Only process when a new file is uploaded
-  if (operation === "update" && !req.file) return data;
+  if (operation === "update" && !req.file) return doc;
 
   const fileData = req.file?.data;
-  if (!fileData) return data;
+  if (!fileData) return doc;
 
   const buffer = Buffer.isBuffer(fileData) ? fileData : Buffer.from(fileData);
+  const updates: Record<string, unknown> = {};
 
   // 1. Generate LQIP
   try {
@@ -22,7 +27,7 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
       .webp({ quality: 20 })
       .toBuffer();
 
-    data.lqip = `data:image/webp;base64,${blurBuffer.toString("base64")}`;
+    updates.lqip = `data:image/webp;base64,${blurBuffer.toString("base64")}`;
   } catch (e) {
     req.payload.logger.error(`Failed to generate LQIP: ${e}`);
   }
@@ -60,12 +65,12 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
       }
 
       if (Object.keys(exif).length > 0) {
-        data.exif = exif;
+        updates.exif = exif;
       }
 
       // Auto-fill dateTaken from EXIF if not already set
-      if (!data.dateTaken && parsed.DateTimeOriginal) {
-        data.dateTaken = new Date(parsed.DateTimeOriginal).toISOString();
+      if (!doc.dateTaken && parsed.DateTimeOriginal) {
+        updates.dateTaken = new Date(parsed.DateTimeOriginal).toISOString();
       }
     }
   } catch (e) {
@@ -73,7 +78,7 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
   }
 
   // 3. Auto-match camera
-  if (!data.camera && parsedModel) {
+  if (!doc.camera && parsedModel) {
     try {
       const { docs } = await req.payload.find({
         collection: "cameras",
@@ -82,7 +87,7 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
         depth: 0,
       });
       if (docs.length > 0) {
-        data.camera = docs[0].id;
+        updates.camera = docs[0].id;
       }
     } catch (e) {
       req.payload.logger.error(`Failed to auto-match camera: ${e}`);
@@ -90,7 +95,7 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
   }
 
   // 4. Auto-match lens
-  if (!data.lens && parsedLensModel) {
+  if (!doc.lens && parsedLensModel) {
     try {
       const { docs } = await req.payload.find({
         collection: "lenses",
@@ -99,12 +104,23 @@ export const processUploadData: CollectionBeforeChangeHook = async ({
         depth: 0,
       });
       if (docs.length > 0) {
-        data.lens = docs[0].id;
+        updates.lens = docs[0].id;
       }
     } catch (e) {
       req.payload.logger.error(`Failed to auto-match lens: ${e}`);
     }
   }
 
-  return data;
+  // 5. Persist all extracted metadata in a single update
+  if (Object.keys(updates).length > 0) {
+    await req.payload.update({
+      collection: "photos",
+      id: doc.id,
+      data: updates,
+      req,
+      context: { ...context, skipProcessUpload: true },
+    });
+  }
+
+  return doc;
 };

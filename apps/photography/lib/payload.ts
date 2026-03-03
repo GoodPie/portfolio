@@ -149,6 +149,7 @@ export interface BirdPhotoStats {
 /** Fetch photo counts and first-sighted dates for all birds. */
 export async function getBirdPhotoStats(): Promise<Map<string, BirdPhotoStats>> {
   const payload = await getPayloadClient();
+  // NOTE: assumes fewer than 1000 bird-linked photos. Paginate if this grows.
   const { docs } = await payload.find({
     collection: "photos",
     depth: 0,
