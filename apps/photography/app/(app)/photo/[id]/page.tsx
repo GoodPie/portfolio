@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,7 +9,7 @@ import { BirdInfo } from "@/components/bird-info";
 
 export const revalidate = 60;
 
-async function getPhoto(id: string): Promise<PhotoDoc | null> {
+const getPhoto = cache(async (id: string): Promise<PhotoDoc | null> => {
   const payload = await getPayloadClient();
   try {
     const raw = await payload.findByID({ collection: "photos", id, depth: 2 });
@@ -16,7 +17,7 @@ async function getPhoto(id: string): Promise<PhotoDoc | null> {
   } catch {
     return null;
   }
-}
+});
 
 function buildDescription(photo: PhotoDoc): string {
   const parts: string[] = [];

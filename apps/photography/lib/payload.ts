@@ -21,6 +21,8 @@ export interface PhotoDoc {
   width?: number | null;
   height?: number | null;
   isProtected?: boolean | null;
+  updatedAt?: string;
+  createdAt?: string;
   lqip?: string | null;
   exif?: {
     focalLength?: number | null;

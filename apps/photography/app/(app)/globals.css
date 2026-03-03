@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
-@import "../../../../packages/ui/src/styles/globals.css";
+@import "@goodpie/ui/styles/globals.css";
 
 /* Ensure Tailwind scans shared UI components for utility classes */
 @source "../../../../packages/ui/src";
@@ -10,6 +10,14 @@
 @theme inline {
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
     --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+    --color-overlay-foreground: oklch(0.97 0 0);
+    --color-overlay-muted: oklch(0.7 0 0);
+    --color-overlay-dim: oklch(0.6 0 0);
+    --color-status-safe: oklch(0.72 0.19 142.5);
+    --color-status-warning: oklch(0.8 0.18 84);
+    --color-status-caution: oklch(0.7 0.18 55);
+    --color-status-danger: oklch(0.63 0.22 29);
+    --color-status-critical: oklch(0.5 0.21 27);
 }
 
 @layer base {

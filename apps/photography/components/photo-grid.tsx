@@ -37,14 +37,14 @@ function ExifOverlay({ card }: { card: PhotoCard }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-xl md:text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-200">
+      <div className="text-xl md:text-2xl font-medium text-overlay-foreground">
         {card.caption || card.title}
       </div>
       {exifParts.length > 0 && (
-        <div className="text-xs text-neutral-400">{exifParts.join(" · ")}</div>
+        <div className="text-xs text-overlay-muted">{exifParts.join(" · ")}</div>
       )}
       {exif?.LensModel && (
-        <div className="text-xs text-neutral-500">{exif.LensModel}</div>
+        <div className="text-xs text-overlay-dim">{exif.LensModel}</div>
       )}
     </div>
   );
@@ -66,7 +66,7 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
               className={cn(
-                "rounded-lg relative bg-neutral-900 overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out",
+                "rounded-lg relative bg-muted overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out",
                 hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
               )}
             >
@@ -78,8 +78,8 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
                 width={photo.width}
                 height={photo.height}
                 loading={index < 6 ? "eager" : "lazy"}
-                fetchPriority={index < 6 ? "high" : undefined}
-                decoding={index < 6 ? "sync" : "async"}
+                fetchPriority={index === 0 ? "high" : undefined}
+                decoding="async"
                 className="object-cover absolute inset-0 w-full h-full"
                 {...(photo.lqip && {
                   style: {

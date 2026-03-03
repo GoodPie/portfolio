@@ -13,11 +13,11 @@ interface BirdInfoProps {
 }
 
 const statusColors: Record<string, string> = {
-  "Least Concern": "text-green-500",
-  "Near Threatened": "text-yellow-500",
-  Vulnerable: "text-orange-500",
-  Endangered: "text-red-500",
-  "Critically Endangered": "text-red-700",
+  "Least Concern": "text-status-safe",
+  "Near Threatened": "text-status-warning",
+  Vulnerable: "text-status-caution",
+  Endangered: "text-status-danger",
+  "Critically Endangered": "text-status-critical",
 };
 
 function formatDate(dateStr: string): string {
