@@ -6,80 +6,50 @@ import Link from "next/link";
 import { PhotoGrid } from "@/components/photo-grid";
 import type { PhotoCard } from "@/components/photo-grid";
 import { FilterBar } from "@/components/filter-bar";
-import {
-  type FilterOption,
-  filterPhotoCards,
-  getActiveFilterNames,
-} from "@/lib/photos";
+import type { FilterOption } from "@/lib/photos";
 
 interface GalleryShellProps {
   allCards: PhotoCard[];
   categories: FilterOption[];
-  birds: FilterOption[];
   initialCategory: string | null;
-  initialBird: string | null;
 }
 
 export function GalleryShell({
   allCards,
   categories,
-  birds,
   initialCategory,
-  initialBird,
 }: GalleryShellProps) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
-  const [activeBird, setActiveBird] = useState(initialBird);
 
-  const filtered = useMemo(
-    () =>
-      filterPhotoCards(allCards, {
-        categoryId: activeCategory ?? undefined,
-        birdId: activeBird ?? undefined,
-      }),
-    [allCards, activeCategory, activeBird],
-  );
+  const filtered = useMemo(() => {
+    if (!activeCategory) return allCards;
+    return allCards.filter((card) => card.categoryId === activeCategory);
+  }, [allCards, activeCategory]);
 
   // Sync filter state to URL without triggering navigation
   useEffect(() => {
     const params = new URLSearchParams();
     if (activeCategory) params.set("category", activeCategory);
-    if (activeBird) params.set("bird", activeBird);
     const qs = params.toString();
     const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
     window.history.replaceState(null, "", url);
-  }, [activeCategory, activeBird]);
+  }, [activeCategory]);
 
-  function handleFilterChange(key: string, value: string | null) {
+  function handleFilterChange(value: string | null) {
     startTransition(() => {
-      if (key === "category") setActiveCategory(value);
-      if (key === "bird") setActiveBird(value);
+      setActiveCategory(value);
     });
   }
 
-  function handleClearAll() {
-    startTransition(() => {
-      setActiveCategory(null);
-      setActiveBird(null);
-    });
-  }
-
-  const showFilterBar = categories.length > 0 || birds.length > 0;
-  const hasFilters = activeCategory || activeBird;
-  const activeFilterNames = getActiveFilterNames(categories, birds, {
-    categoryId: activeCategory ?? undefined,
-    birdId: activeBird ?? undefined,
-  });
+  const showFilterBar = categories.length > 0;
 
   return (
     <>
       {showFilterBar && (
         <FilterBar
           categories={categories}
-          birds={birds}
           activeCategory={activeCategory}
-          activeBird={activeBird}
           onFilterChange={handleFilterChange}
-          onClearAll={handleClearAll}
         />
       )}
 
@@ -94,13 +64,13 @@ export function GalleryShell({
         </div>
       ) : filtered.length > 0 ? (
         <PhotoGrid photos={filtered} />
-      ) : hasFilters ? (
+      ) : activeCategory ? (
         <div className="text-center py-24">
           <p className="text-muted-foreground">
-            No photos found for {activeFilterNames.join(" + ")}.
+            No photos found for this category.
           </p>
           <Button asChild variant="link" className="mt-4">
-            <button onClick={handleClearAll}>Clear filters &rarr;</button>
+            <button onClick={() => handleFilterChange(null)}>Clear filter &rarr;</button>
           </Button>
         </div>
       ) : null}

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { publicRead, isAuthenticated } from "@/lib/access";
+import { generateSlug } from "@/hooks/generateSlug";
 
 export const Birds: CollectionConfig = {
   slug: "birds",
@@ -12,11 +13,26 @@ export const Birds: CollectionConfig = {
     update: isAuthenticated,
     delete: isAuthenticated,
   },
+  hooks: {
+    beforeChange: [generateSlug],
+  },
   fields: [
     {
       name: "name",
       type: "text",
       required: true,
+    },
+    {
+      name: "slug",
+      type: "text",
+      required: true,
+      unique: true,
+      index: true,
+      admin: {
+        position: "sidebar",
+        readOnly: true,
+        description: "Auto-generated from name",
+      },
     },
     {
       name: "scientificName",

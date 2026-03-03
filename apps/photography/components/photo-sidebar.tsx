@@ -50,6 +50,7 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
             conservationStatus: bird.conservationStatus,
             facts: bird.facts,
           }}
+          slug={bird.slug}
           location={photo.location ?? undefined}
           dateTaken={photo.dateTaken ?? undefined}
           description={photo.description ?? undefined}

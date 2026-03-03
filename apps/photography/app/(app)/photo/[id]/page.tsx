@@ -3,7 +3,7 @@ import { cache } from "react";
 import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip, resolveRelation } from "@/lib/payload";
+import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip, resolveRelation, getBirdBySlug } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
 import { PhotoSidebar } from "@/components/photo-sidebar";
 import { PhotoJsonLd } from "@/components/photo-json-ld";
@@ -91,21 +91,37 @@ export async function generateMetadata({
 
 export default async function PhotoPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const { from } = await searchParams;
   const photo = await getPhoto(id);
   if (!photo) notFound();
   const lqip = getLqip(photo);
 
+  // Build contextual back link
+  let backHref = "/";
+  let backLabel = "Back to gallery";
+
+  if (from?.startsWith("birds/")) {
+    const birdSlug = from.replace("birds/", "");
+    const bird = await getBirdBySlug(birdSlug);
+    if (bird) {
+      backHref = `/birds/${birdSlug}`;
+      backLabel = `Back to ${bird.name}`;
+    }
+  }
+
   return (
     <div>
       <Link
-        href="/"
+        href={backHref}
         className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors mb-6 lg:mb-8"
       >
-        &larr; Back to gallery
+        &larr; {backLabel}
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 lg:gap-16 items-start">

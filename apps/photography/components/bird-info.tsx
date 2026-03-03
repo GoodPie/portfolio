@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { formatDate } from "@/lib/format";
+import { conservationStatusColors } from "@/lib/bird-utils";
 
 interface BirdInfoProps {
   bird: {
@@ -9,27 +11,20 @@ interface BirdInfoProps {
     conservationStatus?: string;
     facts?: { fact: string }[];
   };
+  slug?: string;
   location?: string;
   dateTaken?: string;
   description?: string;
 }
 
-const statusColors: Record<string, string> = {
-  "Least Concern": "text-status-safe",
-  "Near Threatened": "text-status-warning",
-  Vulnerable: "text-status-caution",
-  Endangered: "text-status-danger",
-  "Critically Endangered": "text-status-critical",
-};
-
-export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoProps) {
+export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdInfoProps) {
   const details = [
     bird.habitat && { label: "Habitat", value: bird.habitat },
     bird.diet && { label: "Diet", value: bird.diet },
     bird.conservationStatus && {
       label: "Conservation Status",
       value: bird.conservationStatus,
-      className: statusColors[bird.conservationStatus],
+      className: conservationStatusColors[bird.conservationStatus],
     },
     location && { label: "Location", value: location },
     dateTaken && { label: "Date Taken", value: formatDate(dateTaken) },
@@ -41,7 +36,16 @@ export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoPro
         <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
           Bird
         </h2>
-        <p className="text-foreground font-medium">{bird.name}</p>
+        {slug ? (
+          <Link
+            href={`/birds/${slug}`}
+            className="text-foreground font-medium hover:text-primary transition-colors"
+          >
+            {bird.name}
+          </Link>
+        ) : (
+          <p className="text-foreground font-medium">{bird.name}</p>
+        )}
         {bird.scientificName && (
           <p className="text-sm text-muted-foreground italic">{bird.scientificName}</p>
         )}

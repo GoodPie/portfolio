@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { getPayloadClient, getImageUrl, getLqip } from "@/lib/payload";
+import { getPayloadClient, getImageUrl, resolveRelation } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
-import { buildFilterOptions } from "@/lib/photos";
+import { buildFilterOptions, toPhotoCard } from "@/lib/photos";
 import { GalleryShell } from "@/components/gallery-shell";
+import { SpeciesStrip } from "@/components/species-strip";
+import type { SpeciesCardData } from "@/components/species-strip";
 
 export const revalidate = 60;
 
@@ -18,51 +20,55 @@ export const metadata: Metadata = {
   },
 };
 
-/** Extract the string ID from a Payload relation (populated object or raw ID). */
-function getRelationId(
-  relation: { id: string | number } | string | number | null | undefined,
-): string | undefined {
-  if (relation == null) return undefined;
-  if (typeof relation === "object") return String(relation.id);
-  return String(relation);
-}
+/** Build species strip data from populated photo docs. */
+function buildSpeciesStrip(photos: PhotoDoc[]): SpeciesCardData[] {
+  const birdMap = new Map<
+    string,
+    { slug: string; name: string; thumbnailUrl: string | null; count: number }
+  >();
 
-function toPhotoCard(photo: PhotoDoc) {
-  return {
-    photoKey: String(photo.id),
-    title: photo.caption || photo.title,
-    src: getImageUrl(photo, 1200),
-    sizes: "(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw",
-    caption: photo.caption ?? undefined,
-    exif: photo.exif
-      ? {
-          FocalLength: photo.exif.focalLength ?? undefined,
-          FNumber: photo.exif.aperture ?? undefined,
-          ISO: photo.exif.iso ?? undefined,
-          ExposureTime: photo.exif.shutterSpeed ?? undefined,
-          LensModel: photo.exif.lensModel ?? undefined,
-        }
-      : undefined,
-    lqip: getLqip(photo),
-    width: photo.width ?? undefined,
-    height: photo.height ?? undefined,
-    sizeUrls: {
-      thumbnail: photo.sizes?.thumbnail?.url ?? undefined,
-      card: photo.sizes?.card?.url ?? undefined,
-      large: photo.sizes?.large?.url ?? undefined,
-      xl: photo.sizes?.xl?.url ?? undefined,
-    },
-    birdId: getRelationId(photo.bird),
-    categoryId: getRelationId(photo.category),
-  };
+  for (const photo of photos) {
+    const bird = resolveRelation(photo.bird);
+    if (!bird?.name || !bird.slug) continue;
+
+    const id = String(bird.id);
+    const existing = birdMap.get(id);
+    if (existing) {
+      existing.count++;
+    } else {
+      // Use this photo's card image as the thumbnail for the species card
+      const coverPhoto = resolveRelation(
+        bird.coverImage as PhotoDoc | string | number | null,
+      );
+      const thumbnailUrl = coverPhoto
+        ? getImageUrl(coverPhoto, 400)
+        : getImageUrl(photo, 400);
+
+      birdMap.set(id, {
+        slug: bird.slug,
+        name: bird.name,
+        thumbnailUrl,
+        count: 1,
+      });
+    }
+  }
+
+  return [...birdMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .map(({ slug, name, thumbnailUrl, count }) => ({
+      slug,
+      name,
+      thumbnailUrl,
+      photoCount: count,
+    }));
 }
 
 export default async function PhotosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ bird?: string; category?: string }>;
+  searchParams: Promise<{ category?: string }>;
 }) {
-  const { bird: birdId, category: categoryId } = await searchParams;
+  const { category: categoryId } = await searchParams;
 
   const payload = await getPayloadClient();
   const { docs } = await payload.find({
@@ -73,8 +79,9 @@ export default async function PhotosPage({
   });
 
   const allPhotos = docs as unknown as PhotoDoc[];
-  const { categories, birds } = buildFilterOptions(allPhotos);
+  const { categories } = buildFilterOptions(allPhotos);
   const allCards = allPhotos.map(toPhotoCard);
+  const speciesData = buildSpeciesStrip(allPhotos);
 
   return (
     <>
@@ -91,12 +98,12 @@ export default async function PhotosPage({
         </p>
       </section>
 
+      <SpeciesStrip species={speciesData} />
+
       <GalleryShell
         allCards={allCards}
         categories={categories}
-        birds={birds}
         initialCategory={categoryId ?? null}
-        initialBird={birdId ?? null}
       />
     </>
   );

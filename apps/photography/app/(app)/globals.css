@@ -98,6 +98,34 @@
     animation: vt-photo-exit 0.2s ease-in both;
 }
 
+/* Species strip: scrollable with faded edges */
+.species-strip {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 1rem,
+        black calc(100% - 2rem),
+        transparent
+    );
+}
+
+.species-strip::-webkit-scrollbar {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .species-strip {
+        mask-image: linear-gradient(
+            to right,
+            black,
+            black calc(100% - 2rem),
+            transparent
+        );
+    }
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
     ::view-transition-new(.meta-enter),

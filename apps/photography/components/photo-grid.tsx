@@ -86,7 +86,14 @@ function ExifOverlay({ card }: { card: PhotoCard }) {
   );
 }
 
-export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
+export function PhotoGrid({
+  photos,
+  linkQuery,
+}: {
+  photos: PhotoCard[];
+  /** Optional query string to append to photo links (e.g., "from=birds/tui") */
+  linkQuery?: string;
+}) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
@@ -94,7 +101,7 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
       {photos.map((photo, index) => (
         <Link
           key={photo.photoKey}
-          href={`/photo/${photo.photoKey}`}
+          href={linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`}
           className="block mb-10 break-inside-avoid"
         >
           <ViewTransition name={`photo-${photo.photoKey}`} enter="photo-filter" exit="photo-filter">

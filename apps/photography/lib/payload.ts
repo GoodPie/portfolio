@@ -36,11 +36,13 @@ export interface PhotoDoc {
   bird?: {
     id: string | number;
     name?: string;
+    slug?: string;
     scientificName?: string;
     habitat?: string;
     diet?: string;
     conservationStatus?: string;
     facts?: { fact: string }[];
+    coverImage?: PhotoDoc | string | number | null;
   } | string | number | null;
   camera?: { id: string | number; name?: string; manufacturer?: string } | string | number | null;
   lens?: { id: string | number; name?: string; manufacturer?: string } | string | number | null;
@@ -109,4 +111,58 @@ export function resolveRelation<T extends { id: string | number }>(
 ): T | null {
   if (relation != null && typeof relation === "object") return relation;
   return null;
+}
+
+/**
+ * Bird document shape from Payload's birds collection.
+ */
+export interface BirdDoc {
+  id: string | number;
+  name: string;
+  slug: string;
+  scientificName?: string | null;
+  habitat?: string | null;
+  diet?: string | null;
+  conservationStatus?: string | null;
+  facts?: { fact: string }[];
+  coverImage?: PhotoDoc | string | number | null;
+  updatedAt?: string;
+  createdAt?: string;
+}
+
+/** Fetch all birds sorted by name. */
+export async function getAllBirds(): Promise<BirdDoc[]> {
+  const payload = await getPayloadClient();
+  const { docs } = await payload.find({
+    collection: "birds",
+    sort: "name",
+    depth: 1,
+    limit: 200,
+  });
+  return docs as unknown as BirdDoc[];
+}
+
+/** Fetch a single bird by its URL slug. */
+export async function getBirdBySlug(slug: string): Promise<BirdDoc | null> {
+  const payload = await getPayloadClient();
+  const { docs } = await payload.find({
+    collection: "birds",
+    where: { slug: { equals: slug } },
+    depth: 1,
+    limit: 1,
+  });
+  return docs.length > 0 ? (docs[0] as unknown as BirdDoc) : null;
+}
+
+/** Fetch all photos for a given bird ID, sorted by date taken descending. */
+export async function getPhotosByBirdId(birdId: string | number): Promise<PhotoDoc[]> {
+  const payload = await getPayloadClient();
+  const { docs } = await payload.find({
+    collection: "photos",
+    where: { bird: { equals: birdId } },
+    sort: "-dateTaken",
+    depth: 1,
+    limit: 200,
+  });
+  return docs as unknown as PhotoDoc[];
 }
