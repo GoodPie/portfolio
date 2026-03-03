@@ -5,9 +5,13 @@ export const generateBlurPlaceholder: CollectionAfterChangeHook = async ({
   doc,
   req,
   operation,
+  context,
 }) => {
-  // Only run on create or when a new file was uploaded
-  if (doc.lqip && operation === "update") return doc;
+  // Skip if this update was triggered by our own hook (prevent infinite loop)
+  if (context.skipLqipHook) return doc;
+
+  // Only re-process when a new file is uploaded
+  if (operation === "update" && !req.file) return doc;
 
   const filePath = req.file?.data;
   if (!filePath) return doc;
@@ -21,18 +25,13 @@ export const generateBlurPlaceholder: CollectionAfterChangeHook = async ({
 
     const lqip = `data:image/webp;base64,${blurBuffer.toString("base64")}`;
 
-    // Use setTimeout to avoid infinite hook loop
-    setTimeout(async () => {
-      try {
-        await req.payload.update({
-          collection: "photos",
-          id: doc.id,
-          data: { lqip },
-        });
-      } catch (e) {
-        req.payload.logger.error(`Failed to save LQIP: ${e}`);
-      }
-    }, 100);
+    await req.payload.update({
+      collection: "photos",
+      id: doc.id,
+      data: { lqip },
+      req,
+      context: { ...context, skipLqipHook: true, skipExifHook: true },
+    });
   } catch (e) {
     req.payload.logger.error(`Failed to generate LQIP: ${e}`);
   }

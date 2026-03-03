@@ -5,9 +5,13 @@ export const extractExifData: CollectionAfterChangeHook = async ({
   doc,
   req,
   operation,
+  context,
 }) => {
-  // Only run on create or when a new file was uploaded
-  if (doc.exif?.focalLength && operation === "update") return doc;
+  // Skip if this update was triggered by our own hook (prevent infinite loop)
+  if (context.skipExifHook) return doc;
+
+  // Only re-process when a new file is uploaded
+  if (operation === "update" && !req.file) return doc;
 
   const fileData = req.file?.data;
   if (!fileData) return doc;
@@ -44,18 +48,13 @@ export const extractExifData: CollectionAfterChangeHook = async ({
     }
 
     if (Object.keys(exif).length > 0) {
-      // Use setTimeout to avoid infinite hook loop
-      setTimeout(async () => {
-        try {
-          await req.payload.update({
-            collection: "photos",
-            id: doc.id,
-            data,
-          });
-        } catch (e) {
-          req.payload.logger.error(`Failed to save EXIF data: ${e}`);
-        }
-      }, 100);
+      await req.payload.update({
+        collection: "photos",
+        id: doc.id,
+        data,
+        req,
+        context: { ...context, skipLqipHook: true, skipExifHook: true },
+      });
     }
   } catch (e) {
     req.payload.logger.error(`Failed to extract EXIF data: ${e}`);
