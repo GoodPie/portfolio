@@ -3,9 +3,10 @@ import { cache } from "react";
 import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip } from "@/lib/payload";
+import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip, resolveRelation } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
-import { BirdInfo } from "@/components/bird-info";
+import { PhotoSidebar } from "@/components/photo-sidebar";
+import { PhotoJsonLd } from "@/components/photo-json-ld";
 
 export const revalidate = 60;
 
@@ -24,18 +25,14 @@ function buildDescription(photo: PhotoDoc): string {
   if (photo.caption) parts.push(photo.caption);
   if (photo.description) parts.push(photo.description);
 
-  const bird =
-    photo.bird && typeof photo.bird === "object" ? photo.bird : null;
-  const category =
-    photo.category && typeof photo.category === "object"
-      ? photo.category
-      : null;
+  const bird = resolveRelation(photo.bird);
+  const category = resolveRelation(photo.category);
 
-  if (bird && "name" in bird) {
+  if (bird?.name) {
     parts.push(
       bird.scientificName
         ? `${bird.name} (${bird.scientificName})`
-        : bird.name!,
+        : bird.name,
     );
   }
   if (category?.title) parts.push(category.title);
@@ -92,19 +89,6 @@ export async function generateMetadata({
   };
 }
 
-function formatExposure(time: number): string {
-  if (time >= 1) return `${time}s`;
-  return `1/${Math.round(1 / time)}s`;
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
 export default async function PhotoPage({
   params,
 }: {
@@ -113,26 +97,7 @@ export default async function PhotoPage({
   const { id } = await params;
   const photo = await getPhoto(id);
   if (!photo) notFound();
-  const exif = photo.exif;
   const lqip = getLqip(photo);
-
-  const bird = photo.bird && typeof photo.bird === "object" ? photo.bird : null;
-  const camera = photo.camera && typeof photo.camera === "object" ? photo.camera : null;
-  const lens = photo.lens && typeof photo.lens === "object" ? photo.lens : null;
-  const category = photo.category && typeof photo.category === "object" ? photo.category : null;
-
-  const lensName = exif?.lensModel || (lens && "name" in lens ? lens.name : undefined);
-
-  const exifEntries = [
-    camera && "name" in camera && { label: "Body", value: camera.name! },
-    exif?.focalLength && { label: "Focal Length", value: `${exif.focalLength}mm` },
-    exif?.aperture && { label: "Aperture", value: `f/${exif.aperture}` },
-    exif?.shutterSpeed && { label: "Shutter Speed", value: formatExposure(exif.shutterSpeed) },
-    exif?.iso && { label: "ISO", value: `${exif.iso}` },
-    lensName && { label: "Lens", value: lensName },
-  ].filter(Boolean) as { label: string; value: string }[];
-
-  const hasPhotoDetails = photo.location || photo.description || photo.dateTaken;
 
   return (
     <div>
@@ -146,83 +111,7 @@ export default async function PhotoPage({
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 lg:gap-16 items-start">
         {/* Meta — on mobile this renders below the photo (via order) */}
         <ViewTransition enter="meta-enter" default="none">
-          <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight mb-2">
-                {photo.caption || photo.title}
-              </h1>
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                {category?.title && <span>{category.title}</span>}
-                {category?.title && photo.dateTaken && (
-                  <span className="text-border">·</span>
-                )}
-                {photo.dateTaken && <span>{formatDate(photo.dateTaken)}</span>}
-              </div>
-            </div>
-
-            {bird && "name" in bird && (
-              <BirdInfo
-                bird={{
-                  name: bird.name!,
-                  scientificName: bird.scientificName,
-                  habitat: bird.habitat,
-                  diet: bird.diet,
-                  conservationStatus: bird.conservationStatus,
-                  facts: bird.facts,
-                }}
-                location={photo.location ?? undefined}
-                dateTaken={photo.dateTaken ?? undefined}
-                description={photo.description ?? undefined}
-              />
-            )}
-
-            {!(bird && "name" in bird) && hasPhotoDetails && (
-              <div className="border-t border-border/40 pt-4 flex flex-col gap-3">
-                <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
-                  Photo Details
-                </h2>
-                {photo.description && (
-                  <p className="text-sm text-muted-foreground">{photo.description}</p>
-                )}
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  {photo.location && (
-                    <div>
-                      <dt className="text-muted-foreground text-xs">Location</dt>
-                      <dd className="text-foreground">{photo.location}</dd>
-                    </div>
-                  )}
-                  {photo.dateTaken && (
-                    <div>
-                      <dt className="text-muted-foreground text-xs">Date Taken</dt>
-                      <dd className="text-foreground">{formatDate(photo.dateTaken)}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            )}
-
-            {exifEntries.length > 0 && (
-                <div className="border-t border-border/40 pt-6">
-                  <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-                    Camera
-                  </h2>
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    {exifEntries.map((entry) => (
-                        <div key={entry.label}>
-                          <dt className="text-muted-foreground text-xs">{entry.label}</dt>
-                          <dd className="text-foreground">{entry.value}</dd>
-                        </div>
-                    ))}
-                  </dl>
-                </div>
-            )}
-
-            {photo.width && photo.height && (
-              <p className="text-xs text-muted-foreground/50">
-                {photo.width} &times; {photo.height}
-              </p>
-            )}
-          </aside>
+          <PhotoSidebar photo={photo} />
         </ViewTransition>
 
         {/* Photo */}
@@ -250,82 +139,7 @@ export default async function PhotoPage({
         </ViewTransition>
       </div>
 
-      {/* JSON-LD Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Photograph",
-            name: photo.caption || photo.title,
-            description: buildDescription(photo),
-            contentUrl: getImageUrl(photo, 1800),
-            url: `https://brandynbritton.com/photography/photo/${id}`,
-            author: {
-              "@type": "Person",
-              name: "Brandyn Britton",
-              url: "https://brandynbritton.com",
-            },
-            creator: {
-              "@type": "Person",
-              name: "Brandyn Britton",
-              url: "https://brandynbritton.com",
-            },
-            ...(photo.dateTaken && { dateCreated: photo.dateTaken }),
-            ...(photo.location && {
-              contentLocation: {
-                "@type": "Place",
-                name: photo.location,
-              },
-            }),
-            ...(photo.width &&
-              photo.height && {
-                width: {
-                  "@type": "QuantitativeValue",
-                  value: photo.width,
-                  unitCode: "E37",
-                },
-                height: {
-                  "@type": "QuantitativeValue",
-                  value: photo.height,
-                  unitCode: "E37",
-                },
-              }),
-            encodingFormat: "image/jpeg",
-            ...(exifEntries.length > 0 && {
-              exifData: exifEntries.map((e) => ({
-                "@type": "PropertyValue",
-                name: e.label,
-                value: e.value,
-              })),
-            }),
-            ...(bird &&
-              "name" in bird && {
-                about: {
-                  "@type": "Thing",
-                  name: bird.name,
-                  ...(bird.scientificName && {
-                    alternateName: bird.scientificName,
-                  }),
-                  ...(bird.habitat &&
-                    bird.diet &&
-                    bird.conservationStatus && {
-                      description: `Habitat: ${bird.habitat}. Diet: ${bird.diet}. Conservation status: ${bird.conservationStatus}.`,
-                    }),
-                  ...(bird.facts &&
-                    bird.facts.length > 0 && {
-                      additionalProperty: bird.facts.map((f) => ({
-                        "@type": "PropertyValue",
-                        name: "fact",
-                        value: f.fact,
-                      })),
-                    }),
-                },
-              }),
-            ...(category?.title && { genre: category.title }),
-          }),
-        }}
-      />
+      <PhotoJsonLd photo={photo} description={buildDescription(photo)} id={id} />
     </div>
   );
 }

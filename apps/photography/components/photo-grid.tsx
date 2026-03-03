@@ -1,14 +1,24 @@
 "use client";
 
 import { ViewTransition, useState } from "react";
+import Image, { type ImageLoaderProps } from "next/image";
 import Link from "next/link";
 import { cn } from "@goodpie/ui/lib/utils";
 
-interface PhotoCard {
+/** Payload image size breakpoints in ascending order */
+const SIZE_BREAKPOINTS = [
+  { key: "thumbnail", width: 400 },
+  { key: "card", width: 800 },
+  { key: "large", width: 1200 },
+  { key: "xl", width: 1800 },
+] as const;
+
+type SizeKey = (typeof SIZE_BREAKPOINTS)[number]["key"];
+
+export interface PhotoCard {
   photoKey: string;
   title: string;
   src: string;
-  srcSet?: string;
   sizes?: string;
   caption?: string;
   exif?: {
@@ -21,6 +31,28 @@ interface PhotoCard {
   lqip?: string;
   width?: number;
   height?: number;
+  /** Map of Payload size key → URL for the custom loader */
+  sizeUrls?: Partial<Record<SizeKey, string>>;
+}
+
+/**
+ * Creates a loader that maps Next.js requested widths to Payload's pre-sized URLs.
+ * Falls back to the default src if no matching size is found.
+ */
+function makePayloadLoader(photo: PhotoCard) {
+  return ({ width }: ImageLoaderProps): string => {
+    if (!photo.sizeUrls) return photo.src;
+
+    // Find the smallest Payload size that covers the requested width
+    for (const { key, width: bpWidth } of SIZE_BREAKPOINTS) {
+      if (bpWidth >= width && photo.sizeUrls[key]) {
+        return photo.sizeUrls[key];
+      }
+    }
+
+    // Fallback to largest available or default src
+    return photo.sizeUrls.xl ?? photo.sizeUrls.large ?? photo.src;
+  };
 }
 
 function ExifOverlay({ card }: { card: PhotoCard }) {
@@ -54,39 +86,41 @@ export function PhotoGrid({ photos }: { photos: PhotoCard[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full">
+    <div className="columns-1 sm:columns-2 md:columns-3 gap-10 w-full">
       {photos.map((photo, index) => (
         <Link
           key={photo.photoKey}
           href={`/photo/${photo.photoKey}`}
-          className="block"
+          className="block mb-10 break-inside-avoid"
         >
           <ViewTransition name={`photo-${photo.photoKey}`}>
             <div
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
               className={cn(
-                "rounded-lg relative bg-muted overflow-hidden h-60 md:h-96 w-full transition-all duration-300 ease-out",
+                "rounded-lg relative bg-muted overflow-hidden w-full transition-all duration-300 ease-out",
                 hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
               )}
+              style={{
+                aspectRatio:
+                  photo.width && photo.height
+                    ? `${photo.width} / ${photo.height}`
+                    : undefined,
+              }}
             >
-              <img
+              <Image
                 src={photo.src}
-                srcSet={photo.srcSet}
-                sizes={photo.sizes}
+                loader={makePayloadLoader(photo)}
                 alt={photo.title}
-                width={photo.width}
-                height={photo.height}
-                loading={index < 6 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : undefined}
-                decoding="async"
-                className="object-cover absolute inset-0 w-full h-full"
+                width={photo.width ?? 1200}
+                height={photo.height ?? 800}
+                sizes={photo.sizes}
+                priority={index < 2}
+                loading={index < 2 ? undefined : "lazy"}
+                className="object-cover w-full h-full"
                 {...(photo.lqip && {
-                  style: {
-                    backgroundImage: `url(${photo.lqip})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  },
+                  placeholder: "blur" as const,
+                  blurDataURL: photo.lqip,
                 })}
               />
               <div

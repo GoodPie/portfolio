@@ -4,7 +4,7 @@ import { Button } from "@goodpie/ui/components/button";
 import Link from "next/link";
 import { PhotoGrid } from "@/components/photo-grid";
 import { FilterBar } from "@/components/filter-bar";
-import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip } from "@/lib/payload";
+import { getPayloadClient, getImageUrl, getLqip } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
 import { buildFilterOptions, filterPhotos, getActiveFilterNames } from "@/lib/photos";
 
@@ -27,8 +27,7 @@ function toPhotoCard(photo: PhotoDoc) {
     photoKey: String(photo.id),
     title: photo.caption || photo.title,
     src: getImageUrl(photo, 1200),
-    srcSet: responsiveSrcSet(photo),
-    sizes: "(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 400px",
+    sizes: "(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw",
     caption: photo.caption ?? undefined,
     exif: photo.exif
       ? {
@@ -42,6 +41,12 @@ function toPhotoCard(photo: PhotoDoc) {
     lqip: getLqip(photo),
     width: photo.width ?? undefined,
     height: photo.height ?? undefined,
+    sizeUrls: {
+      thumbnail: photo.sizes?.thumbnail?.url ?? undefined,
+      card: photo.sizes?.card?.url ?? undefined,
+      large: photo.sizes?.large?.url ?? undefined,
+      xl: photo.sizes?.xl?.url ?? undefined,
+    },
   };
 }
 

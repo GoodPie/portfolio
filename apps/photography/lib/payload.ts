@@ -99,3 +99,14 @@ export function getImageUrl(photo: PhotoDoc, targetWidth: number): string {
 export function getLqip(photo: PhotoDoc): string | undefined {
   return photo.lqip ?? undefined;
 }
+
+/**
+ * Narrow a Payload polymorphic relation (object | string | number | null)
+ * to its populated object form, or null if it's an ID / missing.
+ */
+export function resolveRelation<T extends { id: string | number }>(
+  relation: T | string | number | null | undefined,
+): T | null {
+  if (relation != null && typeof relation === "object") return relation;
+  return null;
+}

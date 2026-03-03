@@ -1,3 +1,5 @@
+import { formatDate } from "@/lib/format";
+
 interface BirdInfoProps {
   bird: {
     name: string;
@@ -19,14 +21,6 @@ const statusColors: Record<string, string> = {
   Endangered: "text-status-danger",
   "Critically Endangered": "text-status-critical",
 };
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
 
 export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoProps) {
   const details = [
