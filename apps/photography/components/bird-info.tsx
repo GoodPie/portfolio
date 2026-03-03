@@ -78,6 +78,15 @@ export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdI
           </ul>
         </div>
       )}
+
+      {slug && (
+        <Link
+          href={`/birds/${slug}`}
+          className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+        >
+          View More {bird.name} Photos &rarr;
+        </Link>
+      )}
     </div>
   );
 }
