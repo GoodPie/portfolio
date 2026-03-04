@@ -1,6 +1,16 @@
-import type { CollectionAfterChangeHook } from "payload";
+import type { CollectionAfterChangeHook, Payload } from "payload";
 import sharp from "sharp";
 import exifr from "exifr";
+import { put } from "@vercel/blob";
+
+/** Image size definitions — must match Photos.ts imageSizes config. */
+const IMAGE_SIZES = [
+  { name: "thumbnail", width: 400 },
+  { name: "card", width: 800 },
+  { name: "large", width: 1200 },
+  { name: "xl", width: 1800 },
+  { name: "full", width: 2400 },
+] as const;
 
 /**
  * Resolve the image buffer from either the request file (server uploads)
@@ -27,22 +37,20 @@ async function resolveImageBuffer(
   return null;
 }
 
-export const processUploadData: CollectionAfterChangeHook = async ({
-  doc,
-  req,
-  operation,
-  context,
-}) => {
-  // Prevent infinite loop — this hook calls payload.update which triggers afterChange again
-  if (context.skipProcessUpload) return doc;
+/**
+ * Background worker that does all the heavy lifting:
+ * download original, generate LQIP + sizes, extract EXIF, auto-match gear.
+ * Runs detached from the request so it won't hit Supabase statement timeouts.
+ */
+async function processInBackground(
+  payload: Payload,
+  docId: string | number,
+  doc: Record<string, unknown>,
+  fileData: { data: Buffer } | undefined | null,
+) {
+  const buffer = await resolveImageBuffer(fileData, doc.url as string);
+  if (!buffer) return;
 
-  // Skip metadata-only updates (no new file uploaded).
-  // With client uploads req.file is absent even for new uploads, so also
-  // check whether we've already processed this doc (lqip exists).
-  if (operation === "update" && !req.file && doc.lqip) return doc;
-
-  const buffer = await resolveImageBuffer(req.file, doc.url);
-  if (!buffer) return doc;
   const updates: Record<string, unknown> = {};
 
   // 1. Generate LQIP
@@ -54,10 +62,78 @@ export const processUploadData: CollectionAfterChangeHook = async ({
 
     updates.lqip = `data:image/webp;base64,${blurBuffer.toString("base64")}`;
   } catch (e) {
-    req.payload.logger.error(`Failed to generate LQIP: ${e}`);
+    payload.logger.error(`Failed to generate LQIP: ${e}`);
   }
 
-  // 2. Extract EXIF data
+  // 2. Generate image size variants and upload to Vercel Blob
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  const filename = doc.filename as string | undefined;
+  if (blobToken && filename) {
+    try {
+      const metadata = await sharp(buffer).metadata();
+      const origWidth = metadata.width ?? 0;
+      const origHeight = metadata.height ?? 0;
+
+      if (origWidth > 0 && origHeight > 0) {
+        const aspectRatio = origHeight / origWidth;
+        const basename = filename.replace(/\.[^.]+$/, "");
+        const ext = "jpg";
+
+        const sizeResults = await Promise.allSettled(
+          IMAGE_SIZES.filter(({ width }) => width < origWidth).map(
+            async ({ name, width }) => {
+              const height = Math.round(width * aspectRatio);
+              const resizedBuffer = await sharp(buffer)
+                .resize(width, height, { fit: "inside" })
+                .jpeg({ quality: 80 })
+                .toBuffer();
+
+              const sizeFilename = `${basename}-${width}x${height}.${ext}`;
+              const blob = await put(sizeFilename, resizedBuffer, {
+                access: "public",
+                token: blobToken,
+                addRandomSuffix: false,
+                contentType: "image/jpeg",
+              });
+
+              return {
+                name,
+                url: blob.url,
+                filename: sizeFilename,
+                width,
+                height,
+                filesize: resizedBuffer.length,
+                mimeType: "image/jpeg" as const,
+              };
+            },
+          ),
+        );
+
+        const sizes: Record<string, unknown> = {};
+        for (const result of sizeResults) {
+          if (result.status === "fulfilled") {
+            const { name, ...sizeData } = result.value;
+            sizes[name] = sizeData;
+            payload.logger.info(
+              `Generated size "${name}": ${sizeData.width}x${sizeData.height}`,
+            );
+          } else {
+            payload.logger.error(
+              `Failed to generate image size: ${result.reason}`,
+            );
+          }
+        }
+
+        if (Object.keys(sizes).length > 0) {
+          updates.sizes = sizes;
+        }
+      }
+    } catch (e) {
+      payload.logger.error(`Failed to generate image sizes: ${e}`);
+    }
+  }
+
+  // 3. Extract EXIF data
   let parsedModel: string | undefined;
   let parsedLensModel: string | undefined;
 
@@ -99,10 +175,10 @@ export const processUploadData: CollectionAfterChangeHook = async ({
       }
     }
   } catch (e) {
-    req.payload.logger.error(`Failed to extract EXIF data: ${e}`);
+    payload.logger.error(`Failed to extract EXIF data: ${e}`);
   }
 
-  // 2b. Extract GPS coordinates
+  // 3b. Extract GPS coordinates
   try {
     const gps = await exifr.gps(buffer);
     if (gps?.latitude != null && gps?.longitude != null) {
@@ -112,13 +188,13 @@ export const processUploadData: CollectionAfterChangeHook = async ({
       };
     }
   } catch (e) {
-    req.payload.logger.error(`Failed to extract GPS data: ${e}`);
+    payload.logger.error(`Failed to extract GPS data: ${e}`);
   }
 
-  // 3. Auto-match camera
+  // 4. Auto-match camera
   if (!doc.camera && parsedModel) {
     try {
-      const { docs } = await req.payload.find({
+      const { docs } = await payload.find({
         collection: "cameras",
         where: { name: { contains: parsedModel } },
         limit: 1,
@@ -128,14 +204,14 @@ export const processUploadData: CollectionAfterChangeHook = async ({
         updates.camera = docs[0].id;
       }
     } catch (e) {
-      req.payload.logger.error(`Failed to auto-match camera: ${e}`);
+      payload.logger.error(`Failed to auto-match camera: ${e}`);
     }
   }
 
-  // 4. Auto-match lens
+  // 5. Auto-match lens
   if (!doc.lens && parsedLensModel) {
     try {
-      const { docs } = await req.payload.find({
+      const { docs } = await payload.find({
         collection: "lenses",
         where: { name: { contains: parsedLensModel } },
         limit: 1,
@@ -145,22 +221,45 @@ export const processUploadData: CollectionAfterChangeHook = async ({
         updates.lens = docs[0].id;
       }
     } catch (e) {
-      req.payload.logger.error(`Failed to auto-match lens: ${e}`);
+      payload.logger.error(`Failed to auto-match lens: ${e}`);
     }
   }
 
-  // 5. Persist all extracted metadata in a single update.
-  // IMPORTANT: Do NOT pass `req` here — the original req still carries
-  // req.file which would cause Payload to re-run generateFileData
-  // (re-processing image sizes and triggering cascading cloud-storage uploads).
+  // 6. Persist all extracted metadata in a single update.
   if (Object.keys(updates).length > 0) {
-    await req.payload.update({
+    await payload.update({
       collection: "photos",
-      id: doc.id,
+      id: docId,
       data: updates,
-      context: { ...context, skipProcessUpload: true },
+      context: { skipProcessUpload: true },
     });
+    payload.logger.info(`Photo ${docId}: background processing complete`);
   }
+}
+
+export const processUploadData: CollectionAfterChangeHook = async ({
+  doc,
+  req,
+  operation,
+  context,
+}) => {
+  // Prevent infinite loop — this hook calls payload.update which triggers afterChange again
+  if (context.skipProcessUpload) return doc;
+
+  // Skip metadata-only updates (no new file uploaded).
+  // With client uploads req.file is absent even for new uploads, so also
+  // check whether we've already processed this doc (lqip exists).
+  if (operation === "update" && !req.file && doc.lqip) return doc;
+
+  // Capture references we need, then schedule processing in the background
+  // so the original request returns immediately (avoids Supabase statement timeout).
+  const payload = req.payload;
+  const fileData = req.file as { data: Buffer } | undefined | null;
+
+  // Fire-and-forget — detach from request lifecycle
+  processInBackground(payload, doc.id, doc, fileData).catch((err) => {
+    payload.logger.error(`Background upload processing failed: ${err}`);
+  });
 
   return doc;
 };
