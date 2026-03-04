@@ -1,3 +1,7 @@
+import Link from "next/link";
+import { formatDate } from "@/lib/format";
+import { conservationStatusColors, getEbirdSpeciesUrl } from "@/lib/bird-utils";
+
 interface BirdInfoProps {
   bird: {
     name: string;
@@ -5,39 +9,23 @@ interface BirdInfoProps {
     habitat?: string;
     diet?: string;
     conservationStatus?: string;
-    facts?: string[];
+    facts?: { fact: string }[];
+    ebirdSpeciesCode?: string;
   };
-  location?: string;
+  slug?: string;
   dateTaken?: string;
   description?: string;
 }
 
-const statusColors: Record<string, string> = {
-  "Least Concern": "text-green-500",
-  "Near Threatened": "text-yellow-500",
-  Vulnerable: "text-orange-500",
-  Endangered: "text-red-500",
-  "Critically Endangered": "text-red-700",
-};
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoProps) {
+export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) {
   const details = [
     bird.habitat && { label: "Habitat", value: bird.habitat },
     bird.diet && { label: "Diet", value: bird.diet },
     bird.conservationStatus && {
       label: "Conservation Status",
       value: bird.conservationStatus,
-      className: statusColors[bird.conservationStatus],
+      className: conservationStatusColors[bird.conservationStatus],
     },
-    location && { label: "Location", value: location },
     dateTaken && { label: "Date Taken", value: formatDate(dateTaken) },
   ].filter(Boolean) as { label: string; value: string; className?: string }[];
 
@@ -47,9 +35,28 @@ export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoPro
         <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
           Bird
         </h2>
-        <p className="text-foreground font-medium">{bird.name}</p>
+        {slug ? (
+          <Link
+            href={`/birds/${slug}`}
+            className="text-foreground font-medium hover:text-primary transition-colors"
+          >
+            {bird.name}
+          </Link>
+        ) : (
+          <p className="text-foreground font-medium">{bird.name}</p>
+        )}
         {bird.scientificName && (
           <p className="text-sm text-muted-foreground italic">{bird.scientificName}</p>
+        )}
+        {bird.ebirdSpeciesCode && (
+          <a
+            href={getEbirdSpeciesUrl(bird.ebirdSpeciesCode)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+          >
+            eBird &#8599;
+          </a>
         )}
       </div>
 
@@ -74,11 +81,20 @@ export function BirdInfo({ bird, location, dateTaken, description }: BirdInfoPro
             Fun Facts
           </h3>
           <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {bird.facts.map((fact, i) => (
-              <li key={i}>{fact}</li>
+            {bird.facts.map((f, i) => (
+              <li key={i}>{f.fact}</li>
             ))}
           </ul>
         </div>
+      )}
+
+      {slug && (
+        <Link
+          href={`/birds/${slug}`}
+          className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+        >
+          View More {bird.name} Photos &rarr;
+        </Link>
       )}
     </div>
   );
