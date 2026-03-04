@@ -1,10 +1,10 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
-import Tag from "@/components/Tag.astro";
 import StructuredData from "@/components/StructuredData.astro";
-import { formatDate } from "@/lib/utils";
+import Tag from "@/components/Tag.astro";
 import { blogPostingSchema, breadcrumbSchema } from "@/lib/schema";
+import { formatDate } from "@/lib/utils";
 
 interface Props {
   title: string;
@@ -15,37 +15,55 @@ interface Props {
 }
 
 const { title, description, publishDate, slug, tags = [] } = Astro.props;
+
+const siteUrl = Astro.site ? new URL(Astro.site).origin : "https://brandynbritton.com";
 ---
 
-<BaseLayout title={`${title} | Brandyn Britton`} description={description}>
-  <StructuredData slot="head" schema={blogPostingSchema({ title, description, publishDate, slug, tags })} />
-  <StructuredData slot="head" schema={breadcrumbSchema([
-    { name: "Home", url: "https://brandynbritton.com" },
-    { name: "Blog", url: "https://brandynbritton.com/blog" },
-    { name: title, url: `https://brandynbritton.com/blog/${slug}` },
-  ])} />
-  <article class="max-w-prose mx-auto py-16 md:py-24">
+<BaseLayout
+  title={`${title} | Brandyn Britton`}
+  description={description}
+  ogType="article"
+  publishDate={publishDate}
+  tags={tags}
+>
+  <StructuredData
+    slot="head"
+    schema={blogPostingSchema({ title, description, publishDate, slug, tags })}
+  />
+  <StructuredData
+    slot="head"
+    schema={breadcrumbSchema([
+      { name: "Home", url: siteUrl },
+      { name: "Blog", url: `${siteUrl}/blog` },
+      { name: title, url: `${siteUrl}/blog/${slug}` },
+    ])}
+  />
+  <article class="mx-auto max-w-prose py-16 md:py-24">
     <a
       href="/blog"
-      class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+      class="text-muted-foreground hover:text-primary mb-8 inline-flex items-center gap-2 transition-colors"
     >
       <ArrowLeftIcon />
       Back to blog
     </a>
 
     <header class="mb-12">
-      <time class="text-sm text-muted-foreground" datetime={publishDate}>{formatDate(publishDate)}</time>
-      <h1 class="text-4xl md:text-5xl font-serif font-medium tracking-tight mt-3 mb-4">
+      <time class="text-muted-foreground text-sm" datetime={publishDate}
+        >{formatDate(publishDate)}</time
+      >
+      <h1 class="mt-3 mb-4 font-serif text-4xl font-medium tracking-tight md:text-5xl">
         {title}
       </h1>
-      <p class="text-xl text-muted-foreground leading-relaxed">{description}</p>
+      <p class="text-muted-foreground text-xl leading-relaxed">{description}</p>
 
       {
         tags.length > 0 && (
           <nav aria-label="Post tags">
-            <ul class="flex flex-wrap gap-2 mt-6" role="list">
+            <ul class="mt-6 flex flex-wrap gap-2" role="list">
               {tags.map((tag) => (
-                <li><Tag>{tag}</Tag></li>
+                <li>
+                  <Tag>{tag}</Tag>
+                </li>
               ))}
             </ul>
           </nav>
@@ -54,22 +72,15 @@ const { title, description, publishDate, slug, tags = [] } = Astro.props;
     </header>
 
     <div
-      class="prose prose-invert prose-lg prose-blog
-             prose-headings:font-serif prose-headings:font-medium prose-headings:tracking-tight
-             prose-h2:mt-14 prose-h2:mb-5
-             prose-h3:mt-10 prose-h3:mb-4
-             prose-a:underline prose-a:decoration-primary/30 prose-a:underline-offset-2 hover:prose-a:decoration-primary
-             prose-pre:border prose-pre:border-border
-             prose-code:before:content-none prose-code:after:content-none
-             prose-img:rounded-lg"
+      class="prose prose-invert prose-lg prose-blog prose-headings:font-serif prose-headings:font-medium prose-headings:tracking-tight prose-h2:mt-14 prose-h2:mb-5 prose-h3:mt-10 prose-h3:mb-4 prose-a:underline prose-a:decoration-primary/30 prose-a:underline-offset-2 hover:prose-a:decoration-primary prose-pre:border prose-pre:border-border prose-code:before:content-none prose-code:after:content-none prose-img:rounded-lg"
     >
       <slot />
     </div>
 
-    <footer class="mt-16 pt-8 border-t border-border">
+    <footer class="border-border mt-16 border-t pt-8">
       <a
         href="/"
-        class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+        class="text-muted-foreground hover:text-primary inline-flex items-center gap-2 transition-colors"
       >
         <ArrowLeftIcon />
         Back to home

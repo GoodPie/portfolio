@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo, useEffect, startTransition } from "react";
 import { Button } from "@goodpie/ui/components/button";
 import Link from "next/link";
-import { PhotoGrid } from "@/components/photo-grid";
+import { useState, useMemo, useEffect, startTransition } from "react";
 import type { PhotoCard } from "@/components/photo-grid";
-import { FilterBar } from "@/components/filter-bar";
 import type { FilterOption } from "@/lib/photos";
+import { FilterBar } from "@/components/filter-bar";
+import { PhotoGrid } from "@/components/photo-grid";
 
 interface GalleryShellProps {
   allCards: PhotoCard[];
@@ -14,11 +14,7 @@ interface GalleryShellProps {
   initialCategory: string | null;
 }
 
-export function GalleryShell({
-  allCards,
-  categories,
-  initialCategory,
-}: GalleryShellProps) {
+export function GalleryShell({ allCards, categories, initialCategory }: GalleryShellProps) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
 
   const filtered = useMemo(() => {
@@ -54,21 +50,17 @@ export function GalleryShell({
       )}
 
       {allCards.length === 0 ? (
-        <div className="text-center py-24">
+        <div className="py-24 text-center">
           <p className="text-muted-foreground">No photos yet.</p>
           <Button asChild variant="link" className="mt-4">
-            <Link href="/admin">
-              Open Admin to upload your first photo &rarr;
-            </Link>
+            <Link href="/admin">Open Admin to upload your first photo &rarr;</Link>
           </Button>
         </div>
       ) : filtered.length > 0 ? (
         <PhotoGrid photos={filtered} />
       ) : activeCategory ? (
-        <div className="text-center py-24">
-          <p className="text-muted-foreground">
-            No photos found for this category.
-          </p>
+        <div className="py-24 text-center">
+          <p className="text-muted-foreground">No photos found for this category.</p>
           <Button asChild variant="link" className="mt-4">
             <button onClick={() => handleFilterChange(null)}>Clear filter &rarr;</button>
           </Button>

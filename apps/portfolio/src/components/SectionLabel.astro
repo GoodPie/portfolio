@@ -9,10 +9,10 @@ interface Props {
 const { number, label } = Astro.props;
 ---
 
-<div class="flex items-center gap-4 mb-12">
+<div class="mb-12 flex items-center gap-4">
   <span class="text-teal text-sm font-medium">{number}</span>
-  <span class="text-sm font-medium tracking-widest text-muted-foreground uppercase">
+  <span class="text-muted-foreground text-sm font-medium tracking-widest uppercase">
     {label}
   </span>
-  <LineReveal client:visible className="flex-1 h-px bg-border" />
+  <LineReveal client:visible className="bg-border h-px flex-1" />
 </div>

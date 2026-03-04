@@ -191,9 +191,7 @@ describe("processUploadData — LQIP generation", () => {
     await flush();
 
     const updateCall = args.req.payload.update.mock.calls[0][0];
-    expect(updateCall.data.lqip).toBe(
-      `data:image/webp;base64,${lqipBuffer.toString("base64")}`,
-    );
+    expect(updateCall.data.lqip).toBe(`data:image/webp;base64,${lqipBuffer.toString("base64")}`);
   });
 
   it("calls sharp with 10x10 resize and webp quality 20", async () => {

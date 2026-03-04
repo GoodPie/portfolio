@@ -16,41 +16,33 @@ export function LifeListStats({
   yearCounts,
 }: LifeListStatsProps) {
   const latestYear =
-    yearCounts.length > 0
-      ? yearCounts.reduce((a, b) => (a.year > b.year ? a : b))
-      : null;
+    yearCounts.length > 0 ? yearCounts.reduce((a, b) => (a.year > b.year ? a : b)) : null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+    <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
       <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Species
-        </p>
-        <p className="text-3xl font-serif font-medium">{totalSpecies}</p>
+        <p className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">Species</p>
+        <p className="font-serif text-3xl font-medium">{totalSpecies}</p>
         {latestYear && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-xs">
             {latestYear.count} new in {latestYear.year}
           </p>
         )}
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Bird Photos
-        </p>
-        <p className="text-3xl font-serif font-medium">{totalPhotos}</p>
+        <p className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">Bird Photos</p>
+        <p className="font-serif text-3xl font-medium">{totalPhotos}</p>
       </div>
 
       <div className="bg-muted/50 rounded-lg p-4">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Conservation
-        </p>
-        <div className="flex flex-wrap gap-1.5 mt-2">
+        <p className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">Conservation</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {statusBreakdown.map(({ status, count }) => (
             <Badge
               key={status}
               className={cn(
-                "text-[10px] font-medium border-0 px-1.5 py-0",
+                "border-0 px-1.5 py-0 text-[10px] font-medium",
                 conservationStatusBgColors[status],
               )}
             >

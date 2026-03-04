@@ -4,7 +4,6 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@payload-config", () => ({ default: {} }));
 vi.mock("payload", () => ({ getPayload: vi.fn() }));
 
-import type { PhotoDoc } from "./payload";
 import {
   getRelationId,
   toPhotoCard,
@@ -14,6 +13,7 @@ import {
   getActiveFilterNames,
   type FilterOption,
 } from "./photos";
+import type { PhotoDoc } from "./payload";
 
 /** Helper to build a minimal PhotoDoc. */
 function makePhoto(overrides: Partial<PhotoDoc> = {}): PhotoDoc {
@@ -166,9 +166,7 @@ describe("buildFilterOptions", () => {
   });
 
   it("skips non-populated relations (raw IDs)", () => {
-    const photos = [
-      makePhoto({ category: "c1" as unknown as PhotoDoc["category"] }),
-    ];
+    const photos = [makePhoto({ category: "c1" as unknown as PhotoDoc["category"] })];
     const { categories } = buildFilterOptions(photos);
     expect(categories).toEqual([]);
   });
@@ -260,26 +258,21 @@ describe("getActiveFilterNames", () => {
   });
 
   it("returns category label when filtering by category", () => {
-    expect(getActiveFilterNames(categories, birds, { categoryId: "c1" })).toEqual([
-      "Wildlife",
-    ]);
+    expect(getActiveFilterNames(categories, birds, { categoryId: "c1" })).toEqual(["Wildlife"]);
   });
 
   it("returns bird label when filtering by bird", () => {
-    expect(getActiveFilterNames(categories, birds, { birdId: "b2" })).toEqual([
-      "Tui",
-    ]);
+    expect(getActiveFilterNames(categories, birds, { birdId: "b2" })).toEqual(["Tui"]);
   });
 
   it("returns both labels when filtering by both", () => {
-    expect(
-      getActiveFilterNames(categories, birds, { categoryId: "c2", birdId: "b1" }),
-    ).toEqual(["Landscape", "Kea"]);
+    expect(getActiveFilterNames(categories, birds, { categoryId: "c2", birdId: "b1" })).toEqual([
+      "Landscape",
+      "Kea",
+    ]);
   });
 
   it("skips unmatched IDs", () => {
-    expect(
-      getActiveFilterNames(categories, birds, { categoryId: "nonexistent" }),
-    ).toEqual([]);
+    expect(getActiveFilterNames(categories, birds, { categoryId: "nonexistent" })).toEqual([]);
   });
 });

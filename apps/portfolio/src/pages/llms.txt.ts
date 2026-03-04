@@ -6,8 +6,7 @@ const SITE_URL = "https://brandynbritton.com";
 
 export const GET: APIRoute = () => {
   const sortedPosts = [...posts].sort(
-    (a, b) =>
-      new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
+    (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
   );
 
   const lines = [
@@ -23,15 +22,13 @@ export const GET: APIRoute = () => {
     "## Blog Posts",
     "",
     ...sortedPosts.map(
-      (post) =>
-        `- [${post.title}](${SITE_URL}/blog/${post.slug}): ${post.description}`,
+      (post) => `- [${post.title}](${SITE_URL}/blog/${post.slug}): ${post.description}`,
     ),
     "",
     "## Optional",
     "",
     ...projects.map(
-      (project) =>
-        `- [${project.name}](${project.url ?? SITE_URL}): ${project.description}`,
+      (project) => `- [${project.name}](${project.url ?? SITE_URL}): ${project.description}`,
     ),
     "",
   ];

@@ -1,5 +1,5 @@
 /* Google Fonts - Inter & Playfair Display */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../../packages/ui/src/styles/globals.css";
@@ -8,129 +8,124 @@
 @source "../../../../packages/ui/src";
 
 @theme inline {
-    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-serif: "Playfair Display", ui-serif, Georgia, serif;
-    --color-overlay-foreground: oklch(0.97 0 0);
-    --color-overlay-muted: oklch(0.7 0 0);
-    --color-overlay-dim: oklch(0.6 0 0);
-    --color-status-safe: oklch(0.72 0.19 142.5);
-    --color-status-warning: oklch(0.8 0.18 84);
-    --color-status-caution: oklch(0.7 0.18 55);
-    --color-status-danger: oklch(0.63 0.22 29);
-    --color-status-critical: oklch(0.5 0.21 27);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --color-overlay-foreground: oklch(0.97 0 0);
+  --color-overlay-muted: oklch(0.7 0 0);
+  --color-overlay-dim: oklch(0.6 0 0);
+  --color-status-safe: oklch(0.72 0.19 142.5);
+  --color-status-warning: oklch(0.8 0.18 84);
+  --color-status-caution: oklch(0.7 0.18 55);
+  --color-status-danger: oklch(0.63 0.22 29);
+  --color-status-critical: oklch(0.5 0.21 27);
 }
 
 @layer base {
-    *:focus-visible {
-        outline: 2px solid var(--primary);
-        outline-offset: 2px;
-    }
+  *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 
-    html {
-        @apply scroll-smooth;
-    }
+  html {
+    @apply scroll-smooth;
+  }
 
-    body {
-        @apply font-sans antialiased;
-    }
+  body {
+    @apply font-sans antialiased;
+  }
 }
 
 /* Image reveal animation */
 @keyframes image-reveal {
-    from {
-        opacity: 0;
-        transform: scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .image-reveal {
-    animation: image-reveal 0.6s ease-out forwards;
+  animation: image-reveal 0.6s ease-out forwards;
 }
 
 /* View Transition: meta info slides in from the left */
 @keyframes vt-meta-enter {
-    from {
-        transform: translateX(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 ::view-transition-new(.meta-enter) {
-    animation: vt-meta-enter 0.5s ease-out 0.15s both;
+  animation: vt-meta-enter 0.5s ease-out 0.15s both;
 }
 
 /* View Transition: photo cards enter/exit during filtering */
 @keyframes vt-photo-enter {
-    from {
-        opacity: 0;
-        transform: scale(0.94);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes vt-photo-exit {
-    from {
-        opacity: 1;
-        transform: scale(1);
-    }
-    to {
-        opacity: 0;
-        transform: scale(0.94);
-    }
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
 }
 
 ::view-transition-new(.photo-filter) {
-    animation: vt-photo-enter 0.3s ease-out both;
+  animation: vt-photo-enter 0.3s ease-out both;
 }
 
 ::view-transition-old(.photo-filter) {
-    animation: vt-photo-exit 0.2s ease-in both;
+  animation: vt-photo-exit 0.2s ease-in both;
 }
 
 /* Species strip: scrollable with faded edges */
 .species-strip {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    mask-image: linear-gradient(
-        to right,
-        transparent,
-        black 1rem,
-        black calc(100% - 2rem),
-        transparent
-    );
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1rem,
+    black calc(100% - 2rem),
+    transparent
+  );
 }
 
 .species-strip::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 @media (max-width: 640px) {
-    .species-strip {
-        mask-image: linear-gradient(
-            to right,
-            black,
-            black calc(100% - 2rem),
-            transparent
-        );
-    }
+  .species-strip {
+    mask-image: linear-gradient(to right, black, black calc(100% - 2rem), transparent);
+  }
 }
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(.meta-enter),
-    ::view-transition-new(.photo-filter),
-    ::view-transition-old(.photo-filter) {
-        animation: none;
-    }
+  ::view-transition-new(.meta-enter),
+  ::view-transition-new(.photo-filter),
+  ::view-transition-old(.photo-filter) {
+    animation: none;
+  }
 }

@@ -1,8 +1,8 @@
 "use client";
 
+import { useField } from "@payloadcms/ui";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { useField } from "@payloadcms/ui";
 
 const LocationMap = dynamic(
   () => import("@/components/location-map").then((mod) => mod.LocationMap),
@@ -71,10 +71,7 @@ export default function LocationSearchField() {
   // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
       }
     }
@@ -84,10 +81,7 @@ export default function LocationSearchField() {
 
   return (
     <div style={{ marginBottom: "1rem" }}>
-      <label
-        className="field-label"
-        style={{ display: "block", marginBottom: "0.5rem" }}
-      >
+      <label className="field-label" style={{ display: "block", marginBottom: "0.5rem" }}>
         Location Search
       </label>
       <div ref={dropdownRef} style={{ position: "relative" }}>
@@ -129,8 +123,7 @@ export default function LocationSearchField() {
               left: 0,
               right: 0,
               zIndex: 1000,
-              background:
-                "var(--theme-elevation-50, var(--theme-elevation-0, #fff))",
+              background: "var(--theme-elevation-50, var(--theme-elevation-0, #fff))",
               border: "1px solid var(--theme-elevation-150, #ccc)",
               borderRadius: "var(--style-radius-s, 4px)",
               marginTop: "2px",
@@ -150,20 +143,15 @@ export default function LocationSearchField() {
                   cursor: "pointer",
                   fontSize: "0.8125rem",
                   borderBottom:
-                    i < results.length - 1
-                      ? "1px solid var(--theme-elevation-100, #eee)"
-                      : "none",
+                    i < results.length - 1 ? "1px solid var(--theme-elevation-100, #eee)" : "none",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background =
-                    "var(--theme-elevation-100, #f0f0f0)")
+                  (e.currentTarget.style.background = "var(--theme-elevation-100, #f0f0f0)")
                 }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "transparent")
-                }
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               >
                 {result.display_name}
               </li>
@@ -171,7 +159,7 @@ export default function LocationSearchField() {
           </ul>
         )}
       </div>
-      {lat != null && lng != null && (
+      {lat !== null && lat !== undefined && lng !== null && lng !== undefined && (
         <div style={{ marginTop: "0.75rem" }}>
           <LocationMap latitude={lat} longitude={lng} />
         </div>

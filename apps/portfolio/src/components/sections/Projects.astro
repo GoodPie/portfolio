@@ -1,19 +1,21 @@
 ---
+import FadeInHoverLift from "@/components/animations/FadeInHoverLift";
+import ProjectCard from "@/components/ProjectCard.astro";
 import Section from "@/components/Section.astro";
 import SectionLabel from "@/components/SectionLabel.astro";
-import ProjectCard from "@/components/ProjectCard.astro";
-import FadeInHoverLift from "@/components/animations/FadeInHoverLift";
 import { projects } from "@/data/projects";
 ---
 
 <Section>
   <SectionLabel number="03" label="Projects" />
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {projects.map((project, index) => (
-      <FadeInHoverLift client:visible delay={index * 0.1}>
-        <ProjectCard project={project} />
-      </FadeInHoverLift>
-    ))}
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {
+      projects.map((project, index) => (
+        <FadeInHoverLift client:visible delay={index * 0.1}>
+          <ProjectCard project={project} />
+        </FadeInHoverLift>
+      ))
+    }
   </div>
 </Section>

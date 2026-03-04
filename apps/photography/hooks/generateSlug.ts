@@ -18,8 +18,7 @@ export const generateSlug: CollectionBeforeChangeHook = async ({
 
   // Only regenerate slug on create, or when name changes on update
   const needsSlug =
-    operation === "create" ||
-    (operation === "update" && name && name !== originalDoc?.name);
+    operation === "create" || (operation === "update" && name && name !== originalDoc?.name);
 
   if (!needsSlug || !name) return data;
 

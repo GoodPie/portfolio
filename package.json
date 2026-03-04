@@ -11,9 +11,18 @@
     "build": "turbo run build",
     "check": "turbo run check",
     "test": "turbo run test",
-    "preview": "turbo run preview"
+    "preview": "turbo run preview",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.8.12"
   }
 }

@@ -1,7 +1,7 @@
-import type { CollectionAfterChangeHook, Payload } from "payload";
-import sharp from "sharp";
-import exifr from "exifr";
 import { put } from "@vercel/blob";
+import exifr from "exifr";
+import sharp from "sharp";
+import type { CollectionAfterChangeHook, Payload } from "payload";
 
 /** Image size definitions — must match Photos.ts imageSizes config. */
 const IMAGE_SIZES = [
@@ -80,33 +80,31 @@ async function processInBackground(
         const ext = "jpg";
 
         const sizeResults = await Promise.allSettled(
-          IMAGE_SIZES.filter(({ width }) => width < origWidth).map(
-            async ({ name, width }) => {
-              const height = Math.round(width * aspectRatio);
-              const resizedBuffer = await sharp(buffer)
-                .resize(width, height, { fit: "inside" })
-                .jpeg({ quality: 80 })
-                .toBuffer();
+          IMAGE_SIZES.filter(({ width }) => width < origWidth).map(async ({ name, width }) => {
+            const height = Math.round(width * aspectRatio);
+            const resizedBuffer = await sharp(buffer)
+              .resize(width, height, { fit: "inside" })
+              .jpeg({ quality: 80 })
+              .toBuffer();
 
-              const sizeFilename = `${basename}-${width}x${height}.${ext}`;
-              const blob = await put(sizeFilename, resizedBuffer, {
-                access: "public",
-                token: blobToken,
-                addRandomSuffix: false,
-                contentType: "image/jpeg",
-              });
+            const sizeFilename = `${basename}-${width}x${height}.${ext}`;
+            const blob = await put(sizeFilename, resizedBuffer, {
+              access: "public",
+              token: blobToken,
+              addRandomSuffix: false,
+              contentType: "image/jpeg",
+            });
 
-              return {
-                name,
-                url: blob.url,
-                filename: sizeFilename,
-                width,
-                height,
-                filesize: resizedBuffer.length,
-                mimeType: "image/jpeg" as const,
-              };
-            },
-          ),
+            return {
+              name,
+              url: blob.url,
+              filename: sizeFilename,
+              width,
+              height,
+              filesize: resizedBuffer.length,
+              mimeType: "image/jpeg" as const,
+            };
+          }),
         );
 
         const sizes: Record<string, unknown> = {};
@@ -114,13 +112,9 @@ async function processInBackground(
           if (result.status === "fulfilled") {
             const { name, ...sizeData } = result.value;
             sizes[name] = sizeData;
-            payload.logger.info(
-              `Generated size "${name}": ${sizeData.width}x${sizeData.height}`,
-            );
+            payload.logger.info(`Generated size "${name}": ${sizeData.width}x${sizeData.height}`);
           } else {
-            payload.logger.error(
-              `Failed to generate image size: ${result.reason}`,
-            );
+            payload.logger.error(`Failed to generate image size: ${result.reason}`);
           }
         }
 
@@ -181,7 +175,12 @@ async function processInBackground(
   // 3b. Extract GPS coordinates
   try {
     const gps = await exifr.gps(buffer);
-    if (gps?.latitude != null && gps?.longitude != null) {
+    if (
+      gps?.latitude !== null &&
+      gps?.latitude !== undefined &&
+      gps?.longitude !== null &&
+      gps?.longitude !== undefined
+    ) {
       updates.geolocation = {
         latitude: gps.latitude,
         longitude: gps.longitude,

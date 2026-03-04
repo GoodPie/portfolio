@@ -7,17 +7,13 @@ interface FilterBarProps {
   onFilterChange: (value: string | null) => void;
 }
 
-export function FilterBar({
-  categories,
-  activeCategory,
-  onFilterChange,
-}: FilterBarProps) {
+export function FilterBar({ categories, activeCategory, onFilterChange }: FilterBarProps) {
   if (categories.length === 0) return null;
 
   return (
     <div className="mb-10">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground uppercase tracking-wider mr-1">
+        <span className="text-muted-foreground mr-1 text-xs tracking-wider uppercase">
           Category
         </span>
         <Badge
@@ -34,11 +30,7 @@ export function FilterBar({
             variant={activeCategory === option.id ? "default" : "outline"}
             className="cursor-pointer hover:opacity-80"
           >
-            <button
-              onClick={() =>
-                onFilterChange(activeCategory === option.id ? null : option.id)
-              }
-            >
+            <button onClick={() => onFilterChange(activeCategory === option.id ? null : option.id)}>
               {option.label} <span className="opacity-50">{option.count}</span>
             </button>
           </Badge>
@@ -48,7 +40,7 @@ export function FilterBar({
       {activeCategory && (
         <button
           onClick={() => onFilterChange(null)}
-          className="mt-3 text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+          className="text-muted-foreground hover:text-foreground mt-3 text-sm underline underline-offset-4 transition-colors"
         >
           Clear filter
         </button>

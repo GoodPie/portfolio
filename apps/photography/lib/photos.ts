@@ -1,5 +1,5 @@
-import type { PhotoDoc } from "./payload";
 import { getImageUrl, getLqip } from "./payload";
+import type { PhotoDoc } from "./payload";
 import type { PhotoCard } from "@/components/photo-grid";
 
 export interface FilterOption {
@@ -12,7 +12,7 @@ export interface FilterOption {
 export function getRelationId(
   relation: { id: string | number } | string | number | null | undefined,
 ): string | null {
-  if (relation == null) return null;
+  if (relation === null || relation === undefined) return null;
   if (typeof relation === "object") return String(relation.id);
   return String(relation);
 }

@@ -1,8 +1,8 @@
 ---
+import HoverScale from "@/components/animations/HoverScale";
 import GithubIcon from "@/components/icons/GithubIcon.astro";
 import LinkedinIcon from "@/components/icons/LinkedinIcon.astro";
 import MailIcon from "@/components/icons/MailIcon.astro";
-import HoverScale from "@/components/animations/HoverScale";
 
 interface Props {
   class?: string;
@@ -38,7 +38,7 @@ const links = [
             href={link.href}
             target={link.href.startsWith("mailto") ? undefined : "_blank"}
             rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-            class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+            class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
           >
             {link.icon === "github" && <GithubIcon size={16} />}
             {link.icon === "linkedin" && <LinkedinIcon size={16} />}
@@ -46,9 +46,7 @@ const links = [
             {link.name}
           </a>
         </HoverScale>
-        {index < links.length - 1 && (
-          <span class="text-muted-foreground/30">/</span>
-        )}
+        {index < links.length - 1 && <span class="text-muted-foreground/30">/</span>}
       </>
     ))
   }

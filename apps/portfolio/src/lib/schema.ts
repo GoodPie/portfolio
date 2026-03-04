@@ -15,20 +15,11 @@ export function personSchema() {
     name: "Brandyn Britton",
     url: SITE_URL,
     jobTitle: "Senior Software Engineer",
-    sameAs: [
-      "https://github.com/Goodpie",
-      "https://linkedin.com/in/brandyn-britton",
-    ],
+    sameAs: ["https://github.com/Goodpie", "https://linkedin.com/in/brandyn-britton"],
   };
 }
 
-export function blogPostingSchema({
-  title,
-  description,
-  publishDate,
-  slug,
-  tags,
-}: Post) {
+export function blogPostingSchema({ title, description, publishDate, slug, tags }: Post) {
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -50,8 +41,7 @@ export function blogSchema(posts: Post[]) {
     "@context": "https://schema.org",
     "@type": "Blog",
     name: "Blog | Brandyn Britton",
-    description:
-      "Thoughts on software engineering, game development, and creative coding.",
+    description: "Thoughts on software engineering, game development, and creative coding.",
     url: `${SITE_URL}/blog`,
     author: AUTHOR_PERSON,
     blogPost: posts.map((post) => ({
@@ -65,9 +55,7 @@ export function blogSchema(posts: Post[]) {
   };
 }
 
-export function breadcrumbSchema(
-  items: { name: string; url: string }[],
-) {
+export function breadcrumbSchema(items: { name: string; url: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

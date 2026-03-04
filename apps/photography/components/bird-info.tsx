@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { formatDate } from "@/lib/format";
 import { conservationStatusColors, getEbirdSpeciesUrl } from "@/lib/bird-utils";
+import { formatDate } from "@/lib/format";
 
 interface BirdInfoProps {
   bird: {
@@ -30,15 +30,13 @@ export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) 
   ].filter(Boolean) as { label: string; value: string; className?: string }[];
 
   return (
-    <div className="border-t border-border/40 pt-6 flex flex-col gap-4">
+    <div className="border-border/40 flex flex-col gap-4 border-t pt-6">
       <div>
-        <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-          Bird
-        </h2>
+        <h2 className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">Bird</h2>
         {slug ? (
           <Link
             href={`/birds/${slug}`}
-            className="text-foreground font-medium hover:text-primary transition-colors"
+            className="text-foreground hover:text-primary font-medium transition-colors"
           >
             {bird.name}
           </Link>
@@ -46,23 +44,21 @@ export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) 
           <p className="text-foreground font-medium">{bird.name}</p>
         )}
         {bird.scientificName && (
-          <p className="text-sm text-muted-foreground italic">{bird.scientificName}</p>
+          <p className="text-muted-foreground text-sm italic">{bird.scientificName}</p>
         )}
         {bird.ebirdSpeciesCode && (
           <a
             href={getEbirdSpeciesUrl(bird.ebirdSpeciesCode)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary text-xs transition-colors"
           >
             eBird &#8599;
           </a>
         )}
       </div>
 
-      {description && (
-        <p className="text-sm text-muted-foreground">{description}</p>
-      )}
+      {description && <p className="text-muted-foreground text-sm">{description}</p>}
 
       {details.length > 0 && (
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -77,10 +73,10 @@ export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) 
 
       {bird.facts && bird.facts.length > 0 && (
         <div>
-          <h3 className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+          <h3 className="text-muted-foreground mb-2 text-xs tracking-widest uppercase">
             Fun Facts
           </h3>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             {bird.facts.map((f, i) => (
               <li key={i}>{f.fact}</li>
             ))}
@@ -91,7 +87,7 @@ export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) 
       {slug && (
         <Link
           href={`/birds/${slug}`}
-          className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+          className="text-primary hover:text-primary/80 inline-flex items-center gap-1.5 text-sm transition-colors"
         >
           View More {bird.name} Photos &rarr;
         </Link>

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
-import { publicRead, isAuthenticated } from "@/lib/access";
 import { generateSlug } from "@/hooks/generateSlug";
+import { publicRead, isAuthenticated } from "@/lib/access";
 
 export const Birds: CollectionConfig = {
   slug: "birds",
@@ -66,8 +66,7 @@ export const Birds: CollectionConfig = {
       type: "text",
       admin: {
         position: "sidebar",
-        description:
-          "6-letter eBird code (e.g. amerob). Find at ebird.org/species",
+        description: "6-letter eBird code (e.g. amerob). Find at ebird.org/species",
       },
     },
     {

@@ -1,6 +1,6 @@
+import type { PhotoDoc } from "@/lib/payload";
 import { formatExposure } from "@/lib/format";
 import { resolveRelation, getImageUrl } from "@/lib/payload";
-import type { PhotoDoc } from "@/lib/payload";
 
 function buildJsonLd(photo: PhotoDoc, description: string, id: string) {
   const bird = resolveRelation(photo.bird);
@@ -37,8 +37,10 @@ function buildJsonLd(photo: PhotoDoc, description: string, id: string) {
       url: "https://brandynbritton.com",
     },
     ...(photo.dateTaken && { dateCreated: photo.dateTaken }),
-    ...(photo.geolocation?.latitude != null &&
-      photo.geolocation?.longitude != null && {
+    ...(photo.geolocation?.latitude !== null &&
+      photo.geolocation?.latitude !== undefined &&
+      photo.geolocation?.longitude !== null &&
+      photo.geolocation?.longitude !== undefined && {
         contentLocation: {
           "@type": "Place",
           geo: {
@@ -107,7 +109,5 @@ export function PhotoJsonLd({
   // JSON.stringify safely escapes all values — no XSS risk for structured data
   const jsonLd = JSON.stringify(buildJsonLd(photo, description, id));
 
-  return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />;
 }

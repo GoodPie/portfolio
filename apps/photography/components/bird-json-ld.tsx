@@ -1,7 +1,7 @@
 import type { BirdDoc } from "@/lib/payload";
-import { resolveRelation, getImageUrl } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
 import { getEbirdSpeciesUrl } from "@/lib/bird-utils";
+import { resolveRelation, getImageUrl } from "@/lib/payload";
 
 function buildJsonLd(bird: BirdDoc) {
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
@@ -10,9 +10,7 @@ function buildJsonLd(bird: BirdDoc) {
     ...(bird.taxonomicOrder
       ? [{ "@type": "PropertyValue", name: "taxonomicOrder", value: bird.taxonomicOrder }]
       : []),
-    ...(bird.family
-      ? [{ "@type": "PropertyValue", name: "family", value: bird.family }]
-      : []),
+    ...(bird.family ? [{ "@type": "PropertyValue", name: "family", value: bird.family }] : []),
     ...(bird.facts && bird.facts.length > 0
       ? bird.facts.map((f) => ({
           "@type": "PropertyValue",
@@ -45,7 +43,5 @@ export function BirdJsonLd({ bird }: { bird: BirdDoc }) {
   // JSON.stringify safely escapes all values — no XSS risk for structured data
   const jsonLd = JSON.stringify(buildJsonLd(bird));
 
-  return (
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />;
 }

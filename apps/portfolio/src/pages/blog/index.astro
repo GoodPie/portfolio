@@ -1,17 +1,16 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
-import Tag from "@/components/Tag.astro";
-import StructuredData from "@/components/StructuredData.astro";
 import FadeIn from "@/components/animations/FadeIn";
+import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
+import StructuredData from "@/components/StructuredData.astro";
+import Tag from "@/components/Tag.astro";
 import { posts } from "@/data/posts";
-import { formatDate } from "@/lib/utils";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import { blogSchema, breadcrumbSchema } from "@/lib/schema";
+import { formatDate } from "@/lib/utils";
 
 // Sort posts by date (newest first)
 const sortedPosts = [...posts].sort(
-  (a, b) =>
-    new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+  (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
 );
 ---
 
@@ -20,42 +19,51 @@ const sortedPosts = [...posts].sort(
   description="Thoughts on software engineering, game development, and creative coding."
 >
   <StructuredData slot="head" schema={blogSchema(sortedPosts)} />
-  <StructuredData slot="head" schema={breadcrumbSchema([
-    { name: "Home", url: "https://brandynbritton.com" },
-    { name: "Blog", url: "https://brandynbritton.com/blog" },
-  ])} />
-  <section class="max-w-prose mx-auto py-16 md:py-24">
+  <StructuredData
+    slot="head"
+    schema={breadcrumbSchema([
+      { name: "Home", url: "https://brandynbritton.com" },
+      { name: "Blog", url: "https://brandynbritton.com/blog" },
+    ])}
+  />
+  <section class="mx-auto max-w-prose py-16 md:py-24">
     <a
       href="/"
-      class="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+      class="text-muted-foreground hover:text-primary mb-8 inline-flex items-center gap-2 transition-colors"
     >
       <ArrowLeftIcon />
       Back to home
     </a>
 
     <header class="mb-12">
-      <h1 class="text-4xl md:text-5xl font-serif font-medium mb-4">Blog</h1>
-      <p class="text-lg text-muted-foreground">
+      <h1 class="mb-4 font-serif text-4xl font-medium md:text-5xl">Blog</h1>
+      <p class="text-muted-foreground text-lg">
         Thoughts on software engineering, game development, and creative coding.
       </p>
     </header>
 
-    <div class="divide-y divide-border" role="feed" aria-label="Blog posts">
+    <div class="divide-border divide-y" role="feed" aria-label="Blog posts">
       {
         sortedPosts.map((post, index) => (
-          <FadeIn client:visible delay={index * 0.08} className={index === 0 ? "py-8 pt-0" : "py-8"}>
+          <FadeIn
+            client:visible
+            delay={index * 0.08}
+            className={index === 0 ? "py-8 pt-0" : "py-8"}
+          >
             <article class="group" aria-posinset={index + 1} aria-setsize={sortedPosts.length}>
               <a href={`/blog/${post.slug}`} class="block">
-                <time class="text-sm text-muted-foreground" datetime={post.publishDate}>
+                <time class="text-muted-foreground text-sm" datetime={post.publishDate}>
                   {formatDate(post.publishDate)}
                 </time>
-                <h2 class="text-2xl md:text-3xl font-serif font-medium tracking-tight mt-1 mb-2 group-hover:text-primary transition-colors">
+                <h2 class="group-hover:text-primary mt-1 mb-2 font-serif text-2xl font-medium tracking-tight transition-colors md:text-3xl">
                   {post.title}
                 </h2>
                 <p class="text-muted-foreground">{post.description}</p>
-                <ul class="flex flex-wrap gap-2 mt-4" role="list" aria-label="Post tags">
+                <ul class="mt-4 flex flex-wrap gap-2" role="list" aria-label="Post tags">
                   {post.tags.map((tag) => (
-                    <li><Tag>{tag}</Tag></li>
+                    <li>
+                      <Tag>{tag}</Tag>
+                    </li>
                   ))}
                 </ul>
               </a>

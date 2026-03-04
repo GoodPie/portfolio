@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { getAllBirds, getBirdPhotoStats, getImageUrl, resolveRelation } from "@/lib/payload";
-import type { PhotoDoc } from "@/lib/payload";
 import type { BirdCardData } from "@/components/bird-grid";
+import type { PhotoDoc } from "@/lib/payload";
+import type { Metadata } from "next";
 import { LifeListShell } from "@/components/life-list-shell";
 import { LifeListStats } from "@/components/life-list-stats";
+import { getAllBirds, getBirdPhotoStats, getImageUrl, resolveRelation } from "@/lib/payload";
 
 export const revalidate = 60;
 
@@ -34,10 +34,7 @@ export default async function BirdsPage({
   }>;
 }) {
   const params = await searchParams;
-  const [birds, stats] = await Promise.all([
-    getAllBirds(),
-    getBirdPhotoStats(),
-  ]);
+  const [birds, stats] = await Promise.all([getAllBirds(), getBirdPhotoStats()]);
 
   const birdCards: BirdCardData[] = birds.map((bird) => {
     const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
@@ -69,8 +66,7 @@ export default async function BirdsPage({
   const statusBreakdown = Object.entries(
     birds.reduce(
       (acc, b) => {
-        if (b.conservationStatus)
-          acc[b.conservationStatus] = (acc[b.conservationStatus] || 0) + 1;
+        if (b.conservationStatus) acc[b.conservationStatus] = (acc[b.conservationStatus] || 0) + 1;
         return acc;
       },
       {} as Record<string, number>,
@@ -78,29 +74,25 @@ export default async function BirdsPage({
   ).map(([status, count]) => ({ status, count }));
   const yearCounts = availableYears.map((y) => ({
     year: y,
-    count: birdCards.filter(
-      (b) => b.firstSeen && new Date(b.firstSeen).getFullYear() === y,
-    ).length,
+    count: birdCards.filter((b) => b.firstSeen && new Date(b.firstSeen).getFullYear() === y).length,
   }));
 
   return (
     <div>
       <Link
         href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors mb-6 lg:mb-8"
+        className="text-muted-foreground/70 hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-xs transition-colors lg:mb-8"
       >
         &larr; Back to gallery
       </Link>
 
       <section className="mb-10">
-        <p className="text-sm tracking-widest text-muted-foreground uppercase mb-4">
-          Life List
-        </p>
-        <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight mb-4">
+        <p className="text-muted-foreground mb-4 text-sm tracking-widest uppercase">Life List</p>
+        <h1 className="mb-4 font-serif text-4xl font-medium tracking-tight md:text-5xl">
           {birds.length} {birds.length === 1 ? "species" : "species"}
           <span className="text-teal">.</span>
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-muted-foreground text-lg leading-relaxed">
           Every bird I&apos;ve had the privilege of photographing.
         </p>
       </section>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useField, useAllFormFields } from "@payloadcms/ui";
+import { useState } from "react";
 
 interface BirdLookupResult {
   scientificName: string | null;
@@ -57,7 +57,7 @@ export default function BirdLookupButton() {
 
       for (const field of simpleFields) {
         const value = data[field];
-        if (value != null) {
+        if (value !== null && value !== undefined) {
           dispatchFields({
             type: "UPDATE",
             path: field,

@@ -14,37 +14,35 @@ export function BirdBio({ bird }: BirdBioProps) {
   if (!hasDetails && !hasFacts && !hasTaxonomy && !hasResources) return null;
 
   return (
-    <section className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+    <section className="mb-10 grid grid-cols-1 gap-8 md:grid-cols-2">
       <dl className="space-y-4">
         {bird.habitat && (
           <div>
-            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+            <dt className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">
               Habitat
             </dt>
-            <dd className="text-sm text-foreground leading-relaxed">{bird.habitat}</dd>
+            <dd className="text-foreground text-sm leading-relaxed">{bird.habitat}</dd>
           </div>
         )}
         {bird.diet && (
           <div>
-            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-              Diet
-            </dt>
-            <dd className="text-sm text-foreground leading-relaxed">{bird.diet}</dd>
+            <dt className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">Diet</dt>
+            <dd className="text-foreground text-sm leading-relaxed">{bird.diet}</dd>
           </div>
         )}
         {hasTaxonomy && (
           <div>
-            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
+            <dt className="text-muted-foreground mb-1 text-xs tracking-widest uppercase">
               Classification
             </dt>
-            <dd className="text-sm text-foreground leading-relaxed">
+            <dd className="text-foreground text-sm leading-relaxed">
               {[bird.taxonomicOrder, bird.family].filter(Boolean).join(" \u00b7 ")}
             </dd>
           </div>
         )}
         {hasResources && (
           <div>
-            <dt className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+            <dt className="text-muted-foreground mb-2 text-xs tracking-widest uppercase">
               Resources
             </dt>
             <dd className="flex flex-col gap-1.5">
@@ -52,7 +50,7 @@ export function BirdBio({ bird }: BirdBioProps) {
                 href={getEbirdSpeciesUrl(bird.ebirdSpeciesCode!)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors"
+                className="text-primary hover:text-primary/80 inline-flex items-center gap-1.5 text-sm transition-colors"
               >
                 View on eBird &#8599;
               </a>
@@ -60,7 +58,7 @@ export function BirdBio({ bird }: BirdBioProps) {
                 href={`https://search.macaulaylibrary.org/catalog?taxonCode=${bird.ebirdSpeciesCode}&mediaType=audio`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
               >
                 Listen on Macaulay Library &#8599;
               </a>
@@ -71,10 +69,10 @@ export function BirdBio({ bird }: BirdBioProps) {
 
       {hasFacts && (
         <div>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+          <h2 className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">
             Fun Facts
           </h2>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
+          <ul className="text-muted-foreground list-inside list-disc space-y-2 text-sm">
             {bird.facts!.map((f, i) => (
               <li key={i}>{f.fact}</li>
             ))}

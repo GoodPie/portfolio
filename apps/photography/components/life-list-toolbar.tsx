@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
 import { Badge } from "@goodpie/ui/components/badge";
 import { cn } from "@goodpie/ui/lib/utils";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { conservationStatusBgColors } from "@/lib/bird-utils";
 
 export type SortOption = "name" | "photos" | "recent";
@@ -71,9 +71,9 @@ export function LifeListToolbar({
     <div className="mb-8 flex flex-col gap-4">
       {/* Search + View Toggle row */}
       <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative max-w-sm flex-1">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -90,11 +90,11 @@ export function LifeListToolbar({
             value={inputValue}
             onChange={handleSearch}
             placeholder="Search species..."
-            className="w-full rounded-md border border-border/40 bg-muted/30 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
+            className="border-border/40 bg-muted/30 text-foreground placeholder:text-muted-foreground/50 focus:ring-primary/50 w-full rounded-md border py-2 pr-3 pl-9 text-sm focus:ring-1 focus:outline-none"
           />
         </div>
 
-        <div className="flex items-center rounded-md border border-border/40 overflow-hidden">
+        <div className="border-border/40 flex items-center overflow-hidden rounded-md border">
           <button
             onClick={() => onViewModeChange("grid")}
             className={cn(
@@ -122,9 +122,7 @@ export function LifeListToolbar({
 
       {/* Sort badges */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted-foreground uppercase tracking-wider mr-1">
-          Sort
-        </span>
+        <span className="text-muted-foreground mr-1 text-xs tracking-wider uppercase">Sort</span>
         {sortOptions.map((option) => (
           <Badge
             key={option.value}
@@ -132,9 +130,7 @@ export function LifeListToolbar({
             variant={sort === option.value ? "default" : "outline"}
             className="cursor-pointer hover:opacity-80"
           >
-            <button onClick={() => onSortChange(option.value)}>
-              {option.label}
-            </button>
+            <button onClick={() => onSortChange(option.value)}>{option.label}</button>
           </Badge>
         ))}
       </div>
@@ -142,7 +138,7 @@ export function LifeListToolbar({
       {/* Conservation status filter */}
       {availableStatuses.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-wider mr-1">
+          <span className="text-muted-foreground mr-1 text-xs tracking-wider uppercase">
             Status
           </span>
           <Badge
@@ -162,13 +158,8 @@ export function LifeListToolbar({
                 statusFilter === status && conservationStatusBgColors[status],
               )}
             >
-              <button
-                onClick={() =>
-                  onStatusFilterChange(statusFilter === status ? null : status)
-                }
-              >
-                {status}{" "}
-                <span className="opacity-50">{count}</span>
+              <button onClick={() => onStatusFilterChange(statusFilter === status ? null : status)}>
+                {status} <span className="opacity-50">{count}</span>
               </button>
             </Badge>
           ))}
@@ -178,9 +169,7 @@ export function LifeListToolbar({
       {/* Year filter */}
       {availableYears.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-muted-foreground uppercase tracking-wider mr-1">
-            Year
-          </span>
+          <span className="text-muted-foreground mr-1 text-xs tracking-wider uppercase">Year</span>
           <Badge
             asChild
             variant={!yearFilter ? "default" : "outline"}
@@ -195,11 +184,7 @@ export function LifeListToolbar({
               variant={yearFilter === year ? "default" : "outline"}
               className="cursor-pointer hover:opacity-80"
             >
-              <button
-                onClick={() =>
-                  onYearFilterChange(yearFilter === year ? null : year)
-                }
-              >
+              <button onClick={() => onYearFilterChange(yearFilter === year ? null : year)}>
                 {year}
               </button>
             </Badge>
@@ -208,7 +193,7 @@ export function LifeListToolbar({
       )}
 
       {/* Result count */}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         {resultCount === totalCount
           ? `${totalCount} species`
           : `${resultCount} of ${totalCount} species`}

@@ -75,12 +75,7 @@ export const Photos: CollectionConfig = {
       type: "group",
       admin: {
         readOnly: true,
-        condition: (data) =>
-          !!(
-            data?.exif?.focalLength ||
-            data?.exif?.aperture ||
-            data?.exif?.iso
-          ),
+        condition: (data) => !!(data?.exif?.focalLength || data?.exif?.aperture || data?.exif?.iso),
       },
       fields: [
         { name: "focalLength", type: "number" },

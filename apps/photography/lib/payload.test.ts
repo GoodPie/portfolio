@@ -4,19 +4,10 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@payload-config", () => ({ default: {} }));
 vi.mock("payload", () => ({ getPayload: vi.fn() }));
 
-import {
-  responsiveSrcSet,
-  getImageUrl,
-  getLqip,
-  resolveRelation,
-  type PhotoDoc,
-} from "./payload";
+import { responsiveSrcSet, getImageUrl, getLqip, resolveRelation, type PhotoDoc } from "./payload";
 
 /** Helper to build a PhotoDoc with given sizes. */
-function makePhoto(
-  sizes: PhotoDoc["sizes"],
-  overrides: Partial<PhotoDoc> = {},
-): PhotoDoc {
+function makePhoto(sizes: PhotoDoc["sizes"], overrides: Partial<PhotoDoc> = {}): PhotoDoc {
   return {
     id: "1",
     title: "Test Photo",

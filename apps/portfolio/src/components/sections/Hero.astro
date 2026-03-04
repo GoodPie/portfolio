@@ -1,29 +1,29 @@
 ---
-import Section from "@/components/Section.astro";
-import SocialLinks from "@/components/SocialLinks.astro";
+import FadeIn from "@/components/animations/FadeIn";
 import BookIcon from "@/components/icons/BookIcon.astro";
 import CameraIcon from "@/components/icons/CameraIcon.astro";
-import FadeIn from "@/components/animations/FadeIn";
+import Section from "@/components/Section.astro";
+import SocialLinks from "@/components/SocialLinks.astro";
 ---
 
-<Section class="min-h-[80vh] flex flex-col justify-center">
+<Section class="flex min-h-[80vh] flex-col justify-center">
   <div class="max-w-4xl">
     <FadeIn client:load delay={0}>
-      <p class="text-sm tracking-widest text-muted-foreground uppercase mb-4">
-        Software Engineer
-      </p>
+      <p class="text-muted-foreground mb-4 text-sm tracking-widest uppercase">Software Engineer</p>
     </FadeIn>
 
     <FadeIn client:load delay={0.15}>
-      <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-medium tracking-tight mb-6">
+      <h1 class="mb-6 font-serif text-5xl font-medium tracking-tight md:text-7xl lg:text-8xl">
         Brandyn Britton<span class="text-teal">.</span>
       </h1>
     </FadeIn>
 
     <FadeIn client:load delay={0.3}>
-      <p class="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-2xl mb-12">
-        I build <em class="font-serif text-foreground not-italic">user-focused applications</em> in{" "}
-        <em class="font-serif text-foreground not-italic">healthcare and education</em>.
+      <p class="text-muted-foreground mb-12 max-w-2xl text-xl leading-relaxed md:text-2xl">
+        I build <em class="text-foreground font-serif not-italic">user-focused applications</em> in{
+          " "
+        }
+        <em class="text-foreground font-serif not-italic">healthcare and education</em>.
       </p>
     </FadeIn>
 
@@ -33,7 +33,7 @@ import FadeIn from "@/components/animations/FadeIn";
         <span class="text-muted-foreground/30">/</span>
         <a
           href="/blog"
-          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
         >
           <BookIcon size={16} />
           Blog
@@ -41,7 +41,7 @@ import FadeIn from "@/components/animations/FadeIn";
         <span class="text-muted-foreground/30">/</span>
         <a
           href="/photography"
-          class="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+          class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
         >
           <CameraIcon size={16} />
           Photography

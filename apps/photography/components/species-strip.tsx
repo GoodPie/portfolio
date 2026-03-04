@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
 import { cn } from "@goodpie/ui/lib/utils";
+import Link from "next/link";
+import React, { useState } from "react";
 
 interface SpeciesCardData {
   slug: string;
@@ -23,16 +23,13 @@ const SpeciesCard = React.memo(
     hovered: number | null;
     setHovered: React.Dispatch<React.SetStateAction<number | null>>;
   }) => (
-    <Link
-      href={`/birds/${species.slug}`}
-      className="shrink-0 snap-start block"
-    >
+    <Link href={`/birds/${species.slug}`} className="block shrink-0 snap-start">
       <div
         onMouseEnter={() => setHovered(index)}
         onMouseLeave={() => setHovered(null)}
         className={cn(
-          "relative rounded-lg overflow-hidden bg-muted w-36 h-24 md:w-44 md:h-32 transition-all duration-300 ease-out",
-          hovered !== null && hovered !== index && "blur-sm scale-[0.98]",
+          "bg-muted relative h-24 w-36 overflow-hidden rounded-lg transition-all duration-300 ease-out md:h-32 md:w-44",
+          hovered !== null && hovered !== index && "scale-[0.98] blur-sm",
         )}
       >
         {species.thumbnailUrl && (
@@ -41,12 +38,12 @@ const SpeciesCard = React.memo(
             alt={species.name}
             loading="lazy"
             decoding="async"
-            className="object-cover absolute inset-0 w-full h-full"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 px-3 py-2">
-          <p className="text-sm font-medium text-white truncate">{species.name}</p>
+        <div className="absolute right-0 bottom-0 left-0 px-3 py-2">
+          <p className="truncate text-sm font-medium text-white">{species.name}</p>
           <p className="text-[10px] text-white/50">
             {species.photoCount} {species.photoCount === 1 ? "photo" : "photos"}
           </p>
@@ -65,18 +62,16 @@ export function SpeciesStrip({ species }: { species: SpeciesCardData[] }) {
 
   return (
     <section className="mb-12">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">
-          Species
-        </span>
+      <div className="mb-4 flex items-center justify-between">
+        <span className="text-muted-foreground text-xs tracking-wider uppercase">Species</span>
         <Link
           href="/birds"
-          className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
+          className="text-muted-foreground/70 hover:text-foreground text-xs transition-colors"
         >
           View all &rarr;
         </Link>
       </div>
-      <div className="species-strip flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
+      <div className="species-strip flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
         {species.map((s, index) => (
           <SpeciesCard
             key={s.slug}

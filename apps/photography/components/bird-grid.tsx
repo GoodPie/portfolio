@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
 import { Badge } from "@goodpie/ui/components/badge";
 import { cn } from "@goodpie/ui/lib/utils";
+import Link from "next/link";
+import React, { useState } from "react";
 import { conservationStatusBgColors } from "@/lib/bird-utils";
 import { formatShortDate } from "@/lib/format";
 
@@ -36,8 +36,8 @@ const BirdCard = React.memo(
         onMouseEnter={() => setHovered(index)}
         onMouseLeave={() => setHovered(null)}
         className={cn(
-          "rounded-lg relative bg-muted overflow-hidden h-48 sm:h-60 md:h-72 w-full transition-all duration-300 ease-out",
-          hovered !== null && hovered !== index && "blur-sm scale-[0.98]",
+          "bg-muted relative h-48 w-full overflow-hidden rounded-lg transition-all duration-300 ease-out sm:h-60 md:h-72",
+          hovered !== null && hovered !== index && "scale-[0.98] blur-sm",
         )}
       >
         {bird.coverUrl && (
@@ -46,22 +46,20 @@ const BirdCard = React.memo(
             alt={bird.name}
             loading="lazy"
             decoding="async"
-            className="object-cover absolute inset-0 w-full h-full"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 flex flex-col gap-1">
-          <h2 className="text-lg md:text-xl font-serif font-medium text-white">
-            {bird.name}
-          </h2>
+        <div className="absolute right-0 bottom-0 left-0 flex flex-col gap-1 p-4 md:p-6">
+          <h2 className="font-serif text-lg font-medium text-white md:text-xl">{bird.name}</h2>
           {bird.scientificName && (
             <p className="text-xs text-white/60 italic">{bird.scientificName}</p>
           )}
-          <div className="flex items-center gap-2 mt-1">
+          <div className="mt-1 flex items-center gap-2">
             {bird.conservationStatus && (
               <Badge
                 className={cn(
-                  "text-[10px] font-medium border-0 px-1.5 py-0",
+                  "border-0 px-1.5 py-0 text-[10px] font-medium",
                   conservationStatusBgColors[bird.conservationStatus],
                 )}
               >
@@ -89,7 +87,7 @@ export function BirdGrid({ birds }: { birds: BirdCardData[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+    <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
       {birds.map((bird, index) => (
         <BirdCard
           key={bird.slug}

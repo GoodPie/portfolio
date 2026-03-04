@@ -1,0 +1,12 @@
+node_modules
+dist
+.next
+.astro
+.turbo
+.vercel
+payload-types.ts
+migrations
+package-lock.json
+pnpm-lock.yaml
+*.lock
+public

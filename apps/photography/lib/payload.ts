@@ -36,20 +36,24 @@ export interface PhotoDoc {
     longitude?: number | null;
   } | null;
   category?: { id: string | number; title?: string } | string | number | null;
-  bird?: {
-    id: string | number;
-    name?: string;
-    slug?: string;
-    scientificName?: string;
-    taxonomicOrder?: string;
-    family?: string;
-    ebirdSpeciesCode?: string;
-    habitat?: string;
-    diet?: string;
-    conservationStatus?: string;
-    facts?: { fact: string }[];
-    coverImage?: PhotoDoc | string | number | null;
-  } | string | number | null;
+  bird?:
+    | {
+        id: string | number;
+        name?: string;
+        slug?: string;
+        scientificName?: string;
+        taxonomicOrder?: string;
+        family?: string;
+        ebirdSpeciesCode?: string;
+        habitat?: string;
+        diet?: string;
+        conservationStatus?: string;
+        facts?: { fact: string }[];
+        coverImage?: PhotoDoc | string | number | null;
+      }
+    | string
+    | number
+    | null;
   camera?: { id: string | number; name?: string; manufacturer?: string } | string | number | null;
   lens?: { id: string | number; name?: string; manufacturer?: string } | string | number | null;
   sizes?: {
@@ -115,7 +119,7 @@ export function getLqip(photo: PhotoDoc): string | undefined {
 export function resolveRelation<T extends { id: string | number }>(
   relation: T | string | number | null | undefined,
 ): T | null {
-  if (relation != null && typeof relation === "object") return relation;
+  if (relation !== null && relation !== undefined && typeof relation === "object") return relation;
   return null;
 }
 

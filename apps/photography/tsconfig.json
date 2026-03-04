@@ -2,11 +2,7 @@
   "compilerOptions": {
     "types": ["vitest/globals"],
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -25,12 +21,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@payload-config": [
-        "./payload.config.ts"
-      ]
+      "@/*": ["./*"],
+      "@payload-config": ["./payload.config.ts"]
     }
   },
   "include": [
@@ -40,7 +32,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

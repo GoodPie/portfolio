@@ -1,6 +1,6 @@
+import type { PhotoDoc } from "@/lib/payload";
 import type { MetadataRoute } from "next";
 import { getPayloadClient, getImageUrl, getAllBirds } from "@/lib/payload";
-import type { PhotoDoc } from "@/lib/payload";
 
 export const revalidate = 3600;
 

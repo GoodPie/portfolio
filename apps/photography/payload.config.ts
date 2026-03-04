@@ -1,16 +1,16 @@
-import { buildConfig } from "payload";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
-import type { SharpDependency } from "payload";
+import { buildConfig } from "payload";
 import sharp from "sharp";
+import type { SharpDependency } from "payload";
 
-import { Users } from "@/collections/Users";
-import { Photos } from "@/collections/Photos";
-import { Categories } from "@/collections/Categories";
 import { Birds } from "@/collections/Birds";
 import { Cameras } from "@/collections/Cameras";
+import { Categories } from "@/collections/Categories";
 import { Lenses } from "@/collections/Lenses";
+import { Photos } from "@/collections/Photos";
+import { Users } from "@/collections/Users";
 import { SiteSettings } from "@/globals/SiteSettings";
 
 const payloadSecret = process.env.PAYLOAD_SECRET;
@@ -22,14 +22,8 @@ if (!payloadSecret) {
 
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3024/photography",
-  cors: [
-    "http://localhost:3024",
-    process.env.NEXT_PUBLIC_SERVER_URL,
-  ].filter(Boolean) as string[],
-  csrf: [
-    "http://localhost:3024",
-    process.env.NEXT_PUBLIC_SERVER_URL,
-  ].filter(Boolean) as string[],
+  cors: ["http://localhost:3024", process.env.NEXT_PUBLIC_SERVER_URL].filter(Boolean) as string[],
+  csrf: ["http://localhost:3024", process.env.NEXT_PUBLIC_SERVER_URL].filter(Boolean) as string[],
   collections: [Users, Photos, Categories, Birds, Cameras, Lenses],
   globals: [SiteSettings],
   editor: lexicalEditor(),

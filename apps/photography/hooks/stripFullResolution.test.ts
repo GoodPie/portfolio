@@ -74,6 +74,6 @@ describe("stripFullResolution", () => {
     expect(result.url).toBeNull();
     expect(result.filename).toBeNull();
     // sizes.full should still be set with nulled fields
-    expect((result.sizes as Record<string, unknown>)).toBeDefined();
+    expect(result.sizes as Record<string, unknown>).toBeDefined();
   });
 });

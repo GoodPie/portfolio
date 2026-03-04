@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPayloadClient } from "@/lib/payload";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const payload = await getPayloadClient();
 
@@ -29,7 +26,7 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required to download this photo" },
-        { status: 401 }
+        { status: 401 },
       );
     }
   }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { BirdGrid } from "@/components/bird-grid";
 import type { BirdCardData } from "@/components/bird-grid";
+import { BirdGrid } from "@/components/bird-grid";
 
 interface TaxonomyGroup {
   order: string;
@@ -11,10 +11,7 @@ interface TaxonomyGroup {
 
 export function TaxonomyGroupedGrid({ birds }: { birds: BirdCardData[] }) {
   const groups = useMemo(() => {
-    const orderMap = new Map<
-      string,
-      Map<string, BirdCardData[]>
-    >();
+    const orderMap = new Map<string, Map<string, BirdCardData[]>>();
     const unclassified: BirdCardData[] = [];
 
     for (const bird of birds) {
@@ -32,9 +29,10 @@ export function TaxonomyGroupedGrid({ birds }: { birds: BirdCardData[] }) {
 
     const result: TaxonomyGroup[] = [];
     for (const [order, familyMap] of orderMap) {
-      const families = Array.from(familyMap.entries()).map(
-        ([family, birds]) => ({ family, birds }),
-      );
+      const families = Array.from(familyMap.entries()).map(([family, birds]) => ({
+        family,
+        birds,
+      }));
       result.push({ order, families });
     }
     result.sort((a, b) => a.order.localeCompare(b.order));
@@ -53,17 +51,12 @@ export function TaxonomyGroupedGrid({ birds }: { birds: BirdCardData[] }) {
     <div className="flex flex-col gap-10">
       {groups.map((group) => (
         <section key={group.order}>
-          <h2 className="text-2xl font-serif font-medium tracking-tight mb-4">
-            {group.order}
-          </h2>
+          <h2 className="mb-4 font-serif text-2xl font-medium tracking-tight">{group.order}</h2>
           {group.families.map((fam) => (
             <div key={fam.family || "__none"} className="mb-6">
               {fam.family && (
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-                  {fam.family}{" "}
-                  <span className="opacity-50">
-                    ({fam.birds.length})
-                  </span>
+                <p className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">
+                  {fam.family} <span className="opacity-50">({fam.birds.length})</span>
                 </p>
               )}
               <BirdGrid birds={fam.birds} />

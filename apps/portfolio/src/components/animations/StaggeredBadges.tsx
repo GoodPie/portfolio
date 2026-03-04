@@ -1,5 +1,5 @@
-import { motion, useReducedMotion } from "motion/react";
 import { Badge } from "@goodpie/ui/components/badge";
+import { motion, useReducedMotion } from "motion/react";
 
 interface Props {
   technologies: string[];

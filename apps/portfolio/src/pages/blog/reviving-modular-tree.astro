@@ -1,63 +1,63 @@
 ---
-import BlogLayout from "@/layouts/BlogLayout.astro";
 import TreeCanvas from "@/components/TreeCanvas.astro";
 import { posts } from "@/data/posts";
+import BlogLayout from "@/layouts/BlogLayout.astro";
 
 const post = posts.find((p) => p.slug === "reviving-modular-tree")!;
 ---
 
-<BlogLayout {...post} description={post.description} publishDate={post.publishDate} tags={post.tags} title={post.title}>
+<BlogLayout
+  {...post}
+  description={post.description}
+  publishDate={post.publishDate}
+  tags={post.tags}
+  title={post.title}
+>
   <TreeCanvas />
   <p>
-    If you've searched for "Blender tree generator" or "procedural trees for
-    UE5" recently, you've probably landed on tutorials pointing to MTree. It was
-    the go-to addon for procedural tree generation. One problem: it hasn't been
-    updated since Blender 2.8, and Blender 5 just came out.
+    If you've searched for "Blender tree generator" or "procedural trees for UE5" recently, you've
+    probably landed on tutorials pointing to MTree. It was the go-to addon for procedural tree
+    generation. One problem: it hasn't been updated since Blender 2.8, and Blender 5 just came out.
   </p>
 
   <p>
-    I hit this wall in January when I decided to get back into game development.
-    My first intro to programming (outside of school) was building games in
-    GameMaker as a teenager. I wanted that creative outlet again, and environment
-    art in Unreal Engine 5 seemed like a good starting point.
+    I hit this wall in January when I decided to get back into game development. My first intro to
+    programming (outside of school) was building games in GameMaker as a teenager. I wanted that
+    creative outlet again, and environment art in Unreal Engine 5 seemed like a good starting point.
   </p>
 
-  <p>
-    So I tried to install MTree. It didn't work. At all.
-  </p>
+  <p>So I tried to install MTree. It didn't work. At all.</p>
 
   <h2>What Was Actually Broken</h2>
 
   <p>
-    The addon threw errors immediately on startup. The node types wouldn't
-    register, the UI panels were missing, and any tree generation attempt
-    crashed with Python tracebacks referencing APIs that no longer exist.
+    The addon threw errors immediately on startup. The node types wouldn't register, the UI panels
+    were missing, and any tree generation attempt crashed with Python tracebacks referencing APIs
+    that no longer exist.
   </p>
 
   <p>
-    I could have downgraded to an older Blender version. But I didn't want to maintain that workflow. This was intended
-    to be something I dive into as a new years resolution and the more barriers that don't help me get anywhere, the
-    more likely I am to give up. Plus, the original
+    I could have downgraded to an older Blender version. But I didn't want to maintain that
+    workflow. This was intended to be something I dive into as a new years resolution and the more
+    barriers that don't help me get anywhere, the more likely I am to give up. Plus, the original
     <a href="https://github.com/MaximeHerpin/modular_tree">MTree repository</a>
     hasn't had a commit since 2021. It wasn't coming back.
   </p>
 
-  <p>
-    I forked it instead.
-  </p>
+  <p>I forked it instead.</p>
 
   <h2>The First Few Weeks: Compatibility Fixes</h2>
 
   <p>
-    <a href="https://github.com/Goodpie/modular_tree">Modular Tree</a> started as
-    a straight compatibility port. The goal was simple: make MTree work on
-    Blender 5, then move on with my life.
+    <a href="https://github.com/Goodpie/modular_tree">Modular Tree</a> started as a straight compatibility
+    port. The goal was simple: make MTree work on Blender 5, then move on with my life.
   </p>
 
   <p>
-    This started as a long weekend project. Start on Friday when I get home, spend a casual amount of time on it and
-    be done by Monday. Honestly, I thought this wasn't going to be the case but it was surprisingly simpler than I
-    anticipated to get it working. You're free to check out the release notes but the basic gist was:
+    This started as a long weekend project. Start on Friday when I get home, spend a casual amount
+    of time on it and be done by Monday. Honestly, I thought this wasn't going to be the case but it
+    was surprisingly simpler than I anticipated to get it working. You're free to check out the
+    release notes but the basic gist was:
   </p>
 
   <ul>
@@ -68,101 +68,93 @@ const post = posts.find((p) => p.slug === "reviving-modular-tree")!;
     <li>Test, fix repeat</li>
   </ul>
 
-
   <p>
-    I also set up CI/CD to build releases for Windows, macOS, and Linux. I mistakenly bundled this as one zip, but
-    later down the track, I was informed that I needed to separate the builds into individual zips for each platform.
+    I also set up CI/CD to build releases for Windows, macOS, and Linux. I mistakenly bundled this
+    as one zip, but later down the track, I was informed that I needed to separate the builds into
+    individual zips for each platform.
   </p>
 
   <h2>Going Further: L-Systems and Crown Shapes</h2>
 
   <p>
-    Once the add-on worked, I ended up doing a bit of deep dive into the existing C++ code. There were some interesting
-    things there and one that caught my eye was the initial implementation of L-Tree. I had no idea what this was so I
-    thought "Let's expose this to Blender and see what it does". It just broke things and collapsed all the nodes in
-    on itself. Not ideal but I just kept it exposed so I could work on it at a later date.
+    Once the add-on worked, I ended up doing a bit of deep dive into the existing C++ code. There
+    were some interesting things there and one that caught my eye was the initial implementation of
+    L-Tree. I had no idea what this was so I thought "Let's expose this to Blender and see what it
+    does". It just broke things and collapsed all the nodes in on itself. Not ideal but I just kept
+    it exposed so I could work on it at a later date.
   </p>
 
   <h3>L-System Generation</h3>
 
   <p>
-    Once I'd tidied up generally devx stuff, I ended up reading about L-Systems. It was far less complicated then I
-    thought it'd be.
+    Once I'd tidied up generally devx stuff, I ended up reading about L-Systems. It was far less
+    complicated then I thought it'd be.
   </p>
 
   <p>
-    L-Systems (Lindenmayer systems) are a formal grammar for modeling plant
-    growth. You define rules like <code>F → F[+F]F[-F]F</code> and iterate them to
-    produce branching structures. The same math that generates fractals, applied
-    to botany.
+    L-Systems (Lindenmayer systems) are a formal grammar for modeling plant growth. You define rules
+    like <code>F → F[+F]F[-F]F</code> and iterate them to produce branching structures. The same math
+    that generates fractals, applied to botany.
   </p>
 
   <p>
-    The implementation uses apical dominance (main stems suppress side branches)
-    and gravitropism (response to gravity). You can control iterations, split
-    thresholds, and growth direction. It's not physically accurate, but it
-    produces trees that look organic rather than random.
+    The implementation uses apical dominance (main stems suppress side branches) and gravitropism
+    (response to gravity). You can control iterations, split thresholds, and growth direction. It's
+    not physically accurate, but it produces trees that look organic rather than random.
   </p>
 
-  <p>The implementation was simple but honestly, I don't think it works as well as the existing algorithms but it's
-  still available as a "Growth Node"</p>
+  <p>
+    The implementation was simple but honestly, I don't think it works as well as the existing
+    algorithms but it's still available as a "Growth Node"
+  </p>
 
   <h3>Weber-Penn Crown Shapes</h3>
 
   <p>
     The
-    <a
-      href="https://dl.acm.org/doi/10.1145/218380.218427"
-      >Weber-Penn model</a
-    >
-    (from the 1995 paper "Creation and Rendering of Realistic Trees") defines
-    crown shapes using mathematical envelopes. A conical envelope makes pines. A
-    spherical envelope makes oaks. There are 8 shapes total: cylindrical, conical,
-    spherical, hemispherical, flame, inverse conical, plus variations.
+    <a href="https://dl.acm.org/doi/10.1145/218380.218427">Weber-Penn model</a>
+    (from the 1995 paper "Creation and Rendering of Realistic Trees") defines crown shapes using mathematical
+    envelopes. A conical envelope makes pines. A spherical envelope makes oaks. There are 8 shapes total:
+    cylindrical, conical, spherical, hemispherical, flame, inverse conical, plus variations.
   </p>
 
   <p>
-    This was the feature that made trees actually look like specific species
-    rather than generic "tree shapes." I feel like this is one of the nicer additions I've made to the addon. The
-    algorithms were interesting (and I hope I've implemented it correctly). It helps a lot when generating trees
-    from reference.
+    This was the feature that made trees actually look like specific species rather than generic
+    "tree shapes." I feel like this is one of the nicer additions I've made to the addon. The
+    algorithms were interesting (and I hope I've implemented it correctly). It helps a lot when
+    generating trees from reference.
   </p>
 
   <h2>Issues I Hit Along the Way</h2>
 
+  <p>A few things that cost me time, in case you're working on Blender addons:</p>
+
   <p>
-    A few things that cost me time, in case you're working on Blender addons:
+    <strong>Node registration changed completely.</strong> Blender 4+ uses a different class registration
+    system. The old
+    <code>bpy.utils.register_class()</code> pattern still works, but node trees need explicit type annotations
+    and the <code>bl_idname</code> format is stricter.
   </p>
 
   <p>
-    <strong>Node registration changed completely.</strong> Blender 4+ uses a
-    different class registration system. The old
-    <code>bpy.utils.register_class()</code> pattern still works, but node trees
-    need explicit type annotations and the <code>bl_idname</code> format is
-    stricter.
+    <strong>Geometry Nodes integration is tricky.</strong> I wanted to use Geometry Nodes for leaf distribution
+    (it's more flexible than the old particle system). Getting the addon to create and link Geometry Node
+    groups programmatically required digging through Blender's source code because the documentation is
+    sparse.
   </p>
 
   <p>
-    <strong>Geometry Nodes integration is tricky.</strong> I wanted to use
-    Geometry Nodes for leaf distribution (it's more flexible than the old
-    particle system). Getting the addon to create and link Geometry Node groups
-    programmatically required digging through Blender's source code because the
-    documentation is sparse.
-  </p>
-
-  <p>
-    <strong>Cross-platform builds are annoying.</strong> The addon has some
-    optional C++ acceleration. Getting that to compile on Windows, macOS (both
-    Intel and ARM), and Linux in a GitHub Actions workflow took longer than any
-    single feature.
+    <strong>Cross-platform builds are annoying.</strong> The addon has some optional C++ acceleration.
+    Getting that to compile on Windows, macOS (both Intel and ARM), and Linux in a GitHub Actions workflow
+    took longer than any single feature.
   </p>
 
   <h2>Current State</h2>
 
   <p>
-    The addon works. You can generate trees with one click using presets (Oak,
-    Pine, Willow) or build custom trees node-by-node. It exports to UE5 with
-    Pivot Painter 2.0 support for wind animation.
+    The addon works. You can generate trees with one click using presets (Oak, Pine, Willow) or
+    build custom trees node-by-node. It exports to UE5 with Pivot Painter 2.0 support for wind
+    animation.
   </p>
 
   <p>Here's what's in the current release:</p>
@@ -178,45 +170,44 @@ const post = posts.find((p) => p.slug === "reviving-modular-tree")!;
   </ul>
 
   <p>
-    It's still rough in places. The UI needs work, some parameter combinations
-    produce weird results, and the documentation is basically just the README.
-    But it generates trees, it's open source, and it runs on current Blender.
+    It's still rough in places. The UI needs work, some parameter combinations produce weird
+    results, and the documentation is basically just the README. But it generates trees, it's open
+    source, and it runs on current Blender.
   </p>
 
   <h2>Why I'm Still Working on It</h2>
 
   <p>
-    My day job is healthcare software. I've spent the last seven years building
-    apps, working on AWS infrastructure and sitting in meetings. It's good work, but
-    it's also deadline-driven. There's always a sprint, always a stakeholder,
-    always a production bug.
+    My day job is healthcare software. I've spent the last seven years building apps, working on AWS
+    infrastructure and sitting in meetings. It's good work, but it's also deadline-driven. There's
+    always a sprint, always a stakeholder, always a production bug.
   </p>
 
   <p>
-    Modular Tree has no deadlines. Nobody's asking for the L-System
-    implementation. I can spend a weekend reading papers about phyllotaxis (the
-    mathematical pattern of leaf arrangement) and call it productive.
+    Modular Tree has no deadlines. Nobody's asking for the L-System implementation. I can spend a
+    weekend reading papers about phyllotaxis (the mathematical pattern of leaf arrangement) and call
+    it productive.
   </p>
 
   <p>
-    It's also a break from web development patterns which is an area I always feel like I've been stuck to. I can apply
-    my software engineering experience in a different way with different constraints and that's probably why I enjoy it
-    so much.
+    It's also a break from web development patterns which is an area I always feel like I've been
+    stuck to. I can apply my software engineering experience in a different way with different
+    constraints and that's probably why I enjoy it so much.
   </p>
 
   <h2>What's Next</h2>
 
   <p>
-    Once the add-on is approved on the Blender extensions store, I want to spend a bit of time just taking a bit of a 
-    deep dive into the code and explore some of the more interesting algorithms. I also want to explore other add-ons
-    and identify what they are doing and see if I can implement some cool things. The main focus is just maintanance 
-    at this point.
+    Once the add-on is approved on the Blender extensions store, I want to spend a bit of time just
+    taking a bit of a deep dive into the code and explore some of the more interesting algorithms. I
+    also want to explore other add-ons and identify what they are doing and see if I can implement
+    some cool things. The main focus is just maintanance at this point.
   </p>
 
   <p>
-    If you're building environments in UE5 and want procedural trees that don't
-    cost $50 per asset pack, check it out:
-    <a href="https://github.com/Goodpie/modular_tree">github.com/Goodpie/modular_tree</a>.
-    Issues and PRs welcome.
+    If you're building environments in UE5 and want procedural trees that don't cost $50 per asset
+    pack, check it out:
+    <a href="https://github.com/Goodpie/modular_tree">github.com/Goodpie/modular_tree</a>. Issues
+    and PRs welcome.
   </p>
 </BlogLayout>

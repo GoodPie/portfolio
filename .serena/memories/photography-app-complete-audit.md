@@ -3,8 +3,9 @@
 ## 1. PAYLOAD CMS COLLECTIONS
 
 ### Users Collection
+
 - **Auth**: Yes (auth: true)
-- **Access**: 
+- **Access**:
   - Read: Authenticated only
   - Create: Admin only
   - Update: Admin only
@@ -13,11 +14,12 @@
   - `role` (select, default: "editor"): Admin | Editor [admin-only field]
 
 ### Photos Collection (Main Content)
+
 - **Upload Config**:
   - Image sizes: thumbnail (400w), card (800w), large (1200w), xl (1800w), full (2400w)
   - Focal point & crop support enabled
   - Admin thumbnail: thumbnail
-  - MIME types: image/*
+  - MIME types: image/\*
 - **Access**:
   - Read: Public
   - Create/Update/Delete: Authenticated users
@@ -46,6 +48,7 @@
   - `afterChange`: generateBlurPlaceholder (creates LQIP), extractExifData (parses EXIF)
 
 ### Birds Collection
+
 - **Access**:
   - Read: Public
   - Create/Update/Delete: Authenticated
@@ -60,6 +63,7 @@
   - `coverImage` (upload → photos): Photo to represent species
 
 ### Categories Collection
+
 - **Access**: Public read, authenticated create/update/delete
 - **Fields**:
   - `title` (text, required): Category name (e.g., "Landscapes", "Portraits")
@@ -67,12 +71,14 @@
   - `description` (textarea): Category description
 
 ### Cameras Collection
+
 - **Access**: Public read, authenticated create/update/delete
 - **Fields**:
   - `name` (text, required): Camera model (e.g., "Canon EOS R5")
   - `manufacturer` (text): Make (e.g., "Canon")
 
 ### Lenses Collection
+
 - **Access**: Public read, authenticated create/update/delete
 - **Fields**:
   - `name` (text, required): Lens model (e.g., "RF 100-500mm F4.5-7.1 IS USM")
@@ -81,6 +87,7 @@
 ## 2. GLOBALS
 
 ### SiteSettings Global
+
 - **Access**: Public read, admin update
 - **Fields**:
   - `title` (text, required, default: "Photography | Brandyn Britton")
@@ -90,6 +97,7 @@
 ## 3. FRONTEND ROUTES & PAGES
 
 ### Root Layout (`app/(app)/layout.tsx`)
+
 - Metadata template: "%s | Photography | Brandyn Britton"
 - Navigation bar (sticky, dark mode):
   - Logo: "Brandyn Britton." with teal dot
@@ -100,6 +108,7 @@
 - Dark mode HTML with `data-scroll-behavior="smooth"`
 
 ### Photo Gallery Page (`app/(app)/page.tsx`)
+
 - **Metadata**: title "Gallery"
 - **Hero Section**:
   - Label: "Photography" (small caps)
@@ -118,6 +127,7 @@
   - Empty state if no photos
 
 ### Photo Detail Page (`app/(app)/photo/[id]/page.tsx`)
+
 - **Metadata**: Dynamic OG image, Twitter card (summary_large_image)
 - **Description Building**:
   - Photo caption/title
@@ -161,6 +171,7 @@
 ## 4. CLIENT COMPONENTS
 
 ### GalleryShell (Client Component)
+
 - **Props**:
   - allCards: PhotoCard[]
   - categories: FilterOption[]
@@ -177,6 +188,7 @@
 - **Filtering Logic**: AND logic (must match all active filters)
 
 ### PhotoGrid (Client Component)
+
 - **Props**: photos: PhotoCard[]
 - **Features**:
   - CSS columns masonry layout (1 sm:2 md:3)
@@ -196,6 +208,7 @@
   - View Transitions on card enter/exit (photo-filter animation)
 
 ### FilterBar (Presentation Component)
+
 - **Props**:
   - categories: FilterOption[]
   - birds: FilterOption[]
@@ -212,6 +225,7 @@
   - "Clear all filters" link shows if any filters active
 
 ### PhotoSidebar (Presentation Component)
+
 - **Props**: photo: PhotoDoc
 - **Displays**:
   - Title (caption or title)
@@ -228,6 +242,7 @@
   - Image dimensions (xs text)
 
 ### BirdInfo (Presentation Component)
+
 - **Props**:
   - bird: { name, scientificName?, habitat?, diet?, conservationStatus?, facts? }
   - location?: string
@@ -241,12 +256,14 @@
   - Fun facts section (bulleted list)
 
 ### PhotoJsonLd (Presentation Component)
+
 - Generates Schema.org Photograph JSON-LD
 - Includes all metadata for SEO & rich snippets
 
 ## 5. UTILITIES & HELPERS
 
 ### `lib/payload.ts`
+
 - **PhotoDoc Interface**: Full type definition for photo documents
 - **getPayloadClient()**: Returns Payload instance
 - **responsiveSrcSet(photo)**: Builds srcset string from Payload sizes (capped at xl/1800w)
@@ -255,6 +272,7 @@
 - **resolveRelation<T>(relation)**: Narrows polymorphic relations to populated object
 
 ### `lib/photos.ts`
+
 - **FilterOption**: { id, label, count }
 - **buildFilterOptions(photos)**: Extracts unique categories & birds with counts from photos
 - **filterPhotos(photos, filters)**: Server-side filtering (AND logic)
@@ -262,16 +280,19 @@
 - **getActiveFilterNames(categories, birds, filters)**: Resolves IDs to labels for UI
 
 ### `lib/format.ts`
+
 - **formatDate(dateStr)**: "March 3, 2026"
 - **formatExposure(time)**: "1/500s" or "2.5s"
 
 ### `lib/access.ts`
+
 - **publicRead**: Always true
 - **isAuthenticated**: !!req.user
 - **isAdmin**: user.role === "admin"
 - **adminFieldAccess**: Same as isAdmin (field-level)
 
 ### `hooks/extractExifData.ts`
+
 - **Trigger**: afterChange hook on photo upload
 - **Extracts**: FocalLength, FNumber, ExposureTime, ISO, LensModel, CameraModel, DateTimeOriginal
 - **Stores**: In photo.exif group
@@ -279,8 +300,9 @@
 - **Prevents**: Infinite loops via context flag
 
 ### `hooks/generateBlurPlaceholder.ts`
+
 - **Trigger**: afterChange hook on photo upload
-- **Process**: 
+- **Process**:
   1. Resize to 10x10px
   2. Convert to WebP with quality 20
   3. Base64 encode to data URI
@@ -288,6 +310,7 @@
 - **Prevents**: Infinite loops via context flag
 
 ### `hooks/stripFullResolution.ts`
+
 - **Trigger**: afterRead hook on every photo fetch
 - **Logic**:
   - Local API (Server Components, download endpoint): pass through
@@ -298,6 +321,7 @@
 ## 6. API ENDPOINTS
 
 ### Download Endpoint (`app/(app)/api/download/[id]/route.ts`)
+
 - **Method**: GET
 - **Auth**: Checks isProtected flag
   - If protected: requires user authentication
@@ -308,22 +332,25 @@
   3. Validate file URL (only Vercel Blob or localhost)
   4. Fetch from Vercel Blob
   5. Stream with attachment header
-- **Security**: 
+- **Security**:
   - SSRF protection (whitelists Vercel Blob & localhost)
   - Auth validation
   - Cache-Control: private, no-cache
 
 ### Admin API Route (`app/(payload)/api/[...slug]/route.ts`)
+
 - Routes to Payload REST API
 
 ## 7. SITE METADATA
 
 ### robots.ts
+
 - Allow: /
 - Disallow: /admin, /api
 - Sitemap: https://brandynbritton.com/photography/sitemap.xml
 
 ### sitemap.ts
+
 - Main gallery entry: priority 1.0
 - Photo entries: priority 0.7, includes image URL
 - Revalidates hourly
@@ -332,6 +359,7 @@
 ## 8. STYLING & THEME
 
 ### Color Palette (OKLch)
+
 - **Overlay text**: oklch(0.97 0 0) - near white
 - **Overlay muted**: oklch(0.7 0 0) - medium gray
 - **Overlay dim**: oklch(0.6 0 0) - darker gray
@@ -342,12 +370,14 @@
 - **Status critical** (Critically Endangered): oklch(0.5 0.21 27) - dark red
 
 ### Animations
+
 - **image-reveal**: 0.6s opacity/scale entrance
 - **vt-meta-enter**: Meta info slides left, delayed 0.15s
 - **vt-photo-filter**: Photo cards scale-in (0.3s) / scale-out (0.2s)
 - All respect `prefers-reduced-motion: reduce`
 
 ### Typography
+
 - **Sans**: Inter (body, UI)
 - **Serif**: Playfair Display (headings)
 - Dark mode first
@@ -355,7 +385,7 @@
 ## 9. NEXT.js CONFIG
 
 - **basePath**: /photography
-- **Experimental**: 
+- **Experimental**:
   - viewTransition: true (for View Transitions API)
   - serverActions.allowedOrigins: localhost:3024
 - **allowedDevOrigins**: localhost:3024

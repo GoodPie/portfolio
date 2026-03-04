@@ -1,0 +1,26 @@
+{
+  "name": "@goodpie/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.js",
+    "./astro": "./astro.js",
+    "./next": "./next.js",
+    "./react-internal": "./react-internal.js"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.39.0",
+    "@next/eslint-plugin-next": "^16.1.6",
+    "eslint-plugin-astro": "^1.6.0",
+    "eslint-plugin-import-x": "^4.16.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^16.2.0",
+    "typescript-eslint": "^8.35.1"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0",
+    "typescript": "^5.0.0"
+  }
+}

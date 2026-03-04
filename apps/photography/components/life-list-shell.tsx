@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect, startTransition } from "react";
-import { BirdGrid } from "@/components/bird-grid";
 import type { BirdCardData } from "@/components/bird-grid";
-import { LifeListToolbar } from "@/components/life-list-toolbar";
 import type { SortOption, ViewMode } from "@/components/life-list-toolbar";
+import { BirdGrid } from "@/components/bird-grid";
+import { LifeListToolbar } from "@/components/life-list-toolbar";
 import { TaxonomyGroupedGrid } from "@/components/taxonomy-grouped-grid";
 
 interface LifeListShellProps {
@@ -37,12 +37,8 @@ export function LifeListShell({
   initialView,
 }: LifeListShellProps) {
   const [search, setSearch] = useState(initialSearch ?? "");
-  const [statusFilter, setStatusFilter] = useState<string | null>(
-    initialStatus ?? null,
-  );
-  const [sort, setSort] = useState<SortOption>(
-    isValidSort(initialSort) ? initialSort : "name",
-  );
+  const [statusFilter, setStatusFilter] = useState<string | null>(initialStatus ?? null);
+  const [sort, setSort] = useState<SortOption>(isValidSort(initialSort) ? initialSort : "name");
   const [yearFilter, setYearFilter] = useState<number | null>(
     initialYear ? parseInt(initialYear, 10) || null : null,
   );
@@ -72,8 +68,7 @@ export function LifeListShell({
     // Year filter
     if (yearFilter) {
       result = result.filter(
-        (b) =>
-          b.firstSeen && new Date(b.firstSeen).getFullYear() === yearFilter,
+        (b) => b.firstSeen && new Date(b.firstSeen).getFullYear() === yearFilter,
       );
     }
 
@@ -104,9 +99,7 @@ export function LifeListShell({
     if (yearFilter) params.set("year", String(yearFilter));
     if (viewMode !== "grid") params.set("view", viewMode);
     const qs = params.toString();
-    const url = qs
-      ? `${window.location.pathname}?${qs}`
-      : window.location.pathname;
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
     window.history.replaceState(null, "", url);
   }, [search, statusFilter, sort, yearFilter, viewMode]);
 
@@ -127,15 +120,11 @@ export function LifeListShell({
         search={search}
         onSearchChange={(v) => startTransition(() => setSearch(v))}
         statusFilter={statusFilter}
-        onStatusFilterChange={(v) =>
-          startTransition(() => setStatusFilter(v))
-        }
+        onStatusFilterChange={(v) => startTransition(() => setStatusFilter(v))}
         sort={sort}
         onSortChange={(v) => startTransition(() => setSort(v))}
         yearFilter={yearFilter}
-        onYearFilterChange={(v) =>
-          startTransition(() => setYearFilter(v))
-        }
+        onYearFilterChange={(v) => startTransition(() => setYearFilter(v))}
         viewMode={viewMode}
         onViewModeChange={(v) => startTransition(() => setViewMode(v))}
         availableYears={availableYears}
@@ -151,19 +140,17 @@ export function LifeListShell({
           <BirdGrid birds={filtered} />
         )
       ) : hasFilters ? (
-        <div className="text-center py-24">
-          <p className="text-muted-foreground">
-            No species match your filters.
-          </p>
+        <div className="py-24 text-center">
+          <p className="text-muted-foreground">No species match your filters.</p>
           <button
             onClick={clearAll}
-            className="mt-4 text-sm text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+            className="text-primary hover:text-primary/80 mt-4 text-sm underline underline-offset-4 transition-colors"
           >
             Clear all filters
           </button>
         </div>
       ) : (
-        <div className="text-center py-24">
+        <div className="py-24 text-center">
           <p className="text-muted-foreground">No species yet.</p>
         </div>
       )}

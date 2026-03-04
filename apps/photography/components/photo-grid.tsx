@@ -1,9 +1,9 @@
 "use client";
 
-import { ViewTransition, useState } from "react";
+import { cn } from "@goodpie/ui/lib/utils";
 import Image, { type ImageLoaderProps } from "next/image";
 import Link from "next/link";
-import { cn } from "@goodpie/ui/lib/utils";
+import { ViewTransition, useState } from "react";
 
 /** Payload image size breakpoints in ascending order */
 const SIZE_BREAKPOINTS = [
@@ -73,15 +73,13 @@ function ExifOverlay({ card }: { card: PhotoCard }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-xl md:text-2xl font-medium text-overlay-foreground">
+      <div className="text-overlay-foreground text-xl font-medium md:text-2xl">
         {card.caption || card.title}
       </div>
       {exifParts.length > 0 && (
-        <div className="text-xs text-overlay-muted">{exifParts.join(" · ")}</div>
+        <div className="text-overlay-muted text-xs">{exifParts.join(" · ")}</div>
       )}
-      {exif?.LensModel && (
-        <div className="text-xs text-overlay-dim">{exif.LensModel}</div>
-      )}
+      {exif?.LensModel && <div className="text-overlay-dim text-xs">{exif.LensModel}</div>}
     </div>
   );
 }
@@ -97,26 +95,24 @@ export function PhotoGrid({
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="columns-1 sm:columns-2 md:columns-3 gap-10 w-full">
+    <div className="w-full columns-1 gap-10 sm:columns-2 md:columns-3">
       {photos.map((photo, index) => (
         <Link
           key={photo.photoKey}
           href={linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`}
-          className="block mb-10 break-inside-avoid"
+          className="mb-10 block break-inside-avoid"
         >
           <ViewTransition name={`photo-${photo.photoKey}`} enter="photo-filter" exit="photo-filter">
             <div
               onMouseEnter={() => setHovered(index)}
               onMouseLeave={() => setHovered(null)}
               className={cn(
-                "rounded-lg relative bg-muted overflow-hidden w-full transition-all duration-300 ease-out",
-                hovered !== null && hovered !== index && "blur-sm scale-[0.98]"
+                "bg-muted relative w-full overflow-hidden rounded-lg transition-all duration-300 ease-out",
+                hovered !== null && hovered !== index && "scale-[0.98] blur-sm",
               )}
               style={{
                 aspectRatio:
-                  photo.width && photo.height
-                    ? `${photo.width} / ${photo.height}`
-                    : undefined,
+                  photo.width && photo.height ? `${photo.width} / ${photo.height}` : undefined,
               }}
             >
               <Image
@@ -128,7 +124,7 @@ export function PhotoGrid({
                 sizes={photo.sizes}
                 priority={index < 2}
                 loading={index < 2 ? undefined : "lazy"}
-                className="object-cover w-full h-full"
+                className="h-full w-full object-cover"
                 {...(photo.lqip && {
                   placeholder: "blur" as const,
                   blurDataURL: photo.lqip,
@@ -136,8 +132,8 @@ export function PhotoGrid({
               />
               <div
                 className={cn(
-                  "absolute inset-0 bg-black/50 flex items-end py-8 px-4 transition-opacity duration-300",
-                  hovered === index ? "opacity-100" : "opacity-0"
+                  "absolute inset-0 flex items-end bg-black/50 px-4 py-8 transition-opacity duration-300",
+                  hovered === index ? "opacity-100" : "opacity-0",
                 )}
               >
                 <ExifOverlay card={photo} />

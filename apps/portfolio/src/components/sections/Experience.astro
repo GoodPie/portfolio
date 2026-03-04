@@ -1,8 +1,8 @@
 ---
+import FadeIn from "@/components/animations/FadeIn";
+import ExperienceItem from "@/components/ExperienceItem.astro";
 import Section from "@/components/Section.astro";
 import SectionLabel from "@/components/SectionLabel.astro";
-import ExperienceItem from "@/components/ExperienceItem.astro";
-import FadeIn from "@/components/animations/FadeIn";
 import { experiences } from "@/data/experience";
 ---
 
@@ -10,10 +10,12 @@ import { experiences } from "@/data/experience";
   <SectionLabel number="02" label="Experience" />
 
   <div class="mt-24 space-y-12">
-    {experiences.map((exp, index) => (
-      <FadeIn client:visible delay={index * 0.15}>
-        <ExperienceItem experience={exp} />
-      </FadeIn>
-    ))}
+    {
+      experiences.map((exp, index) => (
+        <FadeIn client:visible delay={index * 0.15}>
+          <ExperienceItem experience={exp} />
+        </FadeIn>
+      ))
+    }
   </div>
 </Section>

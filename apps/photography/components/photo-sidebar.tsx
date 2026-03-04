@@ -1,8 +1,8 @@
-import { formatDate, formatExposure } from "@/lib/format";
-import { resolveRelation } from "@/lib/payload";
 import type { PhotoDoc } from "@/lib/payload";
 import { BirdInfo } from "@/components/bird-info";
 import { LocationMapLoader } from "@/components/location-map-loader";
+import { formatDate, formatExposure } from "@/lib/format";
+import { resolveRelation } from "@/lib/payload";
 
 function buildExifEntries(photo: PhotoDoc) {
   const exif = photo.exif;
@@ -27,16 +27,14 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
   const hasPhotoDetails = photo.description || photo.dateTaken;
 
   return (
-    <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-4">
+    <aside className="order-2 flex flex-col gap-4 lg:sticky lg:top-24 lg:order-1">
       <div>
-        <h1 className="text-2xl md:text-3xl font-serif font-medium tracking-tight mb-2">
+        <h1 className="mb-2 font-serif text-2xl font-medium tracking-tight md:text-3xl">
           {photo.caption || photo.title}
         </h1>
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-3 text-sm">
           {category?.title && <span>{category.title}</span>}
-          {category?.title && photo.dateTaken && (
-            <span className="text-border">·</span>
-          )}
+          {category?.title && photo.dateTaken && <span className="text-border">·</span>}
           {photo.dateTaken && <span>{formatDate(photo.dateTaken)}</span>}
         </div>
       </div>
@@ -59,12 +57,10 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
       )}
 
       {!bird?.name && hasPhotoDetails && (
-        <div className="border-t border-border/40 pt-4 flex flex-col gap-3">
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
-            Photo Details
-          </h2>
+        <div className="border-border/40 flex flex-col gap-3 border-t pt-4">
+          <h2 className="text-muted-foreground text-xs tracking-widest uppercase">Photo Details</h2>
           {photo.description && (
-            <p className="text-sm text-muted-foreground">{photo.description}</p>
+            <p className="text-muted-foreground text-sm">{photo.description}</p>
           )}
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             {photo.dateTaken && (
@@ -78,10 +74,8 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
       )}
 
       {exifEntries.length > 0 && (
-        <div className="border-t border-border/40 pt-6">
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
-            Camera
-          </h2>
+        <div className="border-border/40 border-t pt-6">
+          <h2 className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">Camera</h2>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             {exifEntries.map((entry) => (
               <div key={entry.label}>
@@ -93,10 +87,12 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
         </div>
       )}
 
-      {photo.geolocation?.latitude != null &&
-        photo.geolocation?.longitude != null && (
-          <div className="border-t border-border/40 pt-6">
-            <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-3">
+      {photo.geolocation?.latitude !== null &&
+        photo.geolocation?.latitude !== undefined &&
+        photo.geolocation?.longitude !== null &&
+        photo.geolocation?.longitude !== undefined && (
+          <div className="border-border/40 border-t pt-6">
+            <h2 className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">
               Location
             </h2>
             <LocationMapLoader
@@ -107,7 +103,7 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
         )}
 
       {photo.width && photo.height && (
-        <p className="text-xs text-muted-foreground/50">
+        <p className="text-muted-foreground/50 text-xs">
           {photo.width} &times; {photo.height}
         </p>
       )}

@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getBirdBySlug,
-  getPhotosByBirdId,
-  getImageUrl,
-  resolveRelation,
-} from "@/lib/payload";
+import { cache } from "react";
 import type { BirdDoc, PhotoDoc } from "@/lib/payload";
-import { toPhotoCard } from "@/lib/photos";
-import { BirdHero } from "@/components/bird-hero";
+import type { Metadata } from "next";
 import { BirdBio } from "@/components/bird-bio";
+import { BirdHero } from "@/components/bird-hero";
 import { BirdJsonLd } from "@/components/bird-json-ld";
 import { PhotoGrid } from "@/components/photo-grid";
+import { getBirdBySlug, getPhotosByBirdId, getImageUrl, resolveRelation } from "@/lib/payload";
+import { toPhotoCard } from "@/lib/photos";
 
 export const revalidate = 60;
 
@@ -28,16 +23,15 @@ export async function generateMetadata({
   const bird = await getBird(slug);
   if (!bird) return { title: "Bird Not Found" };
 
-  const title = bird.scientificName
-    ? `${bird.name} (${bird.scientificName})`
-    : bird.name;
-  const description = [
-    bird.habitat && `Habitat: ${bird.habitat}`,
-    bird.diet && `Diet: ${bird.diet}`,
-    bird.conservationStatus && `Status: ${bird.conservationStatus}`,
-  ]
-    .filter(Boolean)
-    .join(". ") || `Photos of ${bird.name} by Brandyn Britton`;
+  const title = bird.scientificName ? `${bird.name} (${bird.scientificName})` : bird.name;
+  const description =
+    [
+      bird.habitat && `Habitat: ${bird.habitat}`,
+      bird.diet && `Diet: ${bird.diet}`,
+      bird.conservationStatus && `Status: ${bird.conservationStatus}`,
+    ]
+      .filter(Boolean)
+      .join(". ") || `Photos of ${bird.name} by Brandyn Britton`;
 
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
   const imageUrl = coverPhoto ? getImageUrl(coverPhoto, 1200) : undefined;
@@ -65,11 +59,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function BirdPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function BirdPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const bird = await getBird(slug);
   if (!bird) notFound();
@@ -77,16 +67,19 @@ export default async function BirdPage({
   const photos = await getPhotosByBirdId(bird.id);
   const photoCards = photos.map(toPhotoCard);
 
-  const firstSeen = photos.reduce((earliest, p) => {
-    if (!p.dateTaken) return earliest;
-    return !earliest || p.dateTaken < earliest ? p.dateTaken : earliest;
-  }, null as string | null);
+  const firstSeen = photos.reduce(
+    (earliest, p) => {
+      if (!p.dateTaken) return earliest;
+      return !earliest || p.dateTaken < earliest ? p.dateTaken : earliest;
+    },
+    null as string | null,
+  );
 
   return (
     <div>
       <Link
         href="/birds"
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors mb-6 lg:mb-8"
+        className="text-muted-foreground/70 hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-xs transition-colors lg:mb-8"
       >
         &larr; All species
       </Link>
@@ -96,9 +89,7 @@ export default async function BirdPage({
 
       {photoCards.length > 0 && (
         <section>
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground mb-6">
-            Photos
-          </h2>
+          <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">Photos</h2>
           <PhotoGrid photos={photoCards} linkQuery={`from=birds/${slug}`} />
         </section>
       )}

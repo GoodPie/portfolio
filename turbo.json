@@ -6,17 +6,15 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".astro/**", ".next/**"],
-      "env": [
-        "DATABASE_URL",
-        "PAYLOAD_SECRET",
-        "BLOB_READ_WRITE_TOKEN",
-        "POSTGRES_URL"
-      ]
+      "env": ["DATABASE_URL", "PAYLOAD_SECRET", "BLOB_READ_WRITE_TOKEN", "POSTGRES_URL"]
     },
     "check": {
       "dependsOn": ["^build"]
     },
     "test": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
       "dependsOn": ["^build"]
     },
     "dev": {

@@ -1,33 +1,38 @@
 /* Google Fonts - Inter & Playfair Display */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
 
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../../packages/ui/src/styles/globals.css";
 
-@plugin '@tailwindcss/typography';
+@plugin "@tailwindcss/typography";
 
 @theme inline {
-    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
 
 /* SSR flash prevention — CSS hides content before JS hydrates */
-.motion-fade-in { opacity: 0; }
-.motion-line-reveal { transform: scaleX(0); transform-origin: left; }
+.motion-fade-in {
+  opacity: 0;
+}
+.motion-line-reveal {
+  transform: scaleX(0);
+  transform-origin: left;
+}
 
 @layer base {
-    *:focus-visible {
-        outline: 2px solid var(--primary);
-        outline-offset: 2px;
-    }
+  *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 
-    html {
-        @apply scroll-smooth;
-    }
+  html {
+    @apply scroll-smooth;
+  }
 
-    body {
-        @apply font-sans antialiased;
-    }
+  body {
+    @apply font-sans antialiased;
+  }
 }
 
 /* Map prose colors to theme tokens */
@@ -48,7 +53,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 oklch(from var(--teal) l c h / 0%);
   }
   50% {
@@ -70,7 +76,7 @@
     }
     /* Inline code (compound styling that's verbose as modifiers) */
     & :where(:not(pre) > code) {
-      @apply bg-secondary px-1.5 py-0.5 rounded text-sm;
+      @apply bg-secondary rounded px-1.5 py-0.5 text-sm;
     }
     /* Blockquote background accent */
     & :where(blockquote) {

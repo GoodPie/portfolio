@@ -1,12 +1,19 @@
-import type { Metadata } from "next";
-import { cache } from "react";
-import { ViewTransition } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPayloadClient, responsiveSrcSet, getImageUrl, getLqip, resolveRelation, getBirdBySlug } from "@/lib/payload";
+import { ViewTransition } from "react";
+import { cache } from "react";
 import type { PhotoDoc } from "@/lib/payload";
-import { PhotoSidebar } from "@/components/photo-sidebar";
+import type { Metadata } from "next";
 import { PhotoJsonLd } from "@/components/photo-json-ld";
+import { PhotoSidebar } from "@/components/photo-sidebar";
+import {
+  getPayloadClient,
+  responsiveSrcSet,
+  getImageUrl,
+  getLqip,
+  resolveRelation,
+  getBirdBySlug,
+} from "@/lib/payload";
 
 export const revalidate = 60;
 
@@ -29,11 +36,7 @@ function buildDescription(photo: PhotoDoc): string {
   const category = resolveRelation(photo.category);
 
   if (bird?.name) {
-    parts.push(
-      bird.scientificName
-        ? `${bird.name} (${bird.scientificName})`
-        : bird.name,
-    );
+    parts.push(bird.scientificName ? `${bird.name} (${bird.scientificName})` : bird.name);
   }
   if (category?.title) parts.push(category.title);
 
@@ -55,9 +58,7 @@ export async function generateMetadata({
 
   const ogWidth = 1200;
   const ogHeight =
-    photo.width && photo.height
-      ? Math.round((ogWidth * photo.height) / photo.width)
-      : undefined;
+    photo.width && photo.height ? Math.round((ogWidth * photo.height) / photo.width) : undefined;
 
   return {
     title,
@@ -118,12 +119,12 @@ export default async function PhotoPage({
     <div>
       <Link
         href={backHref}
-        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground transition-colors mb-6 lg:mb-8"
+        className="text-muted-foreground/70 hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-xs transition-colors lg:mb-8"
       >
         &larr; {backLabel}
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 lg:gap-16 items-start">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[400px_1fr] lg:gap-16">
         {/* Meta — on mobile this renders below the photo (via order) */}
         <ViewTransition enter="meta-enter" default="none">
           <PhotoSidebar photo={photo} />
@@ -141,7 +142,7 @@ export default async function PhotoPage({
               height={photo.height ?? undefined}
               fetchPriority="high"
               decoding="async"
-              className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+              className="h-auto max-h-[85vh] w-full rounded-lg object-contain"
               {...(lqip && {
                 style: {
                   backgroundImage: `url(${lqip})`,
