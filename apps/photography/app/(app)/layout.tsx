@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
           </div>
         </footer>
+        <GoogleAnalytics gaId="G-765RVP276V" />
       </body>
     </html>
   );

@@ -16,6 +16,7 @@
     "@ai-sdk/google": "^3.0.37",
     "@ai-sdk/openai-compatible": "^2.0.33",
     "@goodpie/ui": "*",
+    "@next/third-parties": "^16.1.6",
     "@payloadcms/db-postgres": "3.75.0",
     "@payloadcms/next": "3.75.0",
     "@payloadcms/richtext-lexical": "3.75.0",
