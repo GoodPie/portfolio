@@ -24,7 +24,7 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
   const bird = resolveRelation(photo.bird);
   const category = resolveRelation(photo.category);
   const exifEntries = buildExifEntries(photo);
-  const hasPhotoDetails = photo.location || photo.description || photo.dateTaken;
+  const hasPhotoDetails = photo.description || photo.dateTaken;
 
   return (
     <aside className="order-2 lg:order-1 lg:sticky lg:top-24 flex flex-col gap-4">
@@ -53,7 +53,6 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
             ebirdSpeciesCode: bird.ebirdSpeciesCode,
           }}
           slug={bird.slug}
-          location={photo.location ?? undefined}
           dateTaken={photo.dateTaken ?? undefined}
           description={photo.description ?? undefined}
         />
@@ -68,12 +67,6 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
             <p className="text-sm text-muted-foreground">{photo.description}</p>
           )}
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            {photo.location && (
-              <div>
-                <dt className="text-muted-foreground text-xs">Location</dt>
-                <dd className="text-foreground">{photo.location}</dd>
-              </div>
-            )}
             {photo.dateTaken && (
               <div>
                 <dt className="text-muted-foreground text-xs">Date Taken</dt>

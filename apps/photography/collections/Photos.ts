@@ -45,10 +45,6 @@ export const Photos: CollectionConfig = {
       type: "textarea",
     },
     {
-      name: "location",
-      type: "text",
-    },
-    {
       name: "dateTaken",
       type: "date",
     },
@@ -95,16 +91,20 @@ export const Photos: CollectionConfig = {
         { name: "cameraModel", type: "text" },
       ],
     },
-    // Geolocation (auto-populated by hook)
+    // Geolocation (auto-populated by hook or manual via location search)
     {
       name: "geolocation",
       type: "group",
-      admin: {
-        readOnly: true,
-        condition: (data) =>
-          !!(data?.geolocation?.latitude && data?.geolocation?.longitude),
-      },
       fields: [
+        {
+          name: "locationSearch",
+          type: "ui",
+          admin: {
+            components: {
+              Field: "@/components/admin/location-search-field",
+            },
+          },
+        },
         { name: "latitude", type: "number" },
         { name: "longitude", type: "number" },
       ],

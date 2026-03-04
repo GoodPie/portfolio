@@ -37,12 +37,17 @@ function buildJsonLd(photo: PhotoDoc, description: string, id: string) {
       url: "https://brandynbritton.com",
     },
     ...(photo.dateTaken && { dateCreated: photo.dateTaken }),
-    ...(photo.location && {
-      contentLocation: {
-        "@type": "Place",
-        name: photo.location,
-      },
-    }),
+    ...(photo.geolocation?.latitude != null &&
+      photo.geolocation?.longitude != null && {
+        contentLocation: {
+          "@type": "Place",
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: photo.geolocation.latitude,
+            longitude: photo.geolocation.longitude,
+          },
+        },
+      }),
     ...(photo.width &&
       photo.height && {
         width: {

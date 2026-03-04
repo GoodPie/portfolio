@@ -14,7 +14,6 @@ export interface PhotoDoc {
   title: string;
   caption?: string | null;
   description?: string | null;
-  location?: string | null;
   dateTaken?: string | null;
   filename?: string | null;
   url?: string | null;

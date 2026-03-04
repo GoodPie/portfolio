@@ -13,12 +13,11 @@ interface BirdInfoProps {
     ebirdSpeciesCode?: string;
   };
   slug?: string;
-  location?: string;
   dateTaken?: string;
   description?: string;
 }
 
-export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdInfoProps) {
+export function BirdInfo({ bird, slug, dateTaken, description }: BirdInfoProps) {
   const details = [
     bird.habitat && { label: "Habitat", value: bird.habitat },
     bird.diet && { label: "Diet", value: bird.diet },
@@ -27,7 +26,6 @@ export function BirdInfo({ bird, slug, location, dateTaken, description }: BirdI
       value: bird.conservationStatus,
       className: conservationStatusColors[bird.conservationStatus],
     },
-    location && { label: "Location", value: location },
     dateTaken && { label: "Date Taken", value: formatDate(dateTaken) },
   ].filter(Boolean) as { label: string; value: string; className?: string }[];
 

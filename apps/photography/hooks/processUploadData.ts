@@ -2,6 +2,31 @@ import type { CollectionAfterChangeHook } from "payload";
 import sharp from "sharp";
 import exifr from "exifr";
 
+/**
+ * Resolve the image buffer from either the request file (server uploads)
+ * or by downloading from the blob URL (client uploads via Vercel Blob).
+ */
+async function resolveImageBuffer(
+  reqFile: { data: Buffer } | undefined | null,
+  docUrl: string | undefined | null,
+): Promise<Buffer | null> {
+  // Server-side upload — file buffer is on the request
+  if (reqFile?.data) {
+    const d = reqFile.data;
+    return Buffer.isBuffer(d) ? d : Buffer.from(d);
+  }
+
+  // Client upload (Vercel Blob) — download from the stored URL
+  if (docUrl) {
+    const res = await fetch(docUrl);
+    if (res.ok) {
+      return Buffer.from(await res.arrayBuffer());
+    }
+  }
+
+  return null;
+}
+
 export const processUploadData: CollectionAfterChangeHook = async ({
   doc,
   req,
@@ -11,13 +36,13 @@ export const processUploadData: CollectionAfterChangeHook = async ({
   // Prevent infinite loop — this hook calls payload.update which triggers afterChange again
   if (context.skipProcessUpload) return doc;
 
-  // Only process when a new file is uploaded
-  if (operation === "update" && !req.file) return doc;
+  // Skip metadata-only updates (no new file uploaded).
+  // With client uploads req.file is absent even for new uploads, so also
+  // check whether we've already processed this doc (lqip exists).
+  if (operation === "update" && !req.file && doc.lqip) return doc;
 
-  const fileData = req.file?.data;
-  if (!fileData) return doc;
-
-  const buffer = Buffer.isBuffer(fileData) ? fileData : Buffer.from(fileData);
+  const buffer = await resolveImageBuffer(req.file, doc.url);
+  if (!buffer) return doc;
   const updates: Record<string, unknown> = {};
 
   // 1. Generate LQIP
@@ -124,13 +149,15 @@ export const processUploadData: CollectionAfterChangeHook = async ({
     }
   }
 
-  // 5. Persist all extracted metadata in a single update
+  // 5. Persist all extracted metadata in a single update.
+  // IMPORTANT: Do NOT pass `req` here — the original req still carries
+  // req.file which would cause Payload to re-run generateFileData
+  // (re-processing image sizes and triggering cascading cloud-storage uploads).
   if (Object.keys(updates).length > 0) {
     await req.payload.update({
       collection: "photos",
       id: doc.id,
       data: updates,
-      req,
       context: { ...context, skipProcessUpload: true },
     });
   }

@@ -36,7 +36,6 @@ function buildDescription(photo: PhotoDoc): string {
     );
   }
   if (category?.title) parts.push(category.title);
-  if (photo.location) parts.push(`Taken in ${photo.location}`);
 
   return parts.join(" — ") || "Photo by Brandyn Britton";
 }
