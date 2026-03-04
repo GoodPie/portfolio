@@ -4,7 +4,13 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@payload-config", () => ({ default: {} }));
 vi.mock("payload", () => ({ getPayload: vi.fn() }));
 
-import { responsiveSrcSet, getImageUrl, getLqip, type PhotoDoc } from "./payload";
+import {
+  responsiveSrcSet,
+  getImageUrl,
+  getLqip,
+  resolveRelation,
+  type PhotoDoc,
+} from "./payload";
 
 /** Helper to build a PhotoDoc with given sizes. */
 function makePhoto(
@@ -127,5 +133,28 @@ describe("getLqip", () => {
   it("returns undefined when lqip is not set", () => {
     const photo = makePhoto(null);
     expect(getLqip(photo)).toBeUndefined();
+  });
+});
+
+describe("resolveRelation", () => {
+  it("returns the object when given a populated relation", () => {
+    const obj = { id: "abc", name: "Test" };
+    expect(resolveRelation(obj)).toBe(obj);
+  });
+
+  it("returns null for a string ID", () => {
+    expect(resolveRelation("abc")).toBeNull();
+  });
+
+  it("returns null for a numeric ID", () => {
+    expect(resolveRelation(42)).toBeNull();
+  });
+
+  it("returns null for null", () => {
+    expect(resolveRelation(null)).toBeNull();
+  });
+
+  it("returns null for undefined", () => {
+    expect(resolveRelation(undefined)).toBeNull();
   });
 });

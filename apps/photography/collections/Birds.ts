@@ -23,6 +23,15 @@ export const Birds: CollectionConfig = {
       required: true,
     },
     {
+      name: "birdLookup",
+      type: "ui",
+      admin: {
+        components: {
+          Field: "@/components/admin/bird-lookup-button",
+        },
+      },
+    },
+    {
       name: "slug",
       type: "text",
       required: true,
