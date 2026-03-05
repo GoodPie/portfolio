@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useMemo, useCallback, useRef } from "react";
+import Link from "next/link";
 import { Map, Source, Layer, Popup } from "react-map-gl/mapbox";
 import type { MapRef, MapMouseEvent } from "react-map-gl/mapbox";
 import type { GeoJSON } from "geojson";
+import type { CircleLayerSpecification, SymbolLayerSpecification } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { MapMarker } from "@/lib/map-utils";
 
@@ -16,34 +18,26 @@ interface SightingMapProps {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-const clusterLayer = {
+const clusterLayer: CircleLayerSpecification = {
   id: "clusters",
-  type: "circle" as const,
+  type: "circle",
   source: "sightings",
   filter: ["has", "point_count"],
   paint: {
-    "circle-color": [
-      "step",
-      ["get", "point_count"],
-      "#51bbd6",
-      10,
-      "#f1f075",
-      25,
-      "#f28cb1",
-    ] as unknown as string,
-    "circle-radius": ["step", ["get", "point_count"], 18, 10, 24, 25, 32] as unknown as number,
+    "circle-color": ["step", ["get", "point_count"], "#51bbd6", 10, "#f1f075", 25, "#f28cb1"],
+    "circle-radius": ["step", ["get", "point_count"], 18, 10, 24, 25, 32],
     "circle-stroke-width": 2,
     "circle-stroke-color": "rgba(255,255,255,0.3)",
   },
 };
 
-const clusterCountLayer = {
+const clusterCountLayer: SymbolLayerSpecification = {
   id: "cluster-count",
-  type: "symbol" as const,
+  type: "symbol",
   source: "sightings",
   filter: ["has", "point_count"],
   layout: {
-    "text-field": ["get", "point_count_abbreviated"] as unknown as string,
+    "text-field": ["get", "point_count_abbreviated"],
     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
     "text-size": 12,
   },
@@ -52,9 +46,9 @@ const clusterCountLayer = {
   },
 };
 
-const unclusteredPointLayer = {
+const unclusteredPointLayer: CircleLayerSpecification = {
   id: "unclustered-point",
-  type: "circle" as const,
+  type: "circle",
   source: "sightings",
   filter: ["!", ["has", "point_count"]],
   paint: {
@@ -211,12 +205,12 @@ export function SightingMap({ markers, className = "h-[500px]" }: SightingMapPro
                   })}
                 </p>
               )}
-              <a
-                href={`/photography/photo/${popupInfo.id}`}
+              <Link
+                href={`/photo/${popupInfo.id}`}
                 className="text-[10px] text-blue-400 hover:underline"
               >
                 View photo
-              </a>
+              </Link>
             </div>
           </Popup>
         )}

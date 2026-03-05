@@ -352,6 +352,7 @@ export async function getPhotosWithGeolocation(birdId?: string | number): Promis
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {
     "geolocation.latitude": { exists: true },
+    "geolocation.longitude": { exists: true },
   };
   if (birdId) where.bird = { equals: birdId };
 
