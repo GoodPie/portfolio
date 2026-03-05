@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImage = firstPhoto ? getImageUrl(firstPhoto, 1200) : undefined;
 
   return {
-    title: "Gallery",
+    title: "Bird & Wildlife Photography Gallery",
     description:
       "A personal photography collection by Brandyn Britton — scenes and details captured between projects.",
     openGraph: {
@@ -106,13 +106,67 @@ export default async function PhotosPage({
         </p>
       </section>
 
-      <SpeciesStrip species={speciesData} />
+      {speciesData.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">
+            Featured Species
+          </h2>
+          <SpeciesStrip species={speciesData} />
+        </section>
+      )}
 
-      <GalleryShell
-        allCards={allCards}
-        categories={categories}
-        initialCategory={categoryId ?? null}
-      />
+      <section>
+        <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">Gallery</h2>
+        <GalleryShell
+          allCards={allCards}
+          categories={categories}
+          initialCategory={categoryId ?? null}
+        />
+      </section>
+
+      {/* About — below the gallery for SEO content without cluttering the visual experience */}
+      <section className="border-border/40 mt-24 border-t pt-12">
+        <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">
+          About This Collection
+        </h2>
+        <div className="text-muted-foreground grid grid-cols-1 gap-x-12 gap-y-4 text-sm leading-relaxed md:grid-cols-2">
+          <div className="space-y-4">
+            <p>
+              What started as a casual interest in birdwatching quickly grew into a deeper passion
+              for capturing the personality, movement, and beauty of wild birds through a camera
+              lens. This gallery is a growing personal collection of wildlife photographs taken
+              during early morning walks, day hikes, and dedicated birding trips — featuring
+              everything from common garden visitors and backyard regulars to rare and elusive
+              species spotted in their natural habitats.
+            </p>
+            <p>
+              Each photograph is captured with an emphasis on natural light and authentic behaviour.
+              Rather than staged or baited shots, these images aim to document birds and wildlife as
+              they go about their daily lives — hunting, feeding, nesting, displaying, and simply
+              being. The goal is always to tell a small story about the moment and the subject,
+              whether it is a kingfisher mid-dive or a fantail perched quietly at dawn.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <p>
+              You can browse the full collection below or filter by category to explore specific
+              types of photographs. Each species featured in the gallery has its own dedicated page
+              with identification details, habitat information, and every related photo collected so
+              far. Clicking any image reveals the full-resolution version alongside camera settings
+              and EXIF data for those interested in the technical side of wildlife photography.
+            </p>
+            <p>
+              The equipment behind these images ranges from mid-range telephoto zoom lenses for
+              general birding to longer prime lenses for detailed close-up portraits. Camera body
+              and lens information is recorded automatically with each shot and displayed alongside
+              every photograph, so you can see exactly what was used. This collection is regularly
+              updated as new photos are taken and processed. Whether you are a fellow birder, a
+              photography enthusiast, or simply someone who appreciates the natural world, I hope
+              you find something here that catches your eye.
+            </p>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

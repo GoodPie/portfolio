@@ -7,7 +7,12 @@ const nextConfig = {
   experimental: {
     viewTransition: true,
     serverActions: {
-      allowedOrigins: ["localhost:3024"],
+      allowedOrigins: [
+        "localhost:3024",
+        ...(process.env.NEXT_PUBLIC_SERVER_URL
+          ? [new URL(process.env.NEXT_PUBLIC_SERVER_URL).host]
+          : []),
+      ],
     },
   },
 };

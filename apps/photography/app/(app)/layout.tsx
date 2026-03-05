@@ -16,6 +16,15 @@ export const metadata: Metadata = {
   },
   description:
     "A personal photography collection by Brandyn Britton — scenes and details captured between projects.",
+  icons: {
+    icon: [
+      { url: "/photography/favicon.ico", sizes: "any" },
+      { url: "/photography/favicon.svg", type: "image/svg+xml" },
+      { url: "/photography/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/photography/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/photography/apple-touch-icon.png",
+  },
   openGraph: {
     siteName: "Brandyn Britton",
   },
