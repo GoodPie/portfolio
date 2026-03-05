@@ -77,14 +77,14 @@ async function processInBackground(
       if (origWidth > 0 && origHeight > 0) {
         const aspectRatio = origHeight / origWidth;
         const basename = filename.replace(/\.[^.]+$/, "");
-        const ext = "jpg";
+        const ext = "webp";
 
         const sizeResults = await Promise.allSettled(
           IMAGE_SIZES.filter(({ width }) => width < origWidth).map(async ({ name, width }) => {
             const height = Math.round(width * aspectRatio);
             const resizedBuffer = await sharp(buffer)
               .resize(width, height, { fit: "inside" })
-              .jpeg({ quality: 80 })
+              .webp({ quality: 80 })
               .toBuffer();
 
             const sizeFilename = `${basename}-${width}x${height}.${ext}`;
@@ -92,7 +92,7 @@ async function processInBackground(
               access: "public",
               token: blobToken,
               addRandomSuffix: false,
-              contentType: "image/jpeg",
+              contentType: "image/webp",
             });
 
             return {
@@ -102,7 +102,7 @@ async function processInBackground(
               width,
               height,
               filesize: resizedBuffer.length,
-              mimeType: "image/jpeg" as const,
+              mimeType: "image/webp" as const,
             };
           }),
         );
