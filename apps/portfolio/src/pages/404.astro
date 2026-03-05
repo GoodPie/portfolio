@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Section from "../components/Section.astro";
+import FadeIn from "../components/animations/FadeIn.tsx";
+---
+
+<BaseLayout title="404 | Page Not Found" description="The page you're looking for doesn't exist.">
+  <Section class="flex min-h-[80vh] flex-col items-center justify-center text-center">
+    <FadeIn client:load delay={0}>
+      <p class="text-muted-foreground mb-4 text-sm tracking-widest uppercase">Page not found</p>
+    </FadeIn>
+
+    <FadeIn client:load delay={0.15}>
+      <h1 class="mb-6 font-serif text-7xl font-medium tracking-tight md:text-8xl lg:text-9xl">
+        4<span class="text-teal">0</span>4
+      </h1>
+    </FadeIn>
+
+    <FadeIn client:load delay={0.3}>
+      <p class="text-muted-foreground mb-12 max-w-md text-lg leading-relaxed md:text-xl">
+        The page you're looking for has wandered off. Let's get you back on track.
+      </p>
+    </FadeIn>
+
+    <FadeIn client:load delay={0.45}>
+      <a
+        href="/"
+        class="bg-teal text-background hover:bg-teal/90 inline-flex items-center gap-2 rounded-md px-6 py-3 font-medium transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m12 19-7-7 7-7"></path>
+          <path d="M19 12H5"></path>
+        </svg>
+        Back to Home
+      </a>
+    </FadeIn>
+  </Section>
+</BaseLayout>
