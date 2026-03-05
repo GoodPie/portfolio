@@ -3,7 +3,7 @@
 import { cn } from "@goodpie/ui/lib/utils";
 import Image, { type ImageLoaderProps } from "next/image";
 import Link from "next/link";
-import { ViewTransition, useState } from "react";
+import { ViewTransition, useState, useEffect } from "react";
 
 /** Payload image size breakpoints in ascending order */
 const SIZE_BREAKPOINTS = [
@@ -60,6 +60,24 @@ function makePayloadLoader(photo: PhotoCard) {
   };
 }
 
+/** Returns responsive column count matching the grid breakpoints. */
+function useColumnCount() {
+  const [cols, setCols] = useState(3);
+
+  useEffect(() => {
+    function update() {
+      if (window.innerWidth >= 768) setCols(3);
+      else if (window.innerWidth >= 640) setCols(2);
+      else setCols(1);
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return cols;
+}
+
 function ExifOverlay({ card }: { card: PhotoCard }) {
   const { exif } = card;
   const exifParts = exif
@@ -105,70 +123,90 @@ export function PhotoGrid({
   onPhotoClick?: (index: number) => void;
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const colCount = useColumnCount();
+
+  // Distribute photos round-robin across columns so ranking flows left→right
+  const columns: { photo: PhotoCard; index: number }[][] = Array.from(
+    { length: colCount },
+    () => [],
+  );
+  photos.forEach((photo, index) => {
+    columns[index % colCount].push({ photo, index });
+  });
 
   return (
-    <div className="w-full columns-1 gap-10 sm:columns-2 md:columns-3">
-      {photos.map((photo, index) => {
-        const card = (
-          <ViewTransition name={`photo-${photo.photoKey}`} enter="photo-filter" exit="photo-filter">
-            <div
-              onMouseEnter={() => setHovered(index)}
-              onMouseLeave={() => setHovered(null)}
-              className={cn(
-                "bg-muted relative w-full overflow-hidden rounded-lg transition-all duration-300 ease-out",
-                hovered !== null && hovered !== index && "scale-[0.98] blur-sm",
-              )}
-              style={{
-                aspectRatio:
-                  photo.width && photo.height ? `${photo.width} / ${photo.height}` : undefined,
-              }}
-            >
-              <Image
-                src={photo.src}
-                loader={makePayloadLoader(photo)}
-                alt={photo.title}
-                width={photo.width ?? 1200}
-                height={photo.height ?? 800}
-                sizes={photo.sizes}
-                fetchPriority={index === 0 ? "high" : undefined}
-                loading={index < 3 ? "eager" : "lazy"}
-                className="h-full w-full object-cover"
-                {...(photo.lqip && {
-                  placeholder: "blur" as const,
-                  blurDataURL: photo.lqip,
-                })}
-              />
-              <div
-                className={cn(
-                  "absolute inset-0 flex items-end bg-black/50 px-4 py-8 transition-opacity duration-300",
-                  hovered === index ? "opacity-100" : "opacity-0",
-                )}
+    <div className="flex w-full gap-10">
+      {columns.map((col, colIndex) => (
+        <div key={colIndex} className="flex flex-1 flex-col gap-10">
+          {col.map(({ photo, index }) => {
+            const card = (
+              <ViewTransition
+                name={`photo-${photo.photoKey}`}
+                enter="photo-filter"
+                exit="photo-filter"
               >
-                <ExifOverlay card={photo} />
-              </div>
-            </div>
-          </ViewTransition>
-        );
+                <div
+                  onMouseEnter={() => setHovered(index)}
+                  onMouseLeave={() => setHovered(null)}
+                  className={cn(
+                    "bg-muted relative w-full overflow-hidden rounded-lg transition-all duration-300 ease-out",
+                    hovered !== null && hovered !== index && "scale-[0.98] blur-sm",
+                  )}
+                  style={{
+                    aspectRatio:
+                      photo.width && photo.height ? `${photo.width} / ${photo.height}` : undefined,
+                  }}
+                >
+                  <Image
+                    src={photo.src}
+                    loader={makePayloadLoader(photo)}
+                    alt={photo.title}
+                    width={photo.width ?? 1200}
+                    height={photo.height ?? 800}
+                    sizes={photo.sizes}
+                    fetchPriority={index === 0 ? "high" : undefined}
+                    loading={index < 3 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover"
+                    {...(photo.lqip && {
+                      placeholder: "blur" as const,
+                      blurDataURL: photo.lqip,
+                    })}
+                  />
+                  <div
+                    className={cn(
+                      "absolute inset-0 flex items-end bg-black/50 px-4 py-8 transition-opacity duration-300",
+                      hovered === index ? "opacity-100" : "opacity-0",
+                    )}
+                  >
+                    <ExifOverlay card={photo} />
+                  </div>
+                </div>
+              </ViewTransition>
+            );
 
-        return onPhotoClick ? (
-          <button
-            key={photo.photoKey}
-            type="button"
-            className="mb-10 block w-full break-inside-avoid text-left"
-            onClick={() => onPhotoClick(index)}
-          >
-            {card}
-          </button>
-        ) : (
-          <Link
-            key={photo.photoKey}
-            href={linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`}
-            className="mb-10 block break-inside-avoid"
-          >
-            {card}
-          </Link>
-        );
-      })}
+            return onPhotoClick ? (
+              <button
+                key={photo.photoKey}
+                type="button"
+                className="block w-full text-left"
+                onClick={() => onPhotoClick(index)}
+              >
+                {card}
+              </button>
+            ) : (
+              <Link
+                key={photo.photoKey}
+                href={
+                  linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`
+                }
+                className="block"
+              >
+                {card}
+              </Link>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }
