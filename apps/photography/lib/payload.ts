@@ -64,6 +64,15 @@ export interface PhotoDoc {
     xl?: { url?: string | null; width?: number | null } | null;
     full?: { url?: string | null; width?: number | null } | null;
   } | null;
+  qualityScores?: {
+    overall?: number | null;
+    technical?: number | null;
+    composition?: number | null;
+    subjectImpact?: number | null;
+    uniqueness?: number | null;
+    aiNotes?: string | null;
+    scoredAt?: string | null;
+  } | null;
 }
 
 const allSizes = [

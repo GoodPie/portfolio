@@ -116,6 +116,36 @@ export const Photos: CollectionConfig = {
         position: "sidebar",
       },
     },
+    // Score photo button (admin sidebar)
+    {
+      name: "scorePhotoAction",
+      type: "ui",
+      admin: {
+        position: "sidebar",
+        components: {
+          Field: "@/components/admin/score-photo-button",
+        },
+      },
+    },
+    // AI quality scores (auto-populated by scorePhoto job)
+    {
+      name: "qualityScores",
+      type: "group",
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+        condition: (data) => data?.qualityScores?.overall != null,
+      },
+      fields: [
+        { name: "overall", type: "number", index: true },
+        { name: "technical", type: "number" },
+        { name: "composition", type: "number" },
+        { name: "subjectImpact", type: "number" },
+        { name: "uniqueness", type: "number" },
+        { name: "aiNotes", type: "text" },
+        { name: "scoredAt", type: "date" },
+      ],
+    },
     // Access control
     {
       name: "isProtected",
