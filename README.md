@@ -27,7 +27,7 @@ npm install
 npm run dev        # starts both apps (portfolio on 4300, photography on 4400)
 ```
 
-The photography app needs a few environment variables to talk to its database and blob storage — check `apps/photography/.env.example` if one exists, or look at `payload.config.ts` for what's expected (`DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN`). Sighting maps require a Mapbox token via `NEXT_PUBLIC_MAPBOX_TOKEN`.
+The photography app needs a few environment variables to talk to its database and blob storage — check `apps/photography/.env.example` if one exists, or look at `payload.config.ts` for what's expected (`DATABASE_URL`, `PAYLOAD_SECRET`, `BLOB_READ_WRITE_TOKEN`). Sighting maps require a Mapbox token via `NEXT_PUBLIC_MAPBOX_TOKEN`. Error monitoring uses Sentry — source map uploads require `SENTRY_AUTH_TOKEN`.
 
 ## Common commands
 
@@ -51,6 +51,7 @@ npx turbo run dev --filter=@goodpie/photography
 | CMS       | —                        | Payload CMS 3.75.0       |
 | 3D        | React Three Fiber        | —                        |
 | Maps      | —                        | Mapbox GL JS             |
+| Monitoring| —                        | Sentry                   |
 | Database  | —                        | Supabase PostgreSQL      |
 | Storage   | —                        | Vercel Blob              |
 | Build     | Turborepo                | Turborepo                |

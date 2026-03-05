@@ -21,6 +21,7 @@
     "@payloadcms/next": "3.75.0",
     "@payloadcms/richtext-lexical": "3.75.0",
     "@payloadcms/storage-vercel-blob": "3.75.0",
+    "@sentry/nextjs": "^10.42.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@vercel/blob": "^2.3.1",
     "ai": "^6.0.111",
