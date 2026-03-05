@@ -51,6 +51,15 @@ export default buildConfig({
   ],
   admin: {
     user: Users.slug,
+    meta: {
+      titleSuffix: " — Photography CMS",
+    },
+    components: {
+      graphics: {
+        Logo: "/components/admin/Logo",
+        Icon: "/components/admin/Icon",
+      },
+    },
   },
   routes: {
     admin: "/admin",

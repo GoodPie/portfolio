@@ -2,7 +2,13 @@ import type { PhotoDoc } from "@/lib/payload";
 import { formatExposure } from "@/lib/format";
 import { resolveRelation, getImageUrl } from "@/lib/payload";
 
-function buildJsonLd(photo: PhotoDoc, description: string, id: string) {
+function buildJsonLd(
+  photo: PhotoDoc,
+  description: string,
+  id: string,
+  authorName: string,
+  siteUrl: string,
+) {
   const bird = resolveRelation(photo.bird);
   const camera = resolveRelation(photo.camera);
   const lens = resolveRelation(photo.lens);
@@ -25,16 +31,16 @@ function buildJsonLd(photo: PhotoDoc, description: string, id: string) {
     name: photo.caption || photo.title,
     description,
     contentUrl: getImageUrl(photo, 1800),
-    url: `https://brandynbritton.com/photography/photo/${id}`,
+    url: `${siteUrl}/photography/photo/${id}`,
     author: {
       "@type": "Person",
-      name: "Brandyn Britton",
-      url: "https://brandynbritton.com",
+      name: authorName,
+      url: siteUrl,
     },
     creator: {
       "@type": "Person",
-      name: "Brandyn Britton",
-      url: "https://brandynbritton.com",
+      name: authorName,
+      url: siteUrl,
     },
     ...(photo.dateTaken && { dateCreated: photo.dateTaken }),
     ...(photo.geolocation?.latitude !== null &&
@@ -101,13 +107,17 @@ export function PhotoJsonLd({
   photo,
   description,
   id,
+  authorName,
+  siteUrl,
 }: {
   photo: PhotoDoc;
   description: string;
   id: string;
+  authorName: string;
+  siteUrl: string;
 }) {
   // JSON.stringify safely escapes all values — no XSS risk for structured data
-  const jsonLd = JSON.stringify(buildJsonLd(photo, description, id));
+  const jsonLd = JSON.stringify(buildJsonLd(photo, description, id, authorName, siteUrl));
 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />;
 }

@@ -14,9 +14,10 @@ import {
   getCachedPhoto,
   getCachedBirdBySlug,
 } from "@/lib/payload";
+import { getSiteConfig } from "@/lib/site-config";
 import { toPhotoCard } from "@/lib/photos";
 
-function buildDescription(photo: PhotoDoc): string {
+function buildDescription(photo: PhotoDoc, authorName: string): string {
   const parts: string[] = [];
   if (photo.caption) parts.push(photo.caption);
   if (photo.description) parts.push(photo.description);
@@ -29,7 +30,7 @@ function buildDescription(photo: PhotoDoc): string {
   }
   if (category?.title) parts.push(category.title);
 
-  return parts.join(" — ") || "Photo by Brandyn Britton";
+  return parts.join(" — ") || `Photo by ${authorName}`;
 }
 
 export async function generateMetadata({
@@ -38,11 +39,11 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const photo = await getCachedPhoto(id);
+  const [photo, config] = await Promise.all([getCachedPhoto(id), getSiteConfig()]);
   if (!photo) return { title: "Photo Not Found" };
 
   const title = photo.caption || photo.title;
-  const description = buildDescription(photo);
+  const description = buildDescription(photo, config.authorName);
   const imageUrl = getImageUrl(photo, 1200);
 
   const ogWidth = 1200;
@@ -87,7 +88,7 @@ export default async function PhotoPage({
 }) {
   const { id } = await params;
   const { from } = await searchParams;
-  const photo = await getCachedPhoto(id);
+  const [photo, config] = await Promise.all([getCachedPhoto(id), getSiteConfig()]);
   if (!photo) notFound();
   const lqip = getLqip(photo);
 
@@ -96,11 +97,13 @@ export default async function PhotoPage({
   let backLabel = "Back to gallery";
 
   if (from?.startsWith("birds/")) {
-    const birdSlug = from.replace("birds/", "");
-    const bird = await getCachedBirdBySlug(birdSlug);
-    if (bird) {
-      backHref = `/birds/${birdSlug}`;
-      backLabel = `Back to ${bird.name}`;
+    const birdSlug = from.slice("birds/".length);
+    if (birdSlug) {
+      const bird = await getCachedBirdBySlug(birdSlug);
+      if (bird) {
+        backHref = `/birds/${birdSlug}`;
+        backLabel = `Back to ${bird.name}`;
+      }
     }
   }
 
@@ -136,7 +139,13 @@ export default async function PhotoPage({
         </ViewTransition>
       </div>
 
-      <PhotoJsonLd photo={photo} description={buildDescription(photo)} id={id} />
+      <PhotoJsonLd
+        photo={photo}
+        description={buildDescription(photo, config.authorName)}
+        id={id}
+        authorName={config.authorName}
+        siteUrl={config.siteUrl}
+      />
     </div>
   );
 }

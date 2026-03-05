@@ -9,18 +9,18 @@ import {
   getImageUrl,
   resolveRelation,
 } from "@/lib/payload";
+import { getSiteConfig } from "@/lib/site-config";
 import { buildFilterOptions, toPhotoCard } from "@/lib/photos";
 
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const firstPhoto = await getCachedGalleryOgPhoto();
+  const [firstPhoto, config] = await Promise.all([getCachedGalleryOgPhoto(), getSiteConfig()]);
   const ogImage = firstPhoto ? getImageUrl(firstPhoto, 1200) : undefined;
 
   return {
     title: "Bird & Wildlife Photography Gallery",
-    description:
-      "A personal photography collection by Brandyn Britton — scenes and details captured between projects.",
+    description: config.siteDescription,
     openGraph: {
       type: "website",
       ...(ogImage && { images: [{ url: ogImage, width: 1200 }] }),
@@ -77,10 +77,14 @@ export default async function PhotosPage({
 }) {
   const { category: categoryId } = await searchParams;
 
-  const allPhotos = await getCachedGalleryPhotos();
+  const [allPhotos, config] = await Promise.all([getCachedGalleryPhotos(), getSiteConfig()]);
   const { categories } = buildFilterOptions(allPhotos);
   const allCards = allPhotos.map(toPhotoCard);
   const speciesData = buildSpeciesStrip(allPhotos);
+
+  const aboutLeftParagraphs = config.aboutLeft?.split("\n\n").filter(Boolean) ?? [];
+  const aboutRightParagraphs = config.aboutRight?.split("\n\n").filter(Boolean) ?? [];
+  const hasAbout = aboutLeftParagraphs.length > 0 || aboutRightParagraphs.length > 0;
 
   return (
     <>
@@ -88,10 +92,11 @@ export default async function PhotosPage({
       <section className="mb-16 max-w-2xl">
         <p className="text-muted-foreground mb-4 text-sm tracking-widest uppercase">Photography</p>
         <h1 className="mb-6 font-serif text-4xl font-medium tracking-tight md:text-5xl lg:text-6xl">
-          Mostly birds<span className="text-teal">.</span>
+          {config.heroHeadline}
+          <span className="text-teal">.</span>
         </h1>
         <p className="text-muted-foreground text-lg leading-relaxed md:text-xl">
-          Sometimes landscapes. Occasionally something else entirely.
+          {config.heroSubtitle}
         </p>
       </section>
 
@@ -114,48 +119,29 @@ export default async function PhotosPage({
       </section>
 
       {/* About — below the gallery for SEO content without cluttering the visual experience */}
-      <section className="border-border/40 mt-24 border-t pt-12">
-        <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">
-          About This Collection
-        </h2>
-        <div className="text-muted-foreground grid grid-cols-1 gap-x-12 gap-y-4 text-sm leading-relaxed md:grid-cols-2">
-          <div className="space-y-4">
-            <p>
-              What started as a casual interest in birdwatching quickly grew into a deeper passion
-              for capturing the personality, movement, and beauty of wild birds through a camera
-              lens. This gallery is a growing personal collection of wildlife photographs taken
-              during early morning walks, day hikes, and dedicated birding trips — featuring
-              everything from common garden visitors and backyard regulars to rare and elusive
-              species spotted in their natural habitats.
-            </p>
-            <p>
-              Each photograph is captured with an emphasis on natural light and authentic behaviour.
-              Rather than staged or baited shots, these images aim to document birds and wildlife as
-              they go about their daily lives — hunting, feeding, nesting, displaying, and simply
-              being. The goal is always to tell a small story about the moment and the subject,
-              whether it is a kingfisher mid-dive or a fantail perched quietly at dawn.
-            </p>
+      {hasAbout && (
+        <section className="border-border/40 mt-24 border-t pt-12">
+          <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">
+            {config.aboutTitle}
+          </h2>
+          <div className="text-muted-foreground grid grid-cols-1 gap-x-12 gap-y-4 text-sm leading-relaxed md:grid-cols-2">
+            {aboutLeftParagraphs.length > 0 && (
+              <div className="space-y-4">
+                {aboutLeftParagraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+            {aboutRightParagraphs.length > 0 && (
+              <div className="space-y-4">
+                {aboutRightParagraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="space-y-4">
-            <p>
-              You can browse the full collection below or filter by category to explore specific
-              types of photographs. Each species featured in the gallery has its own dedicated page
-              with identification details, habitat information, and every related photo collected so
-              far. Clicking any image reveals the full-resolution version alongside camera settings
-              and EXIF data for those interested in the technical side of wildlife photography.
-            </p>
-            <p>
-              The equipment behind these images ranges from mid-range telephoto zoom lenses for
-              general birding to longer prime lenses for detailed close-up portraits. Camera body
-              and lens information is recorded automatically with each shot and displayed alongside
-              every photograph, so you can see exactly what was used. This collection is regularly
-              updated as new photos are taken and processed. Whether you are a fellow birder, a
-              photography enthusiast, or simply someone who appreciates the natural world, I hope
-              you find something here that catches your eye.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

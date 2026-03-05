@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getCachedSitemapPhotos, getCachedAllBirds, getImageUrl } from "@/lib/payload";
 
-const BASE_URL = "https://brandynbritton.com/photography";
+const BASE_URL = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3024"}/photography`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [photos, birds] = await Promise.all([getCachedSitemapPhotos(), getCachedAllBirds()]);

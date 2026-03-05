@@ -3,7 +3,7 @@ import type { PhotoDoc } from "@/lib/payload";
 import { getEbirdSpeciesUrl } from "@/lib/bird-utils";
 import { resolveRelation, getImageUrl } from "@/lib/payload";
 
-function buildJsonLd(bird: BirdDoc) {
+function buildJsonLd(bird: BirdDoc, siteUrl: string) {
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
 
   const properties = [
@@ -25,7 +25,7 @@ function buildJsonLd(bird: BirdDoc) {
     "@type": "Thing",
     name: bird.name,
     ...(bird.scientificName && { alternateName: bird.scientificName }),
-    url: `https://brandynbritton.com/photography/birds/${bird.slug}`,
+    url: `${siteUrl}/photography/birds/${bird.slug}`,
     ...(coverPhoto && { image: getImageUrl(coverPhoto, 1200) }),
     ...(bird.ebirdSpeciesCode && {
       sameAs: getEbirdSpeciesUrl(bird.ebirdSpeciesCode),
@@ -39,9 +39,9 @@ function buildJsonLd(bird: BirdDoc) {
   };
 }
 
-export function BirdJsonLd({ bird }: { bird: BirdDoc }) {
+export function BirdJsonLd({ bird, siteUrl }: { bird: BirdDoc; siteUrl: string }) {
   // JSON.stringify safely escapes all values — no XSS risk for structured data
-  const jsonLd = JSON.stringify(buildJsonLd(bird));
+  const jsonLd = JSON.stringify(buildJsonLd(bird, siteUrl));
 
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />;
 }

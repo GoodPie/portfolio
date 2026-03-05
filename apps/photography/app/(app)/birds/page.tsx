@@ -10,20 +10,24 @@ import {
   getImageUrl,
   resolveRelation,
 } from "@/lib/payload";
+import { getSiteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
-  title: "Life List",
-  description: "Bird species photographed by Brandyn Britton — a growing life list.",
-  openGraph: {
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-  },
-  alternates: {
-    canonical: "/birds",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    title: "Life List",
+    description: `Bird species photographed by ${config.authorName} — a growing life list.`,
+    openGraph: {
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+    },
+    alternates: {
+      canonical: "/birds",
+    },
+  };
+}
 
 export default async function BirdsPage({
   searchParams,
@@ -37,7 +41,11 @@ export default async function BirdsPage({
   }>;
 }) {
   const params = await searchParams;
-  const [birds, statsEntries] = await Promise.all([getCachedAllBirds(), getCachedBirdPhotoStats()]);
+  const [birds, statsEntries, config] = await Promise.all([
+    getCachedAllBirds(),
+    getCachedBirdPhotoStats(),
+    getSiteConfig(),
+  ]);
   const stats = new Map<string, BirdPhotoStats>(statsEntries);
 
   const birdCards: BirdCardData[] = birds.map((bird) => {
@@ -96,9 +104,7 @@ export default async function BirdsPage({
           {birds.length} {birds.length === 1 ? "species" : "species"}
           <span className="text-teal">.</span>
         </h1>
-        <p className="text-muted-foreground text-lg leading-relaxed">
-          Every bird I&apos;ve had the privilege of photographing.
-        </p>
+        <p className="text-muted-foreground text-lg leading-relaxed">{config.birdsSubtitle}</p>
       </section>
 
       <LifeListStats

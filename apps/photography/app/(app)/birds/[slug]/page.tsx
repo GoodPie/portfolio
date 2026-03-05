@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import type { PhotoDoc } from "@/lib/payload";
 import type { Metadata } from "next";
 import { BirdBio } from "@/components/bird-bio";
@@ -12,6 +13,7 @@ import {
   getImageUrl,
   resolveRelation,
 } from "@/lib/payload";
+import { getSiteConfig } from "@/lib/site-config";
 import { toPhotoCard } from "@/lib/photos";
 
 export async function generateMetadata({
@@ -20,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const bird = await getCachedBirdBySlug(slug);
+  const [bird, config] = await Promise.all([getCachedBirdBySlug(slug), getSiteConfig()]);
   if (!bird) return { title: "Bird Not Found" };
 
   const title = bird.scientificName ? `${bird.name} (${bird.scientificName})` : bird.name;
@@ -31,7 +33,7 @@ export async function generateMetadata({
       bird.conservationStatus && `Status: ${bird.conservationStatus}`,
     ]
       .filter(Boolean)
-      .join(". ") || `Photos of ${bird.name} by Brandyn Britton`;
+      .join(". ") || `Photos of ${bird.name} by ${config.authorName}`;
 
   const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);
   const imageUrl = coverPhoto ? getImageUrl(coverPhoto, 1200) : undefined;
@@ -61,7 +63,7 @@ export async function generateMetadata({
 
 export default async function BirdPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const bird = await getCachedBirdBySlug(slug);
+  const [bird, config] = await Promise.all([getCachedBirdBySlug(slug), getSiteConfig()]);
   if (!bird) notFound();
 
   const photos = await getCachedPhotosByBirdId(bird.id);
@@ -84,8 +86,12 @@ export default async function BirdPage({ params }: { params: Promise<{ slug: str
         &larr; All species
       </Link>
 
-      <BirdHero bird={bird} photoCount={photos.length} firstSeen={firstSeen} />
-      <BirdBio bird={bird} />
+      <ViewTransition name={`bird-${slug}`}>
+        <BirdHero bird={bird} photoCount={photos.length} firstSeen={firstSeen} />
+      </ViewTransition>
+      <ViewTransition enter="meta-enter" default="none">
+        <BirdBio bird={bird} />
+      </ViewTransition>
 
       {photoCards.length > 0 && (
         <section>
@@ -94,7 +100,7 @@ export default async function BirdPage({ params }: { params: Promise<{ slug: str
         </section>
       )}
 
-      <BirdJsonLd bird={bird} />
+      <BirdJsonLd bird={bird} siteUrl={config.siteUrl} />
     </div>
   );
 }
