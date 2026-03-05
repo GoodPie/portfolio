@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextResponse } from "next/server";
 import { getPayloadClient } from "@/lib/payload";
 
@@ -21,13 +22,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   // If the photo is protected, require authentication
   if (photo.isProtected) {
-    const { user } = await payload.auth({ headers: request.headers });
+    try {
+      const { user } = await payload.auth({ headers: request.headers });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "Authentication required to download this photo" },
-        { status: 401 },
-      );
+      if (!user) {
+        return NextResponse.json(
+          { error: "Authentication required to download this photo" },
+          { status: 401 },
+        );
+      }
+    } catch (err) {
+      Sentry.captureException(err, {
+        tags: { section: "photo-download" },
+        extra: { photoId: id },
+      });
+      return NextResponse.json({ error: "Authentication check failed" }, { status: 500 });
     }
   }
 
@@ -50,7 +59,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   // Fetch and stream the original file
-  const fileResponse = await fetch(fileUrl);
+  let fileResponse: Response;
+  try {
+    fileResponse = await fetch(fileUrl);
+  } catch (err) {
+    Sentry.captureException(err, {
+      tags: { section: "photo-download" },
+      extra: { photoId: id, fileUrl },
+    });
+    return NextResponse.json({ error: "Failed to retrieve file" }, { status: 502 });
+  }
   if (!fileResponse.ok) {
     return NextResponse.json({ error: "Failed to retrieve file" }, { status: 502 });
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Button } from "@goodpie/ui/components/button";
 import { useEffect } from "react";
 
@@ -11,6 +12,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 
