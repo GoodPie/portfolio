@@ -87,21 +87,20 @@ function ExifOverlay({ card }: { card: PhotoCard }) {
 export function PhotoGrid({
   photos,
   linkQuery,
+  onPhotoClick,
 }: {
   photos: PhotoCard[];
   /** Optional query string to append to photo links (e.g., "from=birds/tui") */
   linkQuery?: string;
+  /** When provided, clicking a photo calls this instead of navigating to the detail page */
+  onPhotoClick?: (index: number) => void;
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
     <div className="w-full columns-1 gap-10 sm:columns-2 md:columns-3">
-      {photos.map((photo, index) => (
-        <Link
-          key={photo.photoKey}
-          href={linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`}
-          className="mb-10 block break-inside-avoid"
-        >
+      {photos.map((photo, index) => {
+        const card = (
           <ViewTransition name={`photo-${photo.photoKey}`} enter="photo-filter" exit="photo-filter">
             <div
               onMouseEnter={() => setHovered(index)}
@@ -140,8 +139,27 @@ export function PhotoGrid({
               </div>
             </div>
           </ViewTransition>
-        </Link>
-      ))}
+        );
+
+        return onPhotoClick ? (
+          <button
+            key={photo.photoKey}
+            type="button"
+            className="mb-10 block w-full break-inside-avoid text-left"
+            onClick={() => onPhotoClick(index)}
+          >
+            {card}
+          </button>
+        ) : (
+          <Link
+            key={photo.photoKey}
+            href={linkQuery ? `/photo/${photo.photoKey}?${linkQuery}` : `/photo/${photo.photoKey}`}
+            className="mb-10 block break-inside-avoid"
+          >
+            {card}
+          </Link>
+        );
+      })}
     </div>
   );
 }

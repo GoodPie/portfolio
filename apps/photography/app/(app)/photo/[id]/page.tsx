@@ -4,6 +4,7 @@ import { ViewTransition } from "react";
 import { cache } from "react";
 import type { PhotoDoc } from "@/lib/payload";
 import type { Metadata } from "next";
+import { PhotoDetailImage } from "@/components/photo-detail-image";
 import { PhotoJsonLd } from "@/components/photo-json-ld";
 import { PhotoSidebar } from "@/components/photo-sidebar";
 import {
@@ -14,6 +15,7 @@ import {
   resolveRelation,
   getBirdBySlug,
 } from "@/lib/payload";
+import { toPhotoCard } from "@/lib/photos";
 
 export const revalidate = 60;
 
@@ -133,23 +135,15 @@ export default async function PhotoPage({
         {/* Photo */}
         <ViewTransition name={`photo-${id}`}>
           <div className="order-1 lg:order-2">
-            <img
+            <PhotoDetailImage
+              photo={toPhotoCard(photo)}
               src={getImageUrl(photo, 1800)}
               srcSet={responsiveSrcSet(photo)}
               sizes="(max-width: 1024px) 100vw, 65vw"
               alt={photo.caption || photo.title}
               width={photo.width ?? undefined}
               height={photo.height ?? undefined}
-              fetchPriority="high"
-              decoding="async"
-              className="h-auto max-h-[85vh] w-full rounded-lg object-contain"
-              {...(lqip && {
-                style: {
-                  backgroundImage: `url(${lqip})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                },
-              })}
+              lqip={lqip ?? undefined}
             />
           </div>
         </ViewTransition>

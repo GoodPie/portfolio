@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { BirdBio } from "@/components/bird-bio";
 import { BirdHero } from "@/components/bird-hero";
 import { BirdJsonLd } from "@/components/bird-json-ld";
-import { PhotoGrid } from "@/components/photo-grid";
+import { BirdPhotoSection } from "@/components/bird-photo-section";
 import { getBirdBySlug, getPhotosByBirdId, getImageUrl, resolveRelation } from "@/lib/payload";
 import { toPhotoCard } from "@/lib/photos";
 
@@ -90,7 +90,7 @@ export default async function BirdPage({ params }: { params: Promise<{ slug: str
       {photoCards.length > 0 && (
         <section>
           <h2 className="text-muted-foreground mb-6 text-xs tracking-widest uppercase">Photos</h2>
-          <PhotoGrid photos={photoCards} linkQuery={`from=birds/${slug}`} />
+          <BirdPhotoSection photos={photoCards} />
         </section>
       )}
 
