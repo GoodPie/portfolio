@@ -259,29 +259,85 @@ export async function getPhotosByBirdId(birdId: string | number): Promise<PhotoD
 
 // --- Cached wrapper functions (unstable_cache with tags) ---
 
-/** Cached gallery photos for the main gallery page. */
+/** Cached gallery photos for the main gallery page, sorted by quality score (unscored photos last). */
 export const getCachedGalleryPhotos = unstable_cache(
   async (): Promise<PhotoDoc[]> => {
     const payload = await getPayloadClient();
-    const { docs } = await payload.find({
-      collection: "photos",
-      sort: "-dateTaken",
-      depth: 1,
-      limit: 100,
-      select: {
-        title: true,
-        caption: true,
-        dateTaken: true,
-        width: true,
-        height: true,
-        lqip: true,
-        exif: true,
-        sizes: true,
-        bird: true,
-        category: true,
-      },
-    });
-    return docs as unknown as PhotoDoc[];
+
+    try {
+      // Fetch scored photos first, sorted by overall score descending
+      const { docs: scored } = await payload.find({
+        collection: "photos",
+        sort: "-qualityScores.overall",
+        depth: 1,
+        limit: 100,
+        where: { "qualityScores.overall": { exists: true } },
+        select: {
+          title: true,
+          caption: true,
+          dateTaken: true,
+          width: true,
+          height: true,
+          lqip: true,
+          exif: true,
+          sizes: true,
+          bird: true,
+          category: true,
+          qualityScores: true,
+        },
+      });
+
+      // Fetch unscored photos (new uploads not yet processed), sorted by date
+      const { docs: unscored } = await payload.find({
+        collection: "photos",
+        sort: "-dateTaken",
+        depth: 1,
+        limit: 100,
+        where: {
+          or: [
+            { "qualityScores.overall": { exists: false } },
+            { "qualityScores.overall": { equals: null } },
+          ],
+        },
+        select: {
+          title: true,
+          caption: true,
+          dateTaken: true,
+          width: true,
+          height: true,
+          lqip: true,
+          exif: true,
+          sizes: true,
+          bird: true,
+          category: true,
+          qualityScores: true,
+        },
+      });
+
+      // Scored photos first, then unscored at the end
+      return [...scored, ...unscored].slice(0, 100) as unknown as PhotoDoc[];
+    } catch {
+      // Fallback: qualityScores column may not exist yet (pre-migration)
+      const { docs } = await payload.find({
+        collection: "photos",
+        sort: "-dateTaken",
+        depth: 1,
+        limit: 100,
+        select: {
+          title: true,
+          caption: true,
+          dateTaken: true,
+          width: true,
+          height: true,
+          lqip: true,
+          exif: true,
+          sizes: true,
+          bird: true,
+          category: true,
+        },
+      });
+      return docs as unknown as PhotoDoc[];
+    }
   },
   ["gallery-photos"],
   { revalidate: 60, tags: ["photos"] },

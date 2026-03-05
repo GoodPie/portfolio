@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { put } from "@vercel/blob";
 import exifr from "exifr";
 import sharp from "sharp";
@@ -226,13 +227,32 @@ async function processInBackground(
 
   // 6. Persist all extracted metadata in a single update.
   if (Object.keys(updates).length > 0) {
-    await payload.update({
-      collection: "photos",
-      id: docId,
-      data: updates,
-      context: { skipProcessUpload: true },
+    try {
+      await payload.update({
+        collection: "photos",
+        id: docId,
+        data: updates,
+        context: { skipProcessUpload: true },
+      });
+      payload.logger.info(`Photo ${docId}: background processing complete`);
+    } catch (e) {
+      Sentry.captureException(e, {
+        tags: { section: "photo-upload" },
+        extra: { photoId: docId, updates: Object.keys(updates) },
+      });
+      payload.logger.error(`Failed to persist upload data for photo ${docId}: ${e}`);
+    }
+  }
+
+  // 7. Queue AI quality scoring job (runs async via Payload Jobs)
+  try {
+    await payload.jobs.queue({
+      task: "scorePhoto",
+      input: { photoId: Number(docId) },
     });
-    payload.logger.info(`Photo ${docId}: background processing complete`);
+    payload.logger.info(`Photo ${docId}: scoring job queued`);
+  } catch (e) {
+    payload.logger.error(`Failed to queue scoring job for photo ${docId}: ${e}`);
   }
 }
 
@@ -257,6 +277,10 @@ export const processUploadData: CollectionAfterChangeHook = async ({
 
   // Fire-and-forget — detach from request lifecycle
   processInBackground(payload, doc.id, doc, fileData).catch((err) => {
+    Sentry.captureException(err, {
+      tags: { section: "photo-upload" },
+      extra: { photoId: doc.id },
+    });
     payload.logger.error(`Background upload processing failed: ${err}`);
   });
 

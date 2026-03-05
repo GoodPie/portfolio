@@ -33,8 +33,9 @@ Fill in the required values:
 | `BLOB_READ_WRITE_TOKEN` | No       | Vercel Blob token. Omit for local disk storage                                                                                      |
 | `NEXT_PUBLIC_SITE_URL`  | No       | Public URL of your site (e.g. `https://example.com`). Defaults to `http://localhost:3024`. Used in sitemap, robots.txt, and JSON-LD |
 | `NEXT_PUBLIC_GA_ID`     | No       | Google Analytics measurement ID (e.g. `G-XXXXXXXXXX`). Omit to disable tracking                                                     |
+| `CRON_SECRET`           | No       | Secret for Vercel Cron job auth (`openssl rand -base64 32`). Required for automated quality scoring in production                    |
 
-The remaining API keys (`E_BIRD_API_KEY`, `AI_GATEWAY_API_KEY`, etc.) are used for bird data enrichment and are optional for basic operation.
+The remaining API keys (`E_BIRD_API_KEY`, `AI_GATEWAY_API_KEY`, etc.) are used for bird data enrichment and AI quality scoring, and are optional for basic operation.
 
 ### 3. Run database migrations
 
@@ -107,6 +108,39 @@ lib/
 migrations/              # Database migrations
 payload.config.ts        # Payload CMS config
 ```
+
+## AI Quality Scoring
+
+Photos are automatically scored by Gemini 3 Flash Vision across four dimensions:
+
+| Dimension | Weight | Measures |
+| --- | --- | --- |
+| Technical | 20% | Sharpness (eye/feather detail), exposure, noise, dynamic range |
+| Composition | 30% | Framing, background quality, rule of thirds, negative space |
+| Subject Impact | 30% | Behavior, pose quality, eye contact, emotional response |
+| Uniqueness | 20% | Unusual moment/angle/lighting, rarity of captured behavior |
+
+Each dimension is scored 0–100, and a weighted **overall** score determines gallery sort order. An AI-generated note explains the assessment.
+
+### How it works
+
+1. **On upload**: The `processUploadData` hook queues a `scorePhoto` job via Payload Jobs
+2. **Job processing**: A Vercel Cron calls `/photography/api/payload-jobs/run` every minute to process queued jobs
+3. **Scoring**: The job sends the `large` (1200w) image + EXIF context to Gemini 3 Flash Vision and stores structured scores on the photo document
+4. **Gallery sort**: The gallery page sorts by `qualityScores.overall` descending, with unscored photos appended at the end
+
+### Scoring existing photos
+
+Open any photo in the admin panel and click the **Score Photo** button in the sidebar. This queues and runs the scoring job immediately.
+
+### Requirements
+
+- `AI_GATEWAY_API_KEY` — Vercel AI Gateway key (also used by bird-lookup)
+- `CRON_SECRET` — secures the jobs endpoint for Vercel Cron (production only)
+
+### Vercel Cron setup
+
+The `vercel.json` in this app configures a cron job that runs every minute (requires Vercel Pro plan). Set `CRON_SECRET` in your Vercel project environment variables — Vercel automatically sends it as a `Bearer` token in the `Authorization` header.
 
 ## White-Label Architecture
 
