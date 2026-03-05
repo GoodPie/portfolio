@@ -29,7 +29,12 @@ export function PhotoDetailImage({
 
   return (
     <>
-      <button type="button" className="cursor-zoom-in" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="cursor-zoom-in"
+        aria-label={`Open ${alt} in lightbox`}
+        onClick={() => setOpen(true)}
+      >
         <img
           src={src}
           srcSet={srcSet}

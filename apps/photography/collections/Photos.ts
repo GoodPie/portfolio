@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { processUploadData } from "@/hooks/processUploadData";
+import { revalidatePhotosCache } from "@/hooks/revalidateCache";
 import { stripFullResolution } from "@/hooks/stripFullResolution";
 
 export const Photos: CollectionConfig = {
@@ -28,7 +29,7 @@ export const Photos: CollectionConfig = {
   },
   hooks: {
     afterRead: [stripFullResolution],
-    afterChange: [processUploadData],
+    afterChange: [processUploadData, revalidatePhotosCache],
   },
   fields: [
     {
@@ -47,6 +48,7 @@ export const Photos: CollectionConfig = {
     {
       name: "dateTaken",
       type: "date",
+      index: true,
     },
     // Relationships
     {
@@ -58,6 +60,7 @@ export const Photos: CollectionConfig = {
       name: "bird",
       type: "relationship",
       relationTo: "birds",
+      index: true,
     },
     {
       name: "camera",

@@ -34,6 +34,7 @@ export function toPhotoCard(photo: PhotoDoc): PhotoCard {
           LensModel: photo.exif.lensModel ?? undefined,
         }
       : undefined,
+    dateTaken: photo.dateTaken ?? undefined,
     lqip: getLqip(photo),
     width: photo.width ?? undefined,
     height: photo.height ?? undefined,

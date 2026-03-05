@@ -1,24 +1,10 @@
-import type { PhotoDoc } from "@/lib/payload";
 import type { MetadataRoute } from "next";
-import { getPayloadClient, getImageUrl, getAllBirds } from "@/lib/payload";
-
-export const revalidate = 3600;
+import { getCachedSitemapPhotos, getCachedAllBirds, getImageUrl } from "@/lib/payload";
 
 const BASE_URL = "https://brandynbritton.com/photography";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const payload = await getPayloadClient();
-  const [{ docs }, birds] = await Promise.all([
-    payload.find({
-      collection: "photos",
-      depth: 0,
-      limit: 1000,
-      sort: "-dateTaken",
-    }),
-    getAllBirds(),
-  ]);
-
-  const photos = docs as unknown as PhotoDoc[];
+  const [photos, birds] = await Promise.all([getCachedSitemapPhotos(), getCachedAllBirds()]);
 
   const photoEntries: MetadataRoute.Sitemap = photos.map((photo) => ({
     url: `${BASE_URL}/photo/${photo.id}`,

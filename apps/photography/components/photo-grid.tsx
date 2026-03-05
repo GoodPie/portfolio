@@ -33,6 +33,7 @@ export interface PhotoCard {
   height?: number;
   /** Map of Payload size key → URL for the custom loader */
   sizeUrls?: Partial<Record<SizeKey, string>>;
+  dateTaken?: string;
   /** Relation ID for client-side filtering */
   birdId?: string;
   /** Relation ID for client-side filtering */
@@ -79,7 +80,15 @@ function ExifOverlay({ card }: { card: PhotoCard }) {
       {exifParts.length > 0 && (
         <div className="text-overlay-muted text-xs">{exifParts.join(" · ")}</div>
       )}
-      {exif?.LensModel && <div className="text-overlay-dim text-xs">{exif.LensModel}</div>}
+      {card.dateTaken && (
+        <div className="text-overlay-dim text-xs">
+          {new Date(card.dateTaken).toLocaleDateString("en-NZ", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </div>
+      )}
     </div>
   );
 }

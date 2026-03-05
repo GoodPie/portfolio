@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { BirdCardData } from "@/components/bird-grid";
-import type { PhotoDoc } from "@/lib/payload";
+import type { PhotoDoc, BirdPhotoStats } from "@/lib/payload";
 import type { Metadata } from "next";
 import { LifeListShell } from "@/components/life-list-shell";
 import { LifeListStats } from "@/components/life-list-stats";
-import { getAllBirds, getBirdPhotoStats, getImageUrl, resolveRelation } from "@/lib/payload";
-
-export const revalidate = 60;
+import {
+  getCachedAllBirds,
+  getCachedBirdPhotoStats,
+  getImageUrl,
+  resolveRelation,
+} from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "Life List",
@@ -34,7 +37,8 @@ export default async function BirdsPage({
   }>;
 }) {
   const params = await searchParams;
-  const [birds, stats] = await Promise.all([getAllBirds(), getBirdPhotoStats()]);
+  const [birds, statsEntries] = await Promise.all([getCachedAllBirds(), getCachedBirdPhotoStats()]);
+  const stats = new Map<string, BirdPhotoStats>(statsEntries);
 
   const birdCards: BirdCardData[] = birds.map((bird) => {
     const coverPhoto = resolveRelation(bird.coverImage as PhotoDoc | string | number | null);

@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import config from "@payload-config";
 import { getPayload as getPayloadInstance } from "payload";
 
@@ -156,12 +157,12 @@ export interface BirdPhotoStats {
 /** Fetch photo counts and first-sighted dates for all birds. */
 export async function getBirdPhotoStats(): Promise<Map<string, BirdPhotoStats>> {
   const payload = await getPayloadClient();
-  // NOTE: assumes fewer than 1000 bird-linked photos. Paginate if this grows.
   const { docs } = await payload.find({
     collection: "photos",
     depth: 0,
-    limit: 1000,
     where: { bird: { exists: true } },
+    select: { bird: true, dateTaken: true },
+    pagination: false,
   });
 
   const stats = new Map<string, BirdPhotoStats>();
@@ -194,7 +195,17 @@ export async function getAllBirds(): Promise<BirdDoc[]> {
     collection: "birds",
     sort: "name",
     depth: 1,
-    limit: 200,
+    select: {
+      name: true,
+      slug: true,
+      scientificName: true,
+      taxonomicOrder: true,
+      family: true,
+      conservationStatus: true,
+      coverImage: true,
+      updatedAt: true,
+    },
+    pagination: false,
   });
   return docs as unknown as BirdDoc[];
 }
@@ -207,6 +218,7 @@ export async function getBirdBySlug(slug: string): Promise<BirdDoc | null> {
     where: { slug: { equals: slug } },
     depth: 1,
     limit: 1,
+    pagination: false,
   });
   return docs.length > 0 ? (docs[0] as unknown as BirdDoc) : null;
 }
@@ -219,7 +231,134 @@ export async function getPhotosByBirdId(birdId: string | number): Promise<PhotoD
     where: { bird: { equals: birdId } },
     sort: "-dateTaken",
     depth: 1,
-    limit: 200,
+    select: {
+      title: true,
+      caption: true,
+      dateTaken: true,
+      width: true,
+      height: true,
+      lqip: true,
+      exif: true,
+      sizes: true,
+      bird: true,
+      category: true,
+    },
+    pagination: false,
   });
   return docs as unknown as PhotoDoc[];
 }
+
+// --- Cached wrapper functions (unstable_cache with tags) ---
+
+/** Cached gallery photos for the main gallery page. */
+export const getCachedGalleryPhotos = unstable_cache(
+  async (): Promise<PhotoDoc[]> => {
+    const payload = await getPayloadClient();
+    const { docs } = await payload.find({
+      collection: "photos",
+      sort: "-dateTaken",
+      depth: 1,
+      limit: 100,
+      select: {
+        title: true,
+        caption: true,
+        dateTaken: true,
+        width: true,
+        height: true,
+        lqip: true,
+        exif: true,
+        sizes: true,
+        bird: true,
+        category: true,
+      },
+    });
+    return docs as unknown as PhotoDoc[];
+  },
+  ["gallery-photos"],
+  { revalidate: 60, tags: ["photos"] },
+);
+
+/** Cached OG image photo for gallery metadata. */
+export const getCachedGalleryOgPhoto = unstable_cache(
+  async (): Promise<PhotoDoc | null> => {
+    const payload = await getPayloadClient();
+    const { docs } = await payload.find({
+      collection: "photos",
+      sort: "-dateTaken",
+      depth: 0,
+      limit: 1,
+      select: { sizes: true },
+    });
+    return docs.length > 0 ? (docs[0] as unknown as PhotoDoc) : null;
+  },
+  ["gallery-og-photo"],
+  { revalidate: 3600, tags: ["photos"] },
+);
+
+/** Cached single photo by ID. */
+export function getCachedPhoto(id: string) {
+  return unstable_cache(
+    async (): Promise<PhotoDoc | null> => {
+      const payload = await getPayloadClient();
+      try {
+        const raw = await payload.findByID({ collection: "photos", id, depth: 1 });
+        return raw ? (raw as unknown as PhotoDoc) : null;
+      } catch {
+        return null;
+      }
+    },
+    ["photo", id],
+    { revalidate: 60, tags: ["photos", `photo:${id}`] },
+  )();
+}
+
+/** Cached all birds. */
+export const getCachedAllBirds = unstable_cache(
+  async (): Promise<BirdDoc[]> => getAllBirds(),
+  ["all-birds"],
+  { revalidate: 60, tags: ["birds"] },
+);
+
+/** Cached bird photo stats. Returns entries array (Map is not serializable). */
+export const getCachedBirdPhotoStats = unstable_cache(
+  async (): Promise<[string, BirdPhotoStats][]> => {
+    const stats = await getBirdPhotoStats();
+    return [...stats.entries()];
+  },
+  ["bird-photo-stats"],
+  { revalidate: 60, tags: ["photos", "birds"] },
+);
+
+/** Cached bird by slug. */
+export function getCachedBirdBySlug(slug: string) {
+  return unstable_cache(async (): Promise<BirdDoc | null> => getBirdBySlug(slug), ["bird", slug], {
+    revalidate: 60,
+    tags: ["birds", `bird:${slug}`],
+  })();
+}
+
+/** Cached photos by bird ID. */
+export function getCachedPhotosByBirdId(id: string | number) {
+  return unstable_cache(
+    async (): Promise<PhotoDoc[]> => getPhotosByBirdId(id),
+    ["bird-photos", String(id)],
+    { revalidate: 60, tags: ["photos", `bird-photos:${id}`] },
+  )();
+}
+
+/** Cached sitemap photos (minimal fields). */
+export const getCachedSitemapPhotos = unstable_cache(
+  async (): Promise<PhotoDoc[]> => {
+    const payload = await getPayloadClient();
+    const { docs } = await payload.find({
+      collection: "photos",
+      depth: 0,
+      sort: "-dateTaken",
+      select: { sizes: true, updatedAt: true },
+      pagination: false,
+    });
+    return docs as unknown as PhotoDoc[];
+  },
+  ["sitemap-photos"],
+  { revalidate: 3600, tags: ["photos"] },
+);

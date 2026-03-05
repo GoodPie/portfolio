@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cache } from "react";
-import type { BirdDoc, PhotoDoc } from "@/lib/payload";
+import type { PhotoDoc } from "@/lib/payload";
 import type { Metadata } from "next";
 import { BirdBio } from "@/components/bird-bio";
 import { BirdHero } from "@/components/bird-hero";
 import { BirdJsonLd } from "@/components/bird-json-ld";
 import { BirdPhotoSection } from "@/components/bird-photo-section";
-import { getBirdBySlug, getPhotosByBirdId, getImageUrl, resolveRelation } from "@/lib/payload";
+import {
+  getCachedBirdBySlug,
+  getCachedPhotosByBirdId,
+  getImageUrl,
+  resolveRelation,
+} from "@/lib/payload";
 import { toPhotoCard } from "@/lib/photos";
-
-export const revalidate = 60;
-
-const getBird = cache(async (slug: string) => getBirdBySlug(slug));
 
 export async function generateMetadata({
   params,
@@ -20,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const bird = await getBird(slug);
+  const bird = await getCachedBirdBySlug(slug);
   if (!bird) return { title: "Bird Not Found" };
 
   const title = bird.scientificName ? `${bird.name} (${bird.scientificName})` : bird.name;
@@ -61,10 +61,10 @@ export async function generateMetadata({
 
 export default async function BirdPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const bird = await getBird(slug);
+  const bird = await getCachedBirdBySlug(slug);
   if (!bird) notFound();
 
-  const photos = await getPhotosByBirdId(bird.id);
+  const photos = await getCachedPhotosByBirdId(bird.id);
   const photoCards = photos.map(toPhotoCard);
 
   const firstSeen = photos.reduce(

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@goodpie/ui/components/dialog";
 import { Button } from "@goodpie/ui/components/button";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
@@ -52,12 +53,29 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
   useEffect(() => {
     if (!isOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "ArrowRight") goNext();
-      else if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, goNext, goPrev]);
+
+  // Preload adjacent images for smoother navigation
+  useEffect(() => {
+    if (selectedIndex === null || photos.length <= 1) return;
+    const nextIdx = (selectedIndex + 1) % photos.length;
+    const prevIdx = (selectedIndex - 1 + photos.length) % photos.length;
+    for (const idx of [nextIdx, prevIdx]) {
+      const p = photos[idx];
+      const src = p?.sizeUrls?.xl ?? p?.sizeUrls?.large ?? p?.src;
+      if (src) ReactDOM.preload(src, { as: "image" });
+    }
+  }, [selectedIndex, photos]);
 
   const imageSrc = photo?.sizeUrls?.xl ?? photo?.sizeUrls?.large ?? photo?.src;
 
@@ -70,7 +88,8 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
     >
       <DialogContent
         showCloseButton={false}
-        className="inset-0 top-0 left-0 flex h-dvh max-w-none translate-x-0 translate-y-0 items-center justify-center border-none bg-black/95 p-0 sm:max-w-none [&>[data-slot=dialog-overlay]]:bg-transparent"
+        overlayClassName="bg-transparent"
+        className="inset-0 top-0 left-0 flex h-dvh max-w-none translate-x-0 translate-y-0 items-center justify-center border-none bg-black/95 p-0 sm:max-w-none"
         aria-describedby={undefined}
       >
         <DialogTitle className="sr-only">{photo?.caption || photo?.title || "Photo"}</DialogTitle>
@@ -92,7 +111,7 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-4 z-10 text-white hover:bg-white/10"
+            className="absolute top-1/2 left-4 z-10 -translate-y-1/2 text-white hover:bg-white/10"
             onClick={goPrev}
           >
             <ChevronLeft className="size-6" />
@@ -105,7 +124,7 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 z-10 text-white hover:bg-white/10"
+            className="absolute top-1/2 right-4 z-10 -translate-y-1/2 text-white hover:bg-white/10"
             onClick={goNext}
           >
             <ChevronRight className="size-6" />
@@ -119,6 +138,8 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
             key={selectedIndex}
             src={imageSrc}
             alt={photo.caption || photo.title}
+            width={photo.width}
+            height={photo.height}
             className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain"
             {...(photo.lqip && {
               style: {

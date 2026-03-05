@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { generateSlug } from "@/hooks/generateSlug";
+import { revalidateBirdsCache } from "@/hooks/revalidateCache";
 import { publicRead, isAuthenticated } from "@/lib/access";
 
 export const Birds: CollectionConfig = {
@@ -15,6 +16,7 @@ export const Birds: CollectionConfig = {
   },
   hooks: {
     beforeChange: [generateSlug],
+    afterChange: [revalidateBirdsCache],
   },
   fields: [
     {

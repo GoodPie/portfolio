@@ -3,21 +3,16 @@ import type { PhotoDoc } from "@/lib/payload";
 import type { Metadata } from "next";
 import { GalleryShell } from "@/components/gallery-shell";
 import { SpeciesStrip } from "@/components/species-strip";
-import { getPayloadClient, getImageUrl, resolveRelation } from "@/lib/payload";
+import {
+  getCachedGalleryOgPhoto,
+  getCachedGalleryPhotos,
+  getImageUrl,
+  resolveRelation,
+} from "@/lib/payload";
 import { buildFilterOptions, toPhotoCard } from "@/lib/photos";
 
-export const revalidate = 60;
-
 export async function generateMetadata(): Promise<Metadata> {
-  const payload = await getPayloadClient();
-  const { docs } = await payload.find({
-    collection: "photos",
-    sort: "-dateTaken",
-    depth: 0,
-    limit: 1,
-  });
-
-  const firstPhoto = docs[0] as unknown as PhotoDoc | undefined;
+  const firstPhoto = await getCachedGalleryOgPhoto();
   const ogImage = firstPhoto ? getImageUrl(firstPhoto, 1200) : undefined;
 
   return {
@@ -80,15 +75,7 @@ export default async function PhotosPage({
 }) {
   const { category: categoryId } = await searchParams;
 
-  const payload = await getPayloadClient();
-  const { docs } = await payload.find({
-    collection: "photos",
-    sort: "-dateTaken",
-    depth: 1,
-    limit: 100,
-  });
-
-  const allPhotos = docs as unknown as PhotoDoc[];
+  const allPhotos = await getCachedGalleryPhotos();
   const { categories } = buildFilterOptions(allPhotos);
   const allCards = allPhotos.map(toPhotoCard);
   const speciesData = buildSpeciesStrip(allPhotos);

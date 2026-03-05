@@ -1,33 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
-import { cache } from "react";
 import type { PhotoDoc } from "@/lib/payload";
 import type { Metadata } from "next";
 import { PhotoDetailImage } from "@/components/photo-detail-image";
 import { PhotoJsonLd } from "@/components/photo-json-ld";
 import { PhotoSidebar } from "@/components/photo-sidebar";
 import {
-  getPayloadClient,
   responsiveSrcSet,
   getImageUrl,
   getLqip,
   resolveRelation,
-  getBirdBySlug,
+  getCachedPhoto,
+  getCachedBirdBySlug,
 } from "@/lib/payload";
 import { toPhotoCard } from "@/lib/photos";
-
-export const revalidate = 60;
-
-const getPhoto = cache(async (id: string): Promise<PhotoDoc | null> => {
-  const payload = await getPayloadClient();
-  try {
-    const raw = await payload.findByID({ collection: "photos", id, depth: 2 });
-    return raw ? (raw as unknown as PhotoDoc) : null;
-  } catch {
-    return null;
-  }
-});
 
 function buildDescription(photo: PhotoDoc): string {
   const parts: string[] = [];
@@ -51,7 +38,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const photo = await getPhoto(id);
+  const photo = await getCachedPhoto(id);
   if (!photo) return { title: "Photo Not Found" };
 
   const title = photo.caption || photo.title;
@@ -100,7 +87,7 @@ export default async function PhotoPage({
 }) {
   const { id } = await params;
   const { from } = await searchParams;
-  const photo = await getPhoto(id);
+  const photo = await getCachedPhoto(id);
   if (!photo) notFound();
   const lqip = getLqip(photo);
 
@@ -110,7 +97,7 @@ export default async function PhotoPage({
 
   if (from?.startsWith("birds/")) {
     const birdSlug = from.replace("birds/", "");
-    const bird = await getBirdBySlug(birdSlug);
+    const bird = await getCachedBirdBySlug(birdSlug);
     if (bird) {
       backHref = `/birds/${birdSlug}`;
       backLabel = `Back to ${bird.name}`;

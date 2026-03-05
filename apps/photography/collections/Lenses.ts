@@ -6,6 +6,9 @@ export const Lenses: CollectionConfig = {
   admin: {
     useAsTitle: "name",
   },
+  defaultPopulate: {
+    name: true,
+  },
   access: {
     read: publicRead,
     create: isAuthenticated,

@@ -6,6 +6,9 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: "title",
   },
+  defaultPopulate: {
+    title: true,
+  },
   access: {
     read: publicRead,
     create: isAuthenticated,

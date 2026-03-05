@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
+const COPYRIGHT_YEAR = new Date().getFullYear();
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     (process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:3024/photography").replace(
@@ -67,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-border/40 border-t py-8">
           <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-24">
             <p className="text-muted-foreground text-center text-sm">
-              &copy; {new Date().getFullYear()} Brandyn Britton
+              &copy; {COPYRIGHT_YEAR} Brandyn Britton
             </p>
           </div>
         </footer>
