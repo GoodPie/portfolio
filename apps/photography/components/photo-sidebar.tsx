@@ -1,6 +1,6 @@
 import type { PhotoDoc } from "@/lib/payload";
 import { BirdInfo } from "@/components/bird-info";
-import { LocationMapLoader } from "@/components/location-map-loader";
+import { SightingMapLoader } from "@/components/sighting-map-loader";
 import { formatDate, formatExposure } from "@/lib/format";
 import { resolveRelation } from "@/lib/payload";
 
@@ -95,9 +95,16 @@ export function PhotoSidebar({ photo }: { photo: PhotoDoc }) {
             <h2 className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">
               Location
             </h2>
-            <LocationMapLoader
-              latitude={photo.geolocation.latitude}
-              longitude={photo.geolocation.longitude}
+            <SightingMapLoader
+              markers={[
+                {
+                  id: photo.id,
+                  lat: photo.geolocation.latitude,
+                  lng: photo.geolocation.longitude,
+                  title: photo.title,
+                },
+              ]}
+              className="h-[200px]"
             />
           </div>
         )}

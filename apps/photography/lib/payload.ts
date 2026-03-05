@@ -346,6 +346,48 @@ export function getCachedPhotosByBirdId(id: string | number) {
   )();
 }
 
+/** Fetch geolocated photos, optionally filtered by bird ID. */
+export async function getPhotosWithGeolocation(birdId?: string | number): Promise<PhotoDoc[]> {
+  const payload = await getPayloadClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {
+    "geolocation.latitude": { exists: true },
+  };
+  if (birdId) where.bird = { equals: birdId };
+
+  const { docs } = await payload.find({
+    collection: "photos",
+    where,
+    sort: "-dateTaken",
+    depth: 1,
+    select: {
+      title: true,
+      dateTaken: true,
+      geolocation: true,
+      bird: true,
+      sizes: true,
+    },
+    pagination: false,
+  });
+  return docs as unknown as PhotoDoc[];
+}
+
+/** Cached geolocated photos for all birds (map page). */
+export const getCachedPhotosWithGeolocation = unstable_cache(
+  async (): Promise<PhotoDoc[]> => getPhotosWithGeolocation(),
+  ["photos-with-geolocation"],
+  { revalidate: 60, tags: ["photos"] },
+);
+
+/** Cached geolocated photos for a specific bird (bird profile map). */
+export function getCachedPhotosWithGeolocationByBird(birdId: string | number) {
+  return unstable_cache(
+    async (): Promise<PhotoDoc[]> => getPhotosWithGeolocation(birdId),
+    ["photos-with-geolocation-bird", String(birdId)],
+    { revalidate: 60, tags: ["photos", `bird-photos:${birdId}`] },
+  )();
+}
+
 /** Cached sitemap photos (minimal fields). */
 export const getCachedSitemapPhotos = unstable_cache(
   async (): Promise<PhotoDoc[]> => {

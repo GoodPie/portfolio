@@ -10,11 +10,14 @@ import { BirdPhotoSection } from "@/components/bird-photo-section";
 import {
   getCachedBirdBySlug,
   getCachedPhotosByBirdId,
+  getCachedPhotosWithGeolocationByBird,
   getImageUrl,
   resolveRelation,
 } from "@/lib/payload";
 import { getSiteConfig } from "@/lib/site-config";
 import { toPhotoCard } from "@/lib/photos";
+import { BirdSightingMap } from "@/components/bird-sighting-map";
+import { buildMarkers } from "@/lib/map-utils";
 
 export async function generateMetadata({
   params,
@@ -66,8 +69,13 @@ export default async function BirdPage({ params }: { params: Promise<{ slug: str
   const [bird, config] = await Promise.all([getCachedBirdBySlug(slug), getSiteConfig()]);
   if (!bird) notFound();
 
-  const photos = await getCachedPhotosByBirdId(bird.id);
+  const [photos, geoPhotos] = await Promise.all([
+    getCachedPhotosByBirdId(bird.id),
+    getCachedPhotosWithGeolocationByBird(bird.id),
+  ]);
   const photoCards = photos.map(toPhotoCard);
+
+  const sightingMarkers = buildMarkers(geoPhotos);
 
   const firstSeen = photos.reduce(
     (earliest, p) => {
@@ -92,6 +100,8 @@ export default async function BirdPage({ params }: { params: Promise<{ slug: str
       <ViewTransition enter="meta-enter" default="none">
         <BirdBio bird={bird} />
       </ViewTransition>
+
+      {sightingMarkers.length > 0 && <BirdSightingMap markers={sightingMarkers} />}
 
       {photoCards.length > 0 && (
         <section>
