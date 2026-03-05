@@ -130,8 +130,8 @@ export function PhotoGrid({
                 width={photo.width ?? 1200}
                 height={photo.height ?? 800}
                 sizes={photo.sizes}
-                priority={index < 2}
-                loading={index < 2 ? undefined : "lazy"}
+                fetchPriority={index === 0 ? "high" : undefined}
+                loading={index < 3 ? "eager" : "lazy"}
                 className="h-full w-full object-cover"
                 {...(photo.lqip && {
                   placeholder: "blur" as const,

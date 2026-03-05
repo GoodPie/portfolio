@@ -11,6 +11,8 @@ import {
 } from "@/lib/payload";
 import { buildFilterOptions, toPhotoCard } from "@/lib/photos";
 
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   const firstPhoto = await getCachedGalleryOgPhoto();
   const ogImage = firstPhoto ? getImageUrl(firstPhoto, 1200) : undefined;
