@@ -8,6 +8,14 @@ export interface Post {
 
 export const posts: Post[] = [
   {
+    slug: "state-of-authentication-rails-2026",
+    title: "The State of Authentication in Rails, March 2026",
+    description:
+      "Rails 8 shipped a built-in authentication generator, but it only covers about 30% of what production apps need. Here's how it compares to Laravel, Django, and Better Auth.",
+    publishDate: "2026-03-09",
+    tags: ["Ruby on Rails", "Authentication", "Laravel", "Django", "Security"],
+  },
+  {
     slug: "reviving-modular-tree",
     title: "Reviving MTree: A Procedural Tree Generator for Blender 5",
     description:

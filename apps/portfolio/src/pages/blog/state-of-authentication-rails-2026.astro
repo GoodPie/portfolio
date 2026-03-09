@@ -1,0 +1,323 @@
+---
+import { posts } from "@/data/posts";
+import BlogLayout from "@/layouts/BlogLayout.astro";
+
+const post = posts.find((p) => p.slug === "state-of-authentication-rails-2026")!;
+---
+
+<BlogLayout
+  {...post}
+  description={post.description}
+  publishDate={post.publishDate}
+  tags={post.tags}
+  title={post.title}
+>
+  <p>
+    Rails 8 shipped with something the community had been asking about for years: a
+    <a
+      href="https://github.com/rails/rails/blob/main/railties/lib/rails/generators/rails/authentication/authentication_generator.rb"
+      >built-in authentication generator</a
+    >. Run <code>bin/rails generate authentication</code> and you get a User model, Session model, controllers,
+    views, migrations, and routes for session-based email/password login and password resets. No gems
+    needed, which is always nice but for me, as someone coming from other frameworks, this felt a bit
+    lacking.
+  </p>
+
+  <p>
+    I was starting a new project and had to go through this painpoint so I've finally decided to do
+    a bit of an explore, comparing what rails offers vs what I'd reach for with other
+    frameworks/tools.
+  </p>
+
+  <h2>What the generator gives you</h2>
+
+  <p>
+    The generator scaffolds a <code>User</code> model with <code>has_secure_password</code>, a
+    <code>Session</code> model that tracks tokens plus IP and user agent, a
+    <code>SessionsController</code> for login/logout, and a <code>PasswordsController</code> for reset
+    flows. Password hashing is bcrypt at cost factor 12 (basically the factor iterations on the hashing
+    operation). The reset token is signed and time-limited with no token stored in the database, which
+    is a nice touch.
+  </p>
+
+  <p>
+    Something I don't see people talk about enough: the generator tracks full session history.
+    Devise's <code>trackable</code> module only stores the most recent session info, but with the Rails
+    8 approach you get a sessions table you can actually query. That's useful if you need "sign out of
+    all devices" or want to do any kind of security auditing.
+  </p>
+
+  <p>All the generated code lives in your app, so you can read it and change it. No black box.</p>
+
+  <h2>What it doesn't do</h2>
+
+  <p>The generator handles login and password resets for existing users. That's about it.</p>
+
+  <p>
+    There's no signup. No registration controller, no sign-up form, no email confirmation. You write
+    all of that yourself, which is strange given that every app needs it. I find this to be a weird
+    overhead.
+  </p>
+
+  <p>
+    MFA isn't included at all. NIST has been pushing phishing-resistant MFA requirements, passkeys
+    hit mainstream adoption in 2025, and the generator doesn't even stub out an optional path.
+  </p>
+
+  <p>
+    Social login (OAuth/OIDC with Google, GitHub, Apple, etc.) means manually integrating OmniAuth
+    and wiring up account linking yourself. We miss out on the generator flag and basic convention
+    here.
+  </p>
+
+  <p>
+    On top of those, that I consider quite important, we also don't have any account lockout
+    strategies, rate limiting or email verification. This felt like a bit of a miss given the rails
+    philosophy of "<a href="https://rubyonrails.org/doctrine#convention-over-configuration"
+      >Convention over Configuration</a
+    >".
+  </p>
+
+  <p>
+    I'd estimate the generator covers about 30% of what a production auth system needs. The rest is
+    on you, and it's the stuff that's hardest to get right.
+  </p>
+
+  <h2>The rest of the Rails auth ecosystem</h2>
+
+  <p>
+    The generator doesn't exist in isolation. Rails developers have been solving auth for two
+    decades and there are real options.
+  </p>
+
+  <p>
+    <a href="https://github.com/heartcombo/devise">Devise</a> (my first introduction to rails auth) is
+    still the most widely deployed auth gem. Registration, confirmation, account locking, OmniAuth, and
+    a lot more. It's battle-tested and mature. The downside is that the internals can be opaque, and customizing
+    flows sometimes means fighting the gem rather than working with it.
+  </p>
+
+  <p>
+    <a href="https://github.com/jeremyevans/rodauth">Rodauth</a> takes a security-first approach with
+    60+ individually-enabled features: WebAuthn/passkeys, audit logging, JWT support, constant-time comparisons
+    throughout. If you're building something in fintech or healthcare where auth auditing is non-negotiable,
+    it's worth the steeper learning curve.
+  </p>
+
+  <p>
+    <a href="https://github.com/lazaronixon/authentication-zero">Authentication Zero</a> is interesting
+    because, like the Rails 8 generator, it scaffolds code directly into your app. But it actually includes
+    registration, 2FA (TOTP and hardware keys), account lockout, recovery codes, activity logging, and
+    pwned-password checking. It's closer to what you'd want to ship.
+  </p>
+
+  <p>
+    Then there are managed services like
+    <a href="https://www.authkit.com/">WorkOS AuthKit</a> or
+    <a href="https://auth0.com/">Auth0</a> for teams that want to outsource auth entirely (SSO, SAML,
+    SCIM provisioning, MFA).
+  </p>
+
+  <h2>How other frameworks handle this</h2>
+
+  <p>We'll jump into a quick comparison with other frameworks that I consider similar:</p>
+
+  <ul>
+    <li>
+      <a href="https://github.com/laravel/breeze">Laravel Breeze</a> or <a
+        href="https://jetstream.laravel.com/introduction.html">Laravel Jetstream</a>
+    </li>
+    <li><a href="https://www.djangoproject.com/">Django</a></li>
+    <li><a href="https://better-auth.com/">NextJS with BetterAuth</a></li>
+  </ul>
+
+  <p>Here's a quick overview of what you get out of the box before we get into the details:</p>
+
+  <div class="overflow-x-auto">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Rails 8 Generator</th>
+          <th>Laravel Breeze/Jetstream</th>
+          <th>Django contrib.auth</th>
+          <th>Better Auth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Login/logout</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Signup/registration</td><td>No</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Email verification</td><td>No</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Password reset</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+        <tr
+          ><td>Social login (OAuth)</td><td>No</td><td>Via Socialite</td><td>No</td><td>Yes</td></tr
+        >
+        <tr><td>MFA/2FA</td><td>No</td><td>Yes (Jetstream)</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Passkeys/WebAuthn</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr
+          ><td>Session management</td><td>Yes</td><td>Yes (Jetstream)</td><td>Yes</td><td>Yes</td
+          ></tr
+        >
+        <tr><td>Rate limiting</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Account lockout</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>RBAC/permissions</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Admin panel</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>First-party</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No (third-party)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Rails and Django both leave social login and MFA to third-party packages, but Django's base
+    layer covers more ground. Laravel and Better Auth are the most complete options here, with
+    Laravel having the advantage of being first-party and Better Auth covering the widest feature
+    set overall.
+  </p>
+
+  <p>Now the details:</p>
+
+  <h3>Laravel</h3>
+
+  <p>
+    Laravel ships first-party starter kits. Breeze gives you login, registration, password reset,
+    email verification, and password confirmation, all styled with Tailwind and published into your
+    app. This is roughly what the Rails 8 generator would be if it included signup and email
+    verification. Jetstream goes further with two-factor authentication, session management across
+    devices, API token management via Sanctum, and optional team management.
+  </p>
+
+  <p>
+    What matters here is that the Laravel team maintains these. They're documented alongside the
+    framework itself. You don't have to evaluate five different gems with different maintainers and
+    figure out which one to go with. Breeze for simple apps, Jetstream for complex ones, done.
+  </p>
+
+  <h3>Django</h3>
+
+  <p>
+    Django's <code>django.contrib.auth</code> module ships with user models, authentication backends,
+    groups and permissions, password hashing with automatic algorithm upgrades, login/logout/password-change
+    views, and a full admin interface with permission management baked in. That admin panel alone is something
+    Rails has never matched without extra gems.
+  </p>
+
+  <p>
+    Django also doesn't include social login or MFA natively, but the base auth layer is
+    significantly more complete than what Rails 8 generates.
+  </p>
+
+  <h3>Next.js / Better Auth</h3>
+
+  <p>
+    The JS auth ecosystem shifted in 2025. Auth.js (formerly NextAuth.js) was the de facto standard
+    for years, but the Auth.js team officially joined Better Auth in September 2025. Auth.js still
+    gets security patches, but Better Auth is what's recommended for new projects now.
+  </p>
+
+  <p>
+    Better Auth is TypeScript-first and framework-agnostic (Next.js, Nuxt, SvelteKit, Remix, Astro,
+    Hono, Express, and others). Out of the box you get email/password with verification, social
+    OAuth, passkeys/WebAuthn, two-factor auth (TOTP and SMS), session management, role-based access
+    control, and rate limiting. Database adapters for Prisma and Drizzle, a CLI for generating
+    schemas, and a plugin system for extending it.
+  </p>
+
+  <p>
+    It's still a third-party library, not built into Next.js. But the scope of what it ships by
+    default makes the Rails 8 generator look like a proof of concept.
+  </p>
+
+  <h2>Where Rails falls short</h2>
+
+  <p>
+    Rails' built-in auth is the weakest of its peer frameworks for production use. The code the
+    generator produces is secure and well-structured, but the scope is too narrow. There's no clear
+    path from "I ran the generator" to "I have production auth."
+  </p>
+
+  <p>
+    The lack of a first-party "complete" option is the biggest issue. Laravel has Jetstream. Rails
+    gives you login and password reset, then points you at a bunch of third-party gems with
+    different maintainers and APIs. The "which auth gem should I use?" thread has been going for
+    over a decade and the generator hasn't put it to rest.
+  </p>
+
+  <p>
+    No convention for social login either. OmniAuth works, but wiring it into the Rails 8 generator
+    is manual. Compare that to Better Auth where adding a provider is one line in a config object.
+  </p>
+
+  <p>
+    The absence of MFA in 2026 is hard to defend. And an auth generator that doesn't include signup
+    is just odd. Every developer who runs it immediately has to write registration by hand.
+  </p>
+
+  <h2>What Rails does well here</h2>
+
+  <p>
+    The generated code being yours is a real advantage. When something breaks at 2am you can just
+    open the controller and read it instead of digging through gem internals.
+  </p>
+
+  <p>
+    Session tracking is better than what Devise gives you by default. You get IP and user agent
+    logging in a queryable sessions table, which Devise's trackable module doesn't offer.
+  </p>
+
+  <p>
+    The security defaults are reasonable too: bcrypt at cost 12 and signed password-reset tokens
+    that don't touch the database.
+  </p>
+
+  <p>
+    And honestly, for internal tools or apps where email/password login is all you need, the
+    generator is great. It does that one thing well.
+  </p>
+
+  <h2>Recommendations</h2>
+
+  <p>
+    If you're starting a new Rails app today, what I'd reach for depends on the project. The
+    built-in generator plus a hand-rolled registration controller works for MVPs and internal tools.
+  </p>
+
+  <p>
+    Devise is still the pragmatic pick for production apps that need the standard feature set
+    (registration, email confirmation, social login), though Authentication Zero is worth a look if
+    you prefer the generator approach. Rodauth is the strongest option in the Ruby ecosystem for
+    anything security-sensitive.
+  </p>
+
+  <p>
+    For enterprise requirements like SSO, SAML, or SCIM, a managed solution like WorkOS or Auth0
+    makes more sense than building it yourself.
+  </p>
+
+  <h2>What comes next</h2>
+
+  <p>
+    The Rails 8 authentication generator acknowledged that auth matters enough to be part of the
+    framework, but it stopped short. A follow-up generator that covers registration, email
+    verification, and optional MFA would go a long way. Not a Devise replacement. Just enough to get
+    from <code>rails new</code> to production auth without reaching for a gem.
+  </p>
+
+  <p>
+    Laravel proved this approach works. Breeze and Jetstream cover the common path and stay out of
+    your way. Rails could do the same.
+  </p>
+
+  <p>
+    This is supposed to be a basic overview on the state of Authentication in Rails, just a point of
+    contention that I don't find with other frameworks that seems to break the Rails philosophies.
+  </p>
+
+  <hr />
+
+  <p>
+    <em
+      >Note on AI usage: I used Gemini for header image and Claude for populating the emojis in the
+      comparison table.</em
+    >
+  </p>
+</BlogLayout>
