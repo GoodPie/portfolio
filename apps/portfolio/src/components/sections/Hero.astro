@@ -1,9 +1,25 @@
 ---
 import FadeIn from "@/components/animations/FadeIn";
+import HoverScale from "@/components/animations/HoverScale";
 import BookIcon from "@/components/icons/BookIcon.astro";
 import CameraIcon from "@/components/icons/CameraIcon.astro";
+import GithubIcon from "@/components/icons/GithubIcon.astro";
+import LinkedinIcon from "@/components/icons/LinkedinIcon.astro";
+import MailIcon from "@/components/icons/MailIcon.astro";
 import Section from "@/components/Section.astro";
-import SocialLinks from "@/components/SocialLinks.astro";
+
+const links = [
+  { name: "GitHub", href: "https://github.com/Goodpie", icon: "github", external: true },
+  {
+    name: "LinkedIn",
+    href: "https://linkedin.com/in/brandyn-britton",
+    icon: "linkedin",
+    external: true,
+  },
+  { name: "Email", href: "mailto:contact@brandynbritton.com", icon: "email", external: false },
+  { name: "Blog", href: "/blog", icon: "book", external: false },
+  { name: "Photography", href: "/photography", icon: "camera", external: false },
+];
 ---
 
 <Section class="flex min-h-[80vh] flex-col justify-center">
@@ -28,24 +44,29 @@ import SocialLinks from "@/components/SocialLinks.astro";
     </FadeIn>
 
     <FadeIn client:load delay={0.45}>
-      <div class="flex flex-wrap items-center gap-6">
-        <SocialLinks />
-        <span class="text-muted-foreground/30">/</span>
-        <a
-          href="/blog"
-          class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
-        >
-          <BookIcon size={16} />
-          Blog
-        </a>
-        <span class="text-muted-foreground/30">/</span>
-        <a
-          href="/photography"
-          class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
-        >
-          <CameraIcon size={16} />
-          Photography
-        </a>
+      <div class="flex flex-wrap items-center gap-y-3">
+        {
+          links.map((link, index) => (
+            <span class="inline-flex items-center">
+              <HoverScale client:load>
+                <a
+                  href={link.href}
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noopener noreferrer" : undefined}
+                  class="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm transition-colors"
+                >
+                  {link.icon === "github" && <GithubIcon size={16} />}
+                  {link.icon === "linkedin" && <LinkedinIcon size={16} />}
+                  {link.icon === "email" && <MailIcon size={16} />}
+                  {link.icon === "book" && <BookIcon size={16} />}
+                  {link.icon === "camera" && <CameraIcon size={16} />}
+                  {link.name}
+                </a>
+              </HoverScale>
+              {index < links.length - 1 && <span class="text-muted-foreground/30 mx-6">/</span>}
+            </span>
+          ))
+        }
       </div>
     </FadeIn>
   </div>
