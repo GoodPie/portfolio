@@ -121,6 +121,9 @@ async function processInBackground(
 
         if (Object.keys(sizes).length > 0) {
           updates.sizes = sizes;
+          if (sizes.thumbnail) {
+            updates.thumbnailURL = (sizes.thumbnail as { url: string }).url;
+          }
         }
       }
     } catch (e) {

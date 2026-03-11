@@ -7,6 +7,7 @@ export const Photos: CollectionConfig = {
   slug: "photos",
   admin: {
     useAsTitle: "title",
+    defaultColumns: ["title", "caption", "dateTaken", "bird"],
   },
   access: {
     read: () => true,
@@ -36,6 +37,11 @@ export const Photos: CollectionConfig = {
       name: "title",
       type: "text",
       required: true,
+      admin: {
+        components: {
+          Cell: "@/components/admin/thumbnail-cell",
+        },
+      },
     },
     {
       name: "caption",
