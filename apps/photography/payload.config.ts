@@ -22,10 +22,16 @@ if (!payloadSecret) {
   );
 }
 
+// Extract scheme+host only — browsers send Origin without a path, so the csrf/cors
+// arrays must not include the /photography basePath or the exact match will fail.
+const productionOrigin = process.env.NEXT_PUBLIC_SERVER_URL
+  ? new URL(process.env.NEXT_PUBLIC_SERVER_URL).origin
+  : null;
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3024/photography",
-  cors: ["http://localhost:3024", process.env.NEXT_PUBLIC_SERVER_URL].filter(Boolean) as string[],
-  csrf: ["http://localhost:3024", process.env.NEXT_PUBLIC_SERVER_URL].filter(Boolean) as string[],
+  cors: ["http://localhost:3024", productionOrigin].filter(Boolean) as string[],
+  csrf: ["http://localhost:3024", productionOrigin].filter(Boolean) as string[],
   collections: [Users, Photos, Categories, Birds, Cameras, Lenses],
   globals: [SiteSettings],
   editor: lexicalEditor(),
@@ -86,7 +92,8 @@ export default buildConfig({
             }
 
             const sizes = photo.sizes as Record<string, { url?: string }> | undefined;
-            const imageUrl = sizes?.large?.url || sizes?.xl?.url || (photo.url as string | undefined);
+            const imageUrl =
+              sizes?.large?.url || sizes?.xl?.url || (photo.url as string | undefined);
 
             if (!imageUrl) {
               throw new Error(`Photo ${input.photoId} has no image URL available`);
@@ -108,9 +115,7 @@ export default buildConfig({
               context: { skipProcessUpload: true },
             });
 
-            req.payload.logger.info(
-              `Photo ${input.photoId} scored: overall=${scores.overall}`,
-            );
+            req.payload.logger.info(`Photo ${input.photoId} scored: overall=${scores.overall}`);
 
             return {
               output: {
