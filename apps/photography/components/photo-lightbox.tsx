@@ -7,6 +7,7 @@ import { Button } from "@goodpie/ui/components/button";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import Link from "next/link";
 import type { PhotoCard } from "./photo-grid";
+import { ShareButton } from "./share-button";
 
 interface PhotoLightboxProps {
   photos: PhotoCard[];
@@ -161,6 +162,11 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
                   {(selectedIndex ?? 0) + 1} / {photos.length}
                 </span>
               )}
+              <ShareButton
+                photoKey={photo.photoKey}
+                title={photo.caption || photo.title}
+                className="text-white hover:bg-white/10"
+              />
               {photos.length > 1 && (
                 <Button
                   variant="ghost"
@@ -168,6 +174,7 @@ export function PhotoLightbox({ photos, selectedIndex, onClose, onNavigate }: Ph
                   className="text-white hover:bg-white/10"
                   asChild
                 >
+                  {/* Next.js Link automatically prepends basePath (/photography), so href="/photo/..." resolves correctly */}
                   <Link href={`/photo/${photo.photoKey}`}>
                     <Expand className="size-4" />
                     <span className="sr-only">View full details</span>
