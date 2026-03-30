@@ -8,6 +8,14 @@ export interface Post {
 
 export const posts: Post[] = [
   {
+    slug: "what-is-gis-for-developers",
+    title: "What Is GIS? A Plain-English Explanation for Developers",
+    description:
+      "GIS solves a whole category of spatial problems that developers routinely hack around. Part 1 of a series on using GIS to build location-aware applications.",
+    publishDate: "2026-03-30",
+    tags: ["GIS", "PostGIS", "Mapping", "Spatial Data", "PostgreSQL"],
+  },
+  {
     slug: "state-of-authentication-rails-2026",
     title: "The State of Authentication in Rails, March 2026",
     description:

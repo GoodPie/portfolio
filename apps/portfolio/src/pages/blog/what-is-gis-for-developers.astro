@@ -1,0 +1,342 @@
+---
+import { posts } from "@/data/posts";
+import BlogLayout from "@/layouts/BlogLayout.astro";
+
+const post = posts.find((p) => p.slug === "what-is-gis-for-developers")!;
+---
+
+<BlogLayout
+  {...post}
+  description={post.description}
+  publishDate={post.publishDate}
+  tags={post.tags}
+  title={post.title}
+>
+  <img
+    src="https://images.pexels.com/photos/269633/pexels-photo-269633.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+    alt="A globe showing geographic regions, representing Geographic Information Systems"
+    class="mb-8 rounded-lg"
+  />
+
+  <p>
+    <em>
+      This is Part 1 of a series on using GIS to build location-aware applications, specifically a
+      birding app. Future posts will cover PostGIS, open-source mapping, and offline spatial data.
+    </em>
+  </p>
+
+  <hr />
+
+  <p>
+    Most developers have used location data at some point. Storing coordinates, calculating
+    distances, maybe dropping some pins on a Google Map. But very few have heard of GIS, or if they
+    have, they associate it with government agencies and mining companies rather than app
+    development.
+  </p>
+
+  <p>
+    That's a shame, because GIS solves a whole category of problems that developers routinely hack
+    around with bad application code.
+  </p>
+
+  <h2>The Definition</h2>
+
+  <p>
+    GIS stands for <strong>Geographic Information System</strong>. It's the practice of storing,
+    analysing, and visualising data that has a geographic component.
+  </p>
+
+  <p>
+    Any time data has a latitude and longitude, a boundary, a route, or a region attached to it,
+    that's geographic data. GIS is the set of tools and techniques for working with it properly.
+  </p>
+
+  <p>
+    The field has been around since the 1960s. It started with cartography and land management, but
+    today it underpins everything from ride-sharing apps to climate modelling to pandemic response.
+  </p>
+
+  <h2>What GIS Actually Does (Beyond Maps)</h2>
+
+  <p>
+    The most common misconception is that GIS equals maps. Maps are one output of GIS, but they're
+    the tip of the iceberg. GIS is really about spatial computation: asking questions about the
+    relationships between things based on where they are.
+  </p>
+
+  <p>Some examples of the kinds of questions GIS can answer:</p>
+
+  <ul>
+    <li>
+      <strong>Proximity</strong>: What are the five closest hospitals to this accident? Not "as the
+      crow flies" close, but accounting for road networks and one-way streets.
+    </li>
+    <li>
+      <strong>Containment</strong>: Does this property boundary fall inside a flood zone? Does this
+      phone's GPS location fall within the borders of a national park?
+    </li>
+    <li>
+      <strong>Pattern detection</strong>: Where are disease cases clustering? Are traffic accidents
+      concentrated at specific intersections?
+    </li>
+    <li>
+      <strong>Coverage</strong>: If we place mobile towers at these three locations, what percentage
+      of the population can we reach?
+    </li>
+    <li>
+      <strong>Change over time</strong>: How much forest cover has this region lost in the last
+      decade?
+    </li>
+  </ul>
+
+  <p>
+    None of these are "put a pin on a map." They're spatial analysis problems. And while you can
+    bodge solutions to some of them in regular application code, GIS tools handle them faster, more
+    accurately, and with far less code.
+  </p>
+
+  <h2>The Core Concepts</h2>
+
+  <h3>Geographic Data Types</h3>
+
+  <p>Geographic data breaks down into two categories.</p>
+
+  <p>
+    <strong>Vector data</strong> represents discrete features using geometry. There are three fundamental
+    shapes:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Points</strong>: A single coordinate pair. A restaurant, a sensor, a bird sighting.
+    </li>
+    <li>
+      <strong>Lines</strong> (or LineStrings): An ordered series of coordinates. A road, a river, a hiking
+      trail.
+    </li>
+    <li>
+      <strong>Polygons</strong>: A closed shape. A country border, a property boundary, a species'
+      habitat range.
+    </li>
+  </ul>
+
+  <p>
+    <strong>Raster data</strong> represents continuous surfaces as grids. Each cell in the grid holds
+    a value. Satellite imagery is raster data. So are elevation models, temperature maps, and rainfall
+    grids. If vector data is like SVG, raster data is like a bitmap.
+  </p>
+
+  <p>
+    Most app development deals with vector data. Raster data is more common in environmental
+    science, remote sensing, and agriculture.
+  </p>
+
+  <h3>Coordinate Reference Systems</h3>
+
+  <p>
+    The Earth is not flat (despite what some corners of the internet claim). It's not even a perfect
+    sphere. It's an oblate spheroid, slightly squashed at the poles.
+  </p>
+
+  <p>
+    This matters because any time you project a 3D surface onto a 2D plane, you introduce
+    distortion. A coordinate reference system (CRS) defines how that projection works: what
+    assumptions are made, what gets distorted, and where.
+  </p>
+
+  <p>
+    The most common CRS is WGS 84 (EPSG:4326), which is what GPS uses. But there are thousands of
+    others, each optimised for different regions or purposes. Australian mapping data often uses
+    GDA2020 (EPSG:7844). Getting the CRS wrong is one of the most common sources of "why is
+    everything offset by 200 metres" bugs.
+  </p>
+
+  <h3>Spatial Indexing</h3>
+
+  <p>
+    A naive approach to "find all restaurants within 5km" means checking the distance to every
+    single restaurant in the database. That scales terribly.
+  </p>
+
+  <p>
+    Spatial indexes solve this. The most common type is the R-tree, which organises geometries into
+    nested bounding boxes. Instead of checking every record, the database can quickly eliminate
+    entire regions that are obviously too far away, then only do precise distance calculations on
+    the handful of candidates that remain.
+  </p>
+
+  <p>
+    PostGIS creates spatial indexes automatically. This is a big part of why spatial queries in
+    PostGIS run orders of magnitude faster than the same logic written in application code.
+  </p>
+
+  <h2>Where GIS Is Used Today</h2>
+
+  <p>
+    GIS tends to be invisible. It's running behind the scenes in apps and systems that people use
+    every day without thinking about it.
+  </p>
+
+  <h3>Ride-sharing and delivery</h3>
+
+  <p>
+    Uber, Lyft, DoorDash, and similar services are GIS applications at their core. Matching a rider
+    to the nearest driver is a spatial nearest-neighbour query. Calculating ETAs requires routing
+    across road network geometries. Surge pricing zones are polygons. The entire business model
+    depends on answering spatial questions in real time.
+  </p>
+
+  <h3>Urban planning and government</h3>
+
+  <p>
+    This is GIS's traditional home. Zoning maps, electoral boundaries, infrastructure planning,
+    census data visualisation, emergency service dispatch. Most local councils run GIS systems to
+    manage everything from stormwater drains to tree canopy coverage.
+  </p>
+
+  <h3>Agriculture</h3>
+
+  <p>
+    Precision agriculture uses GIS to vary fertiliser and water application across a field based on
+    soil type, moisture levels, and crop health, all of which are spatial datasets. Drones collect
+    raster imagery, GIS tools analyse it, and GPS-guided equipment acts on the results.
+  </p>
+
+  <h3>Environmental science and conservation</h3>
+
+  <p>
+    Tracking deforestation, modelling species distribution, planning wildlife corridors, assessing
+    bushfire risk. Conservation biology runs on GIS. Organisations like the Global Biodiversity
+    Information Facility (GBIF) aggregate hundreds of millions of species occurrence records and
+    make them available as spatial data.
+  </p>
+
+  <h3>Public health</h3>
+
+  <p>
+    COVID-19 made this visible. Contact tracing, case clustering analysis, hospital capacity
+    mapping, and vaccine distribution planning all relied on GIS. John Snow's 1854 cholera map
+    (plotting cases around the Broad Street pump in London) is often cited as one of the earliest
+    examples of spatial epidemiology.
+  </p>
+
+  <h3>Real estate and property</h3>
+
+  <p>
+    Property boundary data, flood zone overlays, land valuation models, proximity analysis ("how far
+    is this house from the nearest school?"). Real estate platforms that show you a map with
+    property pins are using GIS whether they call it that or not.
+  </p>
+
+  <h3>Logistics and supply chain</h3>
+
+  <p>
+    Route optimisation for delivery fleets. Warehouse placement to minimise average delivery
+    distance. Coverage analysis for distribution networks. FedEx, Amazon, and Australia Post all
+    depend heavily on spatial analysis for operational decisions.
+  </p>
+
+  <h3>Telecommunications</h3>
+
+  <p>
+    Mobile tower placement is a classic GIS coverage problem. Where do you put towers to maximise
+    population coverage while minimising cost? The terrain (a raster elevation model), population
+    density (another raster), and existing infrastructure (vector points) all factor in.
+  </p>
+
+  <h2>The Open-Source GIS Stack</h2>
+
+  <p>
+    One thing that surprises most developers coming to GIS for the first time is how mature the
+    open-source ecosystem is. You don't need expensive proprietary software.
+  </p>
+
+  <p>
+    <strong>PostGIS</strong> extends PostgreSQL with spatial data types and hundreds of spatial functions.
+    Store geometries, run distance calculations, check polygon containment, cluster points, and generate
+    map tiles, all inside your existing database. If you're already using Postgres, this is the easiest
+    entry point.
+  </p>
+
+  <p>
+    <strong>QGIS</strong> is a desktop application for exploring and visualising spatial data. It reads
+    dozens of formats, connects directly to PostGIS databases, and handles both vector and raster data.
+    Think of it as a workbench for understanding datasets before writing code.
+  </p>
+
+  <p>
+    <strong>GDAL/OGR</strong> is a command-line library for reading, writing, and converting between spatial
+    data formats. Shapefiles, GeoJSON, GeoPackage, KML, GeoTIFF, and about 80 others. If someone hands
+    you spatial data in a weird format, GDAL can probably read it.
+  </p>
+
+  <p>
+    <strong>MapLibre GL</strong> is an open-source map rendering library for web and mobile (forked from
+    Mapbox GL). GPU-accelerated, vector tile based, and free to use without API keys or usage limits.
+  </p>
+
+  <p>
+    <strong>Protomaps / PMTiles</strong> is a format for serving map tiles from a single static file hosted
+    on object storage. No tile server infrastructure required.
+  </p>
+
+  <p>
+    All of these tools are production-grade. They power government systems, commercial platforms,
+    and research institutions around the world.
+  </p>
+
+  <h2>Why Developers Should Pay Attention</h2>
+
+  <p>
+    The reason GIS matters for app developers is simple: a huge number of applications have a
+    spatial dimension that's being handled poorly.
+  </p>
+
+  <p>
+    Any time someone writes a distance calculation using the Pythagorean theorem on
+    latitude/longitude pairs (treating them as flat coordinates), that's a bug. Any time a "find
+    nearby" feature scans every row in a table, that's a performance problem. Any time a developer
+    manually implements point-in-polygon testing in application code, that's unnecessary complexity.
+  </p>
+
+  <p>
+    PostGIS handles all of these correctly, fast, and in a few lines of SQL. For developers already
+    running PostgreSQL, the barrier to entry is literally
+    <code>CREATE EXTENSION postgis;</code>.
+  </p>
+
+  <h2>What's Next in This Series</h2>
+
+  <p>
+    The rest of this series will get practical, covering how GIS applies to building a real
+    application, specifically a birding app called BirdUp.
+  </p>
+
+  <ol>
+    <li><strong>What is GIS</strong> (this post)</li>
+    <li>
+      <strong>PostGIS fundamentals</strong> for app developers who've never touched spatial data
+    </li>
+    <li>
+      <strong>Species probability by location</strong> using spatial queries on occurrence data
+    </li>
+    <li>
+      <strong>Open-source maps with MapLibre and Protomaps</strong> as an alternative to Google Maps
+    </li>
+    <li>
+      <strong>Habitat-aware features</strong> by cross-referencing coordinates with vegetation data
+    </li>
+    <li>
+      <strong>Offline-first spatial data</strong> for apps that need to work without connectivity
+    </li>
+  </ol>
+
+  <hr />
+
+  <p>
+    <em>
+      I'm building BirdUp, a birding app for Australia. This series documents the GIS side of that
+      build.
+    </em>
+  </p>
+</BlogLayout>
