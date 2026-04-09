@@ -22,16 +22,18 @@ if (!payloadSecret) {
   );
 }
 
-// Extract scheme+host only — browsers send Origin without a path, so the csrf/cors
-// arrays must not include the /photography basePath or the exact match will fail.
-const productionOrigin = process.env.NEXT_PUBLIC_SERVER_URL
-  ? new URL(process.env.NEXT_PUBLIC_SERVER_URL).origin
-  : null;
+// Allowed origins for CORS + CSRF. Configure via PAYLOAD_ALLOWED_ORIGINS as a
+// comma-separated list of scheme+host (no paths). Browsers send Origin without
+// a path, so entries must not include the /photography basePath.
+const allowedOrigins = (process.env.PAYLOAD_ALLOWED_ORIGINS ?? "http://localhost:3024")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3024/photography",
-  cors: ["http://localhost:3024", productionOrigin].filter(Boolean) as string[],
-  csrf: ["http://localhost:3024", productionOrigin].filter(Boolean) as string[],
+  cors: allowedOrigins,
+  csrf: allowedOrigins,
   collections: [Users, Photos, Categories, Birds, Cameras, Lenses],
   globals: [SiteSettings],
   editor: lexicalEditor(),
