@@ -4,6 +4,7 @@ import Contact from "@/components/sections/Contact.astro";
 import Experience from "@/components/sections/Experience.astro";
 import Hero from "@/components/sections/Hero.astro";
 import Projects from "@/components/sections/Projects.astro";
+import Spotlight from "@/components/sections/Spotlight.astro";
 import StructuredData from "@/components/StructuredData.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { personSchema } from "@/lib/schema";
@@ -13,6 +14,7 @@ import { personSchema } from "@/lib/schema";
   <StructuredData slot="head" schema={personSchema()} />
   <Hero />
   <About />
+  <Spotlight />
   <Experience />
   <Projects />
   <Contact />
