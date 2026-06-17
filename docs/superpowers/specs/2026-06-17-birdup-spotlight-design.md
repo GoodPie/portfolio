@@ -77,14 +77,15 @@ Initial copy (editable in the data file post-build):
 - **Eyebrow:** `Featured · Founder & Engineer`
 - **Headline:** `BirdUp.`
 - **Tagline:** _An Australian-first birding app I designed and built end to end._
-- **Pitch:** "A field notebook, field guide, and 'what's around me' scout in one.
-  An offline-first React Native app backed by a Rails 8 + PostGIS API, with AI
-  identification grounded in local species and season — and conservation
-  safeguards that obscure threatened-species locations by default."
+- **Pitch:** "A field notebook and field guide that also scouts what's worth
+  looking for nearby. It's an offline-first React Native app on a Rails 8 and
+  PostGIS backend, with AI that identifies birds from a photo using the species
+  that actually live near you and what's in season. Sensitive species have their
+  locations hidden automatically."
 - **Highlights (3):**
-  - **Offline-first by design** — logs sightings with no signal, syncs when back online.
-  - **AI ID, grounded** — suggests species from a photo, narrowed by what occurs at your location and season.
-  - **Conservation-aware** — automatically obscures threatened-species locations, even from the AI.
+  - **Works without signal:** log a sighting anywhere, with no connection. It syncs once you're back online.
+  - **Location-aware AI:** snap a photo and BirdUp suggests the species, weighing what actually lives near you at that time of year.
+  - **Conservation first:** locations of threatened species stay hidden, even from the AI.
 - **Stack badges:** `Rails 8` · `PostGIS` · `React Native` · `Expo` · `Next.js` · `WorkOS`
 - **CTA:** `Visit BirdUp →`
 
