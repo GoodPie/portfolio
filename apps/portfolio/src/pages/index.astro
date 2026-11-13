@@ -1,10 +1,12 @@
 ---
+import Section from "@/components/Section.astro";
 import BirdUp from "@/components/sections/BirdUp.astro";
-import Contact from "@/components/sections/Contact.astro";
-import Experience from "@/components/sections/Experience.astro";
+import Built from "@/components/sections/Built.astro";
 import Field from "@/components/sections/Field.astro";
 import Opening from "@/components/sections/Opening.astro";
-import Projects from "@/components/sections/Projects.astro";
+import OpenSource from "@/components/sections/OpenSource.astro";
+import Work from "@/components/sections/Work.astro";
+import Writing from "@/components/sections/Writing.astro";
 import StructuredData from "@/components/StructuredData.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { personSchema } from "@/lib/schema";
@@ -40,7 +42,19 @@ const nav = [
   <Opening />
   <BirdUp />
   <Field />
-  <Experience />
-  <Projects />
-  <Contact />
+  <Built />
+  <Section class="grid gap-[clamp(28px,5vw,72px)] min-[860px]:grid-cols-[7fr_5fr]">
+    <Writing />
+    <OpenSource />
+  </Section>
+  <Work />
+
+  <footer
+    slot="footer"
+    class="border-border flex flex-wrap gap-x-7 gap-y-1 border-t pt-7 text-[17px]"
+  >
+    <a class="textlink" href="mailto:contact@brandynbritton.com">contact@brandynbritton.com</a>
+    <a class="textlink" href="https://github.com/Goodpie">GitHub</a>
+    <a class="textlink" href="https://linkedin.com/in/brandyn-britton">LinkedIn</a>
+  </footer>
 </BaseLayout>

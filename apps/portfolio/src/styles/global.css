@@ -4,11 +4,6 @@
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../../packages/ui/src/styles/globals.css";
 
-/* Scan the shared UI package so Tailwind always emits the classes used inside
-   its components (Card/Button padding, Badge, etc.), regardless of which
-   components a given page imports. */
-@source "../../../../packages/ui/src/components";
-
 @plugin "@tailwindcss/typography";
 
 @theme inline {

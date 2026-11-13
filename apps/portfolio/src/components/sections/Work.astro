@@ -1,0 +1,20 @@
+---
+import Section from "@/components/Section.astro";
+import { experiences } from "@/data/experience";
+---
+
+<Section title="Work">
+  <ul>
+    {
+      experiences.map((job) => (
+        <li class="border-border grid items-baseline border-b py-3 min-[860px]:grid-cols-[9rem_1fr_1fr] min-[860px]:gap-4">
+          <span class="data">{job.dateRange}</span>
+          <span>{job.title}</span>
+          <a class="listlink justify-self-start" href={job.companyUrl}>
+            {job.company}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

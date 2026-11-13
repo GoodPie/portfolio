@@ -1,0 +1,37 @@
+---
+import { posts } from "@/data/posts";
+
+// Suggested in the design: list eight, then link to the rest
+const LIMIT = 8;
+const newestFirst = [...posts].sort((a, b) => b.publishDate.localeCompare(a.publishDate));
+
+const monthYear = (date: string) =>
+  new Date(date).toLocaleDateString("en-AU", { month: "short", year: "numeric", timeZone: "UTC" });
+---
+
+<div id="writing" class="min-w-0">
+  <h2 class="section-title">Writing</h2>
+  <ul>
+    {
+      newestFirst.slice(0, LIMIT).map((post) => (
+        <li class="border-border grid grid-cols-[6.25rem_1fr] items-baseline gap-4 border-b py-3">
+          <time class="data" datetime={post.publishDate}>
+            {monthYear(post.publishDate)}
+          </time>
+          <a class="listlink" href={`/blog/${post.slug}`}>
+            {post.title}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  {
+    newestFirst.length > LIMIT && (
+      <p class="mt-4">
+        <a class="textlink" href="/blog">
+          All writing
+        </a>
+      </p>
+    )
+  }
+</div>
