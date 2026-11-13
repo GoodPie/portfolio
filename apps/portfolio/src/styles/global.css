@@ -39,10 +39,6 @@
     outline-offset: 2px;
   }
 
-  html {
-    @apply scroll-smooth;
-  }
-
   body {
     @apply font-serif text-[18px] leading-[1.55] antialiased;
   }
@@ -117,5 +113,84 @@
     & :where(blockquote) {
       @apply bg-primary/5 rounded-r-lg px-6 py-4;
     }
+  }
+}
+
+/* Motion: a little, and only where it says something. The opening settles in once,
+   pictures come forward as you scroll to them, photos lean in on hover, and pages
+   cross-fade. It is all CSS, so nothing waits on JavaScript, and none of it runs for
+   people who ask for reduced motion. Everything that moves lives in this one block
+   (scripts/check-home.mjs enforces that). */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Cross-fade between pages of this app, in browsers that support it */
+  @view-transition {
+    navigation: auto;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
+  @keyframes develop {
+    from {
+      opacity: 0;
+      transform: scale(1.02);
+    }
+  }
+
+  /* Scales down, never out, so it cannot cause overflow inside the phone scroller */
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  /* Once, on load. --i staggers neighbours. */
+  .rise {
+    animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  .develop {
+    animation: develop 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* On scroll: the children of .arrive come forward over the first 240px after the row
+     appears, each a little after the last.
+     ponytail: native scroll-driven animation, no observer script. Browsers without it
+     show the pictures in place. Swap in an IntersectionObserver if that ever matters. */
+  @supports (animation-timeline: view()) {
+    .arrive {
+      view-timeline: --arrive block;
+    }
+
+    /* Longhands on purpose: the build's minifier folds animation-timeline into the
+       animation shorthand, and browsers then drop the whole declaration. */
+    .arrive > * {
+      animation-name: arrive;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --arrive;
+      animation-range: entry calc(var(--i, 0) * 40px) entry calc(240px + var(--i, 0) * 40px);
+    }
+  }
+
+  /* On hover or keyboard focus: the photo leans in inside its frame */
+  .lean img {
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .lean:hover img,
+  .lean:focus-visible img {
+    transform: scale(1.03);
   }
 }

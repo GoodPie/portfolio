@@ -9,11 +9,11 @@ import { field, srcset } from "@/data/photos";
     <a class="textlink" href="/photography">All photos</a>
   </div>
 
-  <div class="grid grid-cols-2 gap-4 min-[860px]:grid-cols-4">
+  <div class="arrive grid grid-cols-2 gap-4 min-[860px]:grid-cols-4">
     {
-      field.map((photo) => (
-        <figure>
-          <a href={`/photography/photo/${photo.id}`}>
+      field.map((photo, i) => (
+        <figure style={`--i:${i}`}>
+          <a class="lean block overflow-hidden" href={`/photography/photo/${photo.id}`}>
             <img
               class="bg-card block aspect-[3/2] w-full object-cover"
               src={photo.files.card}

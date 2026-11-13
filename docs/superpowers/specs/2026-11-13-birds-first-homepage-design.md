@@ -15,6 +15,7 @@ These were decided by Claude while writing this up. Each is marked again where i
 4. The default page title, meta description, `llms.txt` opening line and social card are in scope.
 5. Homepage photos are linked from the gallery's storage, not copied into the portfolio.
 6. The whole Astro app goes light, not just the homepage (see Theme scope).
+7. Motion is done in CSS, not with the Motion library, and is limited to the list under Look. Added 2026-11-13 after Brandyn asked for motion back.
 
 ## Why
 
@@ -101,7 +102,12 @@ Tokens for the light theme. Map them onto the existing shadcn token names inside
 - **Layout:** max width 1240px, side padding `clamp(20px, 5vw, 56px)`, a hairline rule above each section, grids as in the mock, one column below about 860px.
 - **Links:** blue and underlined inside text. In the nav and in lists they are text-coloured and underline or turn blue on hover.
 - **Images:** square corners, no borders, no shadows.
-- **Motion:** none. No entrance animations, no hover transforms.
+- **Motion:** a little, in CSS only. Changed on 2026-11-13 during the build: Brandyn asked for motion and animation back "for a little flair". The original line here was "none". What moves, and how, is Claude's call:
+  - On load, once: the intro text rises and the lead photo fades up, staggered, in under a second.
+  - On scroll: the three app screens and the four field photos come forward as their row enters the screen, each a little after the last. This uses native scroll-driven animation, so browsers without it show the pictures in place.
+  - On hover or keyboard focus: a photo leans in slightly inside its frame.
+  - Between pages of the Astro app: a cross-fade, where the browser supports cross-document view transitions.
+  - Rules that keep it from sliding back to the old page: no JavaScript and no React islands for motion, nothing is hidden when animation is unsupported, all of it is off under `prefers-reduced-motion`, text outside the opening never animates, and every moving rule lives in one gated block in `global.css`.
 - **Not used anywhere:** cards, badges, icons, section numbers, uppercase tracked labels, accent full stops, gradients, glows.
 
 ## Theme scope (decision to confirm)
@@ -143,7 +149,7 @@ Rules for any copy written for this page: first person, specific, no em dashes, 
 
 - Section components: `About`, `Contact`, `Experience`, `Projects`, `Spotlight`, and the current `Hero`.
 - `ExperienceItem`, `ProjectCard` and `SectionLabel`, which only the deleted sections import, and `SocialLinks`, which nothing imports today.
-- All six components in `src/components/animations/`, and the `motion` dependency once nothing imports it.
+- All six components in `src/components/animations/`, and the `motion` dependency once nothing imports it. The motion that came back later (see Look) is plain CSS and needs neither.
 - `.motion-fade-in`, `.motion-line-reveal` and `pulse-glow` in `global.css`.
 - Icon components nothing imports afterwards. `ArrowLeftIcon` stays for the blog.
 - The `@source` line for `packages/ui` components, if the portfolio no longer imports any of them.

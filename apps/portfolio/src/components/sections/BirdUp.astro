@@ -22,11 +22,14 @@ import { birdup } from "@/data/birdup";
 
   <!-- Three columns on wide screens, a sideways scroller on a phone -->
   <div
-    class="flex min-w-0 snap-x gap-[clamp(12px,2.4vw,32px)] overflow-x-auto min-[860px]:grid min-[860px]:grid-cols-3 min-[860px]:overflow-visible"
+    class="arrive flex min-w-0 snap-x gap-[clamp(12px,2.4vw,32px)] overflow-x-auto min-[860px]:grid min-[860px]:grid-cols-3 min-[860px]:overflow-visible"
   >
     {
-      birdup.screens.map((screen) => (
-        <figure class="w-[62vw] max-w-[260px] shrink-0 snap-start min-[860px]:w-auto min-[860px]:max-w-none">
+      birdup.screens.map((screen, i) => (
+        <figure
+          style={`--i:${i}`}
+          class="w-[62vw] max-w-[260px] shrink-0 snap-start min-[860px]:w-auto min-[860px]:max-w-none"
+        >
           <Image
             class="block h-auto w-full"
             src={screen.image}

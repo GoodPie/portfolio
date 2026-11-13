@@ -1,7 +1,7 @@
 // ponytail: regex over built HTML, no test framework. Move to a real runner if the site grows more checks.
 /* eslint-disable no-console -- the PASS/FAIL lines are this script's output */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const html = read("dist/index.html");
@@ -24,6 +24,43 @@ await check("no-islands", () => {
   assert.ok(!html.includes("<astro-island"));
   assert.ok(!html.includes("motion-fade-in"));
   assert.ok(!read("dist/blog/index.html").includes("<astro-island"));
+});
+// Motion is allowed, but only as CSS inside the one reduced-motion gate in global.css
+await check("motion-gated", () => {
+  const css = read("src/styles/global.css").replace(/\/\*[\s\S]*?\*\//g, "");
+  const start = css.indexOf("@media (prefers-reduced-motion: no-preference)");
+  assert.ok(start >= 0, "no reduced-motion gate in global.css");
+  let end = start;
+  for (let i = css.indexOf("{", start), depth = 0; i < css.length; i++) {
+    if (css[i] === "{") depth++;
+    else if (css[i] === "}" && --depth === 0) {
+      end = i + 1;
+      break;
+    }
+  }
+  const inside = css.slice(start, end);
+  const outside = css.slice(0, start) + css.slice(end);
+  assert.ok(/animation:/.test(inside), "the gate holds no animation");
+  assert.ok(
+    !/animation|transition|@keyframes|scroll-behavior|scroll-smooth/.test(outside),
+    "motion outside the reduced-motion gate",
+  );
+  assert.ok(
+    inside.indexOf("animation-timeline") > inside.indexOf("@supports (animation-timeline: view())"),
+    "scroll-driven animation needs its @supports guard",
+  );
+  // The build's minifier has folded animation-timeline into the animation shorthand before,
+  // which browsers throw away. It has to survive as its own declaration.
+  const built = readdirSync(new URL("../dist/_astro/", import.meta.url))
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => read(`dist/_astro/${f}`))
+    .join("");
+  assert.ok(/animation-timeline:\s*--arrive/.test(built), "animation-timeline lost in the build");
+  for (const name of ["rise", "develop", "arrive", "lean"])
+    assert.ok(
+      new RegExp(`class="[^"]*\\b${name}\\b`).test(body),
+      `.${name} is not used on the page`,
+    );
 });
 await check("one-h1", () => assert.equal((body.match(/<h1\b/g) ?? []).length, 1));
 await check("anchors", () => {

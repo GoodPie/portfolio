@@ -17,7 +17,7 @@
 - The mock uses an 18px root, the app keeps 16px. Translated sizes: body `18px/1.55`, intro `clamp(1.9rem, 3.1vw, 3rem)` on 1.18 line height, section headings `1.8rem` at weight 500, captions `1rem`, nav `17px`.
 - Layout: max width 1240px, side padding `clamp(20px, 5vw, 56px)`, hairline rule above each section, one column below 860px (`min-[860px]:` variants).
 - Do not edit `packages/ui/src/styles/globals.css` or anything under `apps/photography`.
-- Homepage ships no `astro-island`. No entrance animations, no hover transforms.
+- Homepage ships no `astro-island`. Motion is CSS only and lives in one `prefers-reduced-motion: no-preference` block in `global.css` (amended 2026-11-13: Brandyn asked for a little motion back, see the spec's Look section). Pinned by `motion-gated`.
 - Not used on the homepage: cards, badges, icons, section numbers, uppercase tracked labels, accent full stops, gradients, glows, rounded image corners, borders or shadows on images.
 - Copy rules: first person, specific, no em dashes, no "spearheaded", "orchestrated", "crafting", "intersection of", "let's build something together". One exception from Brandyn's saved preference: his existing date ranges keep their form, for example `2025 — PRESENT`. The mock's "2025 to now" is not used.
 - No place names or coordinates in captions or in `photos.ts`.
