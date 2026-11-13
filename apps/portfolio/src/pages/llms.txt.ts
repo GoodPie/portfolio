@@ -12,11 +12,11 @@ export const GET: APIRoute = () => {
   const lines = [
     "# Brandyn Britton",
     "",
-    "> Senior Software Engineer from Perth, Western Australia building scalable systems and crafting delightful experiences for the education and healthcare sectors.",
+    "> I photograph birds around Perth, Western Australia, and built BirdUp, a birding app for Australia. I also write about software.",
     "",
     "## Pages",
     "",
-    `- [Home](${SITE_URL}): Portfolio homepage with about, experience, projects, and contact sections`,
+    `- [Home](${SITE_URL}): Bird photography, BirdUp, how it is built, writing, open source and work history`,
     `- [Blog](${SITE_URL}/blog): Thoughts on software engineering, game development, and creative coding`,
     "",
     "## Blog Posts",
@@ -27,9 +27,7 @@ export const GET: APIRoute = () => {
     "",
     "## Optional",
     "",
-    ...projects.map(
-      (project) => `- [${project.name}](${project.url ?? SITE_URL}): ${project.description}`,
-    ),
+    ...projects.map((project) => `- [${project.name}](${project.url}): ${project.description}`),
     "",
   ];
 
