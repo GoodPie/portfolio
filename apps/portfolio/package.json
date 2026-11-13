@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "check:home": "astro build && node scripts/check-home.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
