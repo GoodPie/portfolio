@@ -1,28 +1,36 @@
-/* Google Fonts - Inter & Playfair Display */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+/* Google Fonts - Literata (reading text) & IBM Plex Mono (data) */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap");
 
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../../packages/ui/src/styles/globals.css";
 
-/* Scan the shared UI package so Tailwind always emits the classes used inside
-   its components (Card/Button padding, Badge, etc.), regardless of which
-   components a given page imports. */
-@source "../../../../packages/ui/src/components";
-
 @plugin "@tailwindcss/typography";
 
 @theme inline {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-serif: "Literata", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-/* SSR flash prevention — CSS hides content before JS hydrates */
-.motion-fade-in {
-  opacity: 0;
-}
-.motion-line-reveal {
-  transform: scaleX(0);
-  transform-origin: left;
+/* Light theme for this app only. The gallery reads the shared file and stays dark.
+   ponytail: one theme, no toggle. Add a .dark block here if dark mode is ever wanted. */
+:root {
+  --background: #f6f7f4;
+  --popover: #f6f7f4;
+  --primary-foreground: #f6f7f4;
+  --foreground: #15181a;
+  --card-foreground: #15181a;
+  --popover-foreground: #15181a;
+  --secondary-foreground: #15181a;
+  --accent-foreground: #15181a;
+  --card: #e8eae4;
+  --secondary: #e8eae4;
+  --muted: #e8eae4;
+  --accent: #e8eae4;
+  --muted-foreground: #575d61;
+  --border: #d7dad3;
+  --input: #d7dad3;
+  --primary: #1f45c9;
+  --ring: #1f45c9;
 }
 
 @layer base {
@@ -31,20 +39,52 @@
     outline-offset: 2px;
   }
 
-  html {
-    @apply scroll-smooth;
+  body {
+    @apply font-serif text-[18px] leading-[1.55] antialiased;
+  }
+}
+
+@layer components {
+  /* Dates, years, the stack line, camera settings. Nothing else. */
+  .data {
+    @apply text-muted-foreground font-mono text-[12.5px] leading-normal;
   }
 
-  body {
-    @apply font-sans antialiased;
+  /* Links inside running text */
+  .textlink {
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .textlink:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Links in lists: text-coloured until hovered */
+  .listlink {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .listlink:hover {
+    color: var(--primary);
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
   }
 }
 
 /* Map prose colors to theme tokens */
-.prose-invert {
+.prose {
   --tw-prose-body: var(--muted-foreground);
   --tw-prose-headings: var(--foreground);
-  --tw-prose-lead: oklch(0.985 0 0 / 80%);
+  --tw-prose-lead: var(--foreground);
   --tw-prose-links: var(--primary);
   --tw-prose-bold: var(--foreground);
   --tw-prose-bullets: var(--primary);
@@ -52,23 +92,9 @@
   --tw-prose-quotes: var(--muted-foreground);
   --tw-prose-quote-borders: var(--primary);
   --tw-prose-hr: var(--border);
-  --tw-prose-code: var(--primary);
+  --tw-prose-code: var(--foreground);
   --tw-prose-pre-bg: var(--card);
   --tw-prose-pre-code: var(--foreground);
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(from var(--teal) l c h / 0%);
-  }
-  50% {
-    box-shadow: 0 0 20px 4px oklch(from var(--teal) l c h / 20%);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 @layer base {
@@ -82,10 +108,91 @@
     /* Inline code (compound styling that's verbose as modifiers) */
     & :where(:not(pre) > code) {
       @apply bg-secondary rounded px-1.5 py-0.5 text-sm;
+      overflow-wrap: anywhere;
     }
     /* Blockquote background accent */
     & :where(blockquote) {
       @apply bg-primary/5 rounded-r-lg px-6 py-4;
     }
+  }
+}
+
+/* Motion: a little, and only where it says something. The opening settles in once,
+   pictures come forward as you scroll to them, photos lean in on hover, and pages
+   cross-fade. It is all CSS, so nothing waits on JavaScript, and none of it runs for
+   people who ask for reduced motion or on paper (a printed page cannot scroll, so the
+   pictures would print blank). Every animation in this stylesheet lives in this one
+   block, and scripts/check-home.mjs enforces that. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Cross-fade between pages of this app, in browsers that support it */
+  @view-transition {
+    navigation: auto;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
+  @keyframes develop {
+    from {
+      opacity: 0;
+      transform: scale(1.02);
+    }
+  }
+
+  /* Scales down, never out, so it cannot cause overflow inside the phone scroller */
+  @keyframes arrive {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  /* Once, on load. --i staggers neighbours. */
+  .rise {
+    animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  .develop {
+    animation: develop 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+
+  /* On scroll: the children of .arrive come forward over the first 240px after the row
+     appears, each a little after the last.
+     ponytail: native scroll-driven animation, no observer script. Browsers without it
+     show the pictures in place. Swap in an IntersectionObserver if that ever matters. */
+  @supports (animation-timeline: view()) {
+    .arrive {
+      view-timeline: --arrive block;
+    }
+
+    /* Longhands on purpose: the build's minifier folds animation-timeline into the
+       animation shorthand, and browsers then drop the whole declaration. */
+    .arrive > * {
+      animation-name: arrive;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --arrive;
+      animation-range: entry calc(var(--i, 0) * 40px) entry calc(240px + var(--i, 0) * 40px);
+    }
+  }
+
+  /* On hover or keyboard focus: the photo leans in inside its frame */
+  .lean img {
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .lean:hover img,
+  .lean:focus-visible img {
+    transform: scale(1.03);
   }
 }

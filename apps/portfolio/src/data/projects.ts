@@ -1,58 +1,39 @@
 export interface Project {
-  id: string;
   name: string;
+  /** One plain line. Also read by llms.txt.ts. */
   description: string;
-  technologies: string[];
-  url?: string;
+  url: string;
 }
 
 export const projects: Project[] = [
   {
-    id: "01",
     name: "Rails Active MCP",
-    description:
-      "Published Ruby gem enabling secure Rails console access for AI agents via Model Context Protocol. Features safety controls, read-only modes, and audit logging for enterprise AI integrations.",
-    technologies: ["Ruby", "Rails", "MCP", "AI Tooling"],
+    description: "Ruby gem that gives AI agents safe, audited access to the Rails console.",
     url: "https://github.com/Goodpie/rails-active-mcp",
   },
   {
-    id: "02",
     name: "Buildkite Notifier",
-    description:
-      "Native macOS menu bar application for monitoring CI/CD builds in real-time. Provides instant notifications for build status changes across multiple pipelines.",
-    technologies: ["Swift", "macOS", "Buildkite API"],
+    description: "macOS menu bar app that watches CI builds.",
     url: "https://github.com/Goodpie/buildkite-build-notifier",
   },
   {
-    id: "03",
     name: "Flagr OpenFeature Provider",
-    description:
-      "Open source contribution to OpenFlagr ecosystem. JavaScript provider implementing the OpenFeature specification for standardized feature flag evaluation.",
-    technologies: ["TypeScript", "OpenFeature", "Feature Flags"],
+    description: "JavaScript OpenFeature provider for OpenFlagr.",
     url: "https://github.com/openflagr/flagr-openfeature-provider-js",
   },
   {
-    id: "04",
+    name: "Modular Tree",
+    description: "Procedural tree generator for Blender 5, a fork of MTree.",
+    url: "https://github.com/Goodpie/modular_tree",
+  },
+  {
     name: "GameMaker Server",
-    description:
-      "Multiplayer game server for GameMaker:Studio written in Python, enabling real-time networked gameplay with socket management and player synchronization.",
-    technologies: ["Python", "Networking", "GameMaker"],
+    description: "Python multiplayer server for GameMaker: Studio.",
     url: "https://github.com/Goodpie/gamemaker-server",
   },
   {
-    id: "05",
     name: "Frogs and Bee",
-    description:
-      "Personal life organization app for couples. Save date ideas, manage recipes, and sync with calendars—built as a full-stack TypeScript application.",
-    technologies: ["TypeScript", "React", "Full Stack"],
+    description: "Date ideas, recipes and calendars for couples.",
     url: "https://github.com/Goodpie/frogs-and-bee",
-  },
-  {
-    id: "06",
-    name: "Modular Tree",
-    description:
-      "Create dynamic procedural trees in Blender 5. Fork of MTree with enhanced node-based generation for 3D artists and game developers.",
-    technologies: ["Python", "Blender", "3D Modeling"],
-    url: "https://github.com/Goodpie/modular_tree",
   },
 ];

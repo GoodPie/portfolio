@@ -1,0 +1,19 @@
+---
+import { projects } from "@/data/projects";
+---
+
+<div class="min-w-0">
+  <h2 class="section-title">Open source</h2>
+  <ul>
+    {
+      projects.map((project) => (
+        <li class="border-border border-b py-3">
+          <a class="listlink" href={project.url}>
+            {project.name}
+          </a>
+          <p class="text-muted-foreground text-base">{project.description}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>

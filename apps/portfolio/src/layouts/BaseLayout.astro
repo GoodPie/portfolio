@@ -10,8 +10,8 @@ interface Props {
 }
 
 const {
-  title = "Brandyn Britton | Software Engineer",
-  description = "Senior Software engineer from Perth, Western Australia building scalable systems and crafting delightful experiences for the education and healthcare sectors",
+  title = "Brandyn Britton | Birds, BirdUp and software",
+  description = "I photograph birds around Perth, Western Australia, and built BirdUp, a birding app for Australia. I also write about software.",
   ogType = "website",
   publishDate,
   tags = [],
@@ -20,17 +20,18 @@ const {
 let canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 if (canonicalURL.endsWith("/")) canonicalURL = canonicalURL.slice(0, -1); // Remove trailing slash
 
-const ogImageURL = new URL("/og-image.png", Astro.site);
+const ogImageURL = new URL("/social-card.png", Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-765RVP276V"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
+      // gtag.js reads the arguments object itself, so the parameters are only here for the types
+      function gtag(..._args: unknown[]) {
         window.dataLayer.push(arguments);
       }
       gtag("js", new Date());
@@ -44,7 +45,7 @@ const ogImageURL = new URL("/og-image.png", Astro.site);
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#f6f7f4" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
@@ -88,8 +89,12 @@ const ogImageURL = new URL("/og-image.png", Astro.site);
     >
       Skip to content
     </a>
-    <main id="main-content" class="mx-auto min-h-screen w-10/12 min-w-5/8">
-      <slot />
-    </main>
+    <div class="mx-auto min-h-screen max-w-[1240px] px-[clamp(20px,5vw,56px)] pb-24">
+      <slot name="header" />
+      <main id="main-content">
+        <slot />
+      </main>
+      <slot name="footer" />
+    </div>
   </body>
 </html>

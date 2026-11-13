@@ -1,0 +1,47 @@
+---
+import { Image } from "astro:assets";
+import Section from "@/components/Section.astro";
+import { birdup } from "@/data/birdup";
+---
+
+<Section id="birdup" class="grid gap-[clamp(28px,5vw,72px)] min-[860px]:grid-cols-[4fr_8fr]">
+  <div>
+    <h2 class="section-title">{birdup.name}</h2>
+    <p>{birdup.blurb}</p>
+    <p class="mt-4 flex flex-wrap gap-x-5 gap-y-1">
+      {
+        birdup.links.map((link) => (
+          <a class="textlink" href={link.href}>
+            {link.label}
+          </a>
+        ))
+      }
+    </p>
+    <p class="data mt-4">{birdup.fact}</p>
+  </div>
+
+  <!-- Three columns on wide screens, a sideways scroller on a phone -->
+  <div
+    class="arrive flex min-w-0 snap-x gap-[clamp(12px,2.4vw,32px)] overflow-x-auto min-[860px]:grid min-[860px]:grid-cols-3 min-[860px]:overflow-visible"
+  >
+    {
+      birdup.screens.map((screen, i) => (
+        <figure
+          style={`--i:${i}`}
+          class="w-[62vw] max-w-[260px] shrink-0 snap-start min-[860px]:w-auto min-[860px]:max-w-none"
+        >
+          <Image
+            class="block h-auto w-full"
+            src={screen.image}
+            alt={screen.alt}
+            widths={[240, 480]}
+            sizes="(max-width: 860px) 62vw, 240px"
+          />
+          <figcaption class="text-muted-foreground pt-2.5 text-[15px] leading-[1.4]">
+            {screen.caption}
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</Section>
