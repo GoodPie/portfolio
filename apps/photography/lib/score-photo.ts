@@ -1,5 +1,6 @@
-import { generateText, Output, createGateway } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
+import { model } from "./ai";
 
 const scoringSchema = z.object({
   technical: z
@@ -51,13 +52,6 @@ export async function scorePhoto(
     iso?: number | null;
   } | null,
 ): Promise<PhotoScores> {
-  const apiKey = process.env.AI_GATEWAY_API_KEY;
-  if (!apiKey) {
-    throw new Error("AI_GATEWAY_API_KEY is required for photo scoring");
-  }
-
-  const gateway = createGateway({ apiKey });
-
   let exifContext = "";
   if (exif) {
     const parts: string[] = [];
@@ -71,7 +65,7 @@ export async function scorePhoto(
   }
 
   const { output } = await generateText({
-    model: gateway("google/gemini-3-flash"),
+    model,
     output: Output.object({ schema: scoringSchema }),
     messages: [
       {

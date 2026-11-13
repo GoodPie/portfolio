@@ -25,13 +25,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Photo not found" }, { status: 404 });
     }
 
-    await payload.jobs.queue({
+    const job = await payload.jobs.queue({
       task: "scorePhoto",
       input: { photoId },
     });
 
-    // Run the queue immediately so scores appear without waiting for cron
-    await payload.jobs.run();
+    // Run it now so scores appear without waiting for cron
+    const { jobStatus } = await payload.jobs.runByID({ id: job.id });
+
+    if (jobStatus?.[job.id]?.status !== "success") {
+      const failed = await payload.findByID({ collection: "payload-jobs", id: job.id });
+      const reason = (failed.log?.at(-1)?.error as { message?: string } | undefined)?.message;
+      return NextResponse.json(
+        { error: `Scoring failed: ${reason ?? "unknown error"}` },
+        { status: 502 },
+      );
+    }
 
     return NextResponse.json({
       message: "Photo scored successfully. Refresh to see results.",
