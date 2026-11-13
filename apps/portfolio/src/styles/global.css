@@ -120,9 +120,10 @@
 /* Motion: a little, and only where it says something. The opening settles in once,
    pictures come forward as you scroll to them, photos lean in on hover, and pages
    cross-fade. It is all CSS, so nothing waits on JavaScript, and none of it runs for
-   people who ask for reduced motion. Everything that moves lives in this one block
-   (scripts/check-home.mjs enforces that). */
-@media (prefers-reduced-motion: no-preference) {
+   people who ask for reduced motion or on paper (a printed page cannot scroll, so the
+   pictures would print blank). Every animation in this stylesheet lives in this one
+   block, and scripts/check-home.mjs enforces that. */
+@media screen and (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }

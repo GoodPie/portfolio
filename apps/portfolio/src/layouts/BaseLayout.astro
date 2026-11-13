@@ -20,7 +20,7 @@ const {
 let canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
 if (canonicalURL.endsWith("/")) canonicalURL = canonicalURL.slice(0, -1); // Remove trailing slash
 
-const ogImageURL = new URL("/og-image.png", Astro.site);
+const ogImageURL = new URL("/social-card.png", Astro.site);
 ---
 
 <!doctype html>

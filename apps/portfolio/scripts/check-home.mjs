@@ -28,8 +28,9 @@ await check("no-islands", () => {
 // Motion is allowed, but only as CSS inside the one reduced-motion gate in global.css
 await check("motion-gated", () => {
   const css = read("src/styles/global.css").replace(/\/\*[\s\S]*?\*\//g, "");
-  const start = css.indexOf("@media (prefers-reduced-motion: no-preference)");
-  assert.ok(start >= 0, "no reduced-motion gate in global.css");
+  // screen only: on paper there is no scrolling, so scroll-driven pictures would print blank
+  const start = css.indexOf("@media screen and (prefers-reduced-motion: no-preference)");
+  assert.ok(start >= 0, "no screen-only reduced-motion gate in global.css");
   let end = start;
   for (let i = css.indexOf("{", start), depth = 0; i < css.length; i++) {
     if (css[i] === "{") depth++;
@@ -131,7 +132,10 @@ await check("blog-light", () => {
   );
 });
 await check("og-size", () => {
-  const png = readFileSync(new URL("../dist/og-image.png", import.meta.url));
+  const card = new URL(html.match(/property="og:image" content="([^"]+)"/)[1]).pathname;
+  // Preview caches key on the URL, so the old dark card's address must not be reused
+  assert.notEqual(card, "/og-image.png", "og:image still uses the old card's URL");
+  const png = readFileSync(new URL(`../dist${card}`, import.meta.url));
   assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630]);
 });
 if (process.argv.includes("--online"))

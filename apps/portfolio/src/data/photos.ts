@@ -4,7 +4,8 @@
 //
 // ponytail: hotlinked from the gallery's storage, no image pipeline here. If a photo is
 // deleted or re-uploaded in the CMS its image breaks until this file is updated.
-// `node scripts/check-home.mjs --online` catches that. Copy the files in if it bites.
+// `npm run check:home` fetches every one, but nothing runs it for you: there is no CI,
+// so run it before a deploy and after tidying the gallery. Copy the files in if it bites.
 
 export interface Photo {
   /** Gallery id, links to /photography/photo/<id> */

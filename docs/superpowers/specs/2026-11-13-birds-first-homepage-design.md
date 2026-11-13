@@ -107,7 +107,7 @@ Tokens for the light theme. Map them onto the existing shadcn token names inside
   - On scroll: the three app screens and the four field photos come forward as their row enters the screen, each a little after the last. This uses native scroll-driven animation, so browsers without it show the pictures in place.
   - On hover or keyboard focus: a photo leans in slightly inside its frame.
   - Between pages of the Astro app: a cross-fade, where the browser supports cross-document view transitions.
-  - Rules that keep it from sliding back to the old page: no JavaScript and no React islands for motion, nothing is hidden when animation is unsupported, all of it is off under `prefers-reduced-motion`, text outside the opening never animates, and every moving rule lives in one gated block in `global.css`.
+  - Rules that keep it from sliding back to the old page: no JavaScript and no React islands for motion, nothing is hidden when animation is unsupported, all of it is off under `prefers-reduced-motion` and in print, text outside the opening never animates on its own (a caption travels with its picture), and every animation lives in one gated block in `global.css`.
 - **Not used anywhere:** cards, badges, icons, section numbers, uppercase tracked labels, accent full stops, gradients, glows.
 
 ## Theme scope (decision to confirm)
@@ -164,7 +164,7 @@ What people see when the link is shared still carries the old look and wording, 
 
 - **Default title and description in `BaseLayout.astro`.** The title is "Brandyn Britton | Software Engineer" and the description says "crafting delightful experiences", which the copy rules here ban. Both get rewritten to match the intro, and Brandyn approves them with the rest of the copy.
 - **`llms.txt.ts`.** It opens with the same description line, and its "Home" line still lists about, experience, projects and contact sections. Update both.
-- **`public/og-image.png`.** It is the dark, teal, Playfair card. Replace it with a 1200 by 630 card in the new look: the lead photo with the name in Literata. Made once and committed, not generated on build.
+- **`public/og-image.png`.** It is the dark, teal, Playfair card. Replace it with a 1200 by 630 card in the new look: the lead photo with the name in Literata. Made once and committed, not generated on build. The new card ships as `public/social-card.png`, because link previews are cached by URL and the old address would keep showing the old card.
 
 ## Accessibility and performance
 
