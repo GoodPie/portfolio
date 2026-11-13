@@ -108,6 +108,7 @@
     /* Inline code (compound styling that's verbose as modifiers) */
     & :where(:not(pre) > code) {
       @apply bg-secondary rounded px-1.5 py-0.5 text-sm;
+      overflow-wrap: anywhere;
     }
     /* Blockquote background accent */
     & :where(blockquote) {

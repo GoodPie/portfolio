@@ -124,6 +124,11 @@ await check("blog-light", () => {
   assert.ok(!read("dist/blog/git-worktrees-multiple-branches/index.html").includes("prose-invert"));
   const css = read("src/styles/global.css");
   assert.ok(!css.includes("prose-invert") && !css.includes("0.985 0 0 / 80%"));
+  // A long inline code string (the Kamal post has one) must wrap, not widen the page on a phone
+  assert.ok(
+    /:not\(pre\) > code\)[^}]*overflow-wrap: anywhere/.test(css),
+    "inline code can overflow",
+  );
 });
 await check("og-size", () => {
   const png = readFileSync(new URL("../dist/og-image.png", import.meta.url));
