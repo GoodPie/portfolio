@@ -13,6 +13,7 @@ interface BirdLookupResult {
   facts: string[] | null;
   ebirdSpeciesCode: string | null;
   source: { nuthatch: boolean; ai: boolean };
+  aiError: string | null;
 }
 
 export default function BirdLookupButton() {
@@ -90,6 +91,14 @@ export default function BirdLookupButton() {
         }
 
         populated.push("facts");
+      }
+
+      if (data.aiError) {
+        const kept = populated.length ? ` Filled ${populated.join(", ")} from Nuthatch.` : "";
+        throw new Error(`AI lookup failed: ${data.aiError}${kept}`);
+      }
+      if (populated.length === 0) {
+        throw new Error(`Nothing found for "${name.trim()}"`);
       }
 
       const sources = [];

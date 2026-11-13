@@ -1,6 +1,9 @@
-import { generateText, Output, createGateway } from "ai";
+import * as Sentry from "@sentry/nextjs";
+import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { model } from "@/lib/ai";
+import { getPayloadClient } from "@/lib/payload";
 
 interface NuthatchBird {
   sciName?: string;
@@ -48,11 +51,6 @@ async function fetchAIData(
   name: string,
   missingFields: { taxonomy: boolean; conservation: boolean },
 ) {
-  const apiKey = process.env.AI_GATEWAY_API_KEY;
-  if (!apiKey) return null;
-
-  const gateway = createGateway({ apiKey });
-
   const schemaFields: Record<string, z.ZodTypeAny> = {
     habitat: z.string().describe("Primary habitats where this species is found"),
     diet: z.string().describe("Primary diet and feeding behavior"),
@@ -82,20 +80,23 @@ async function fetchAIData(
       .describe("IUCN conservation status");
   }
 
-  try {
-    const { output } = await generateText({
-      model: gateway("google/gemini-3-flash"),
-      output: Output.object({ schema: z.object(schemaFields) }),
-      prompt: `Provide accurate information about the bird species: ${name}. Be concise but informative. For the eBird species code, use the standard 6-letter code used on ebird.org.`,
-    });
-    return output as Record<string, unknown>;
-  } catch {
-    return null;
-  }
+  const { output } = await generateText({
+    model,
+    output: Output.object({ schema: z.object(schemaFields) }),
+    prompt: `Provide accurate information about the bird species: ${name}. Be concise but informative. For the eBird species code, use the standard 6-letter code used on ebird.org.`,
+  });
+  return output as Record<string, unknown>;
 }
 
 export async function POST(request: Request) {
   try {
+    // This spends AI quota, so it is for the signed-in admin only
+    const payload = await getPayloadClient();
+    const { user } = await payload.auth({ headers: request.headers });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const name = body?.name;
 
@@ -110,7 +111,16 @@ export async function POST(request: Request) {
       conservation: !nuthatch?.status,
     };
 
-    const aiData = await fetchAIData(name, missingFields);
+    // Nuthatch has no Australian birds, so an AI failure usually means an empty
+    // result. Report it rather than returning nothing.
+    let aiData: Record<string, unknown> | null = null;
+    let aiError: string | null = null;
+    try {
+      aiData = await fetchAIData(name, missingFields);
+    } catch (e) {
+      Sentry.captureException(e, { tags: { section: "bird-lookup" } });
+      aiError = e instanceof Error ? e.message : String(e);
+    }
 
     const mappedStatus = nuthatch?.status ? (conservationStatusMap[nuthatch.status] ?? null) : null;
 
@@ -128,6 +138,7 @@ export async function POST(request: Request) {
         nuthatch: nuthatch !== null,
         ai: aiData !== null,
       },
+      aiError,
     };
 
     return NextResponse.json(result);
