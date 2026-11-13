@@ -8,6 +8,11 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  // Google tag queue, set up by the snippet in BaseLayout.astro
+  interface Window {
+    dataLayer: unknown[];
+  }
 }
 
 export {};

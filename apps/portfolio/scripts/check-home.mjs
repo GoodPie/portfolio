@@ -1,4 +1,5 @@
 // ponytail: regex over built HTML, no test framework. Move to a real runner if the site grows more checks.
+/* eslint-disable no-console -- the PASS/FAIL lines are this script's output */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
@@ -95,6 +96,7 @@ if (process.argv.includes("--online"))
   await check("photos-reachable", async () => {
     const urls = imgs.flatMap((i) => i.match(/https:\/\/[^\s",]+/g) ?? []);
     assert.ok(urls.length >= 5, "no remote photo URLs found");
-    for (const u of new Set(urls)) assert.ok((await fetch(u, { method: "HEAD" })).ok, u);
+    // GET, not HEAD: the gallery's API file route answers HEAD with a 404
+    for (const u of new Set(urls)) assert.ok((await fetch(u)).ok, u);
   });
 process.exit(failed ? 1 : 0);

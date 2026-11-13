@@ -1,0 +1,44 @@
+---
+import { lead, srcset } from "@/data/photos";
+
+// A photo with no date or settings gets no data line, not an empty one
+const data = [lead.taken, lead.settings].filter(Boolean).join(" · ");
+---
+
+<div
+  class="grid items-start gap-[clamp(28px,5vw,72px)] pt-[clamp(40px,7vw,88px)] pb-[clamp(48px,7vw,96px)] min-[860px]:grid-cols-[5fr_7fr]"
+>
+  <div>
+    <p class="text-[clamp(1.9rem,3.1vw,3rem)] leading-[1.18] tracking-[-0.012em] text-balance">
+      I photograph birds around Perth and built <a class="textlink" href="#birdup">BirdUp</a>, a
+      birding app for Australia. On weekdays I write software at{" "}
+      <a class="textlink" href="https://healthengine.com.au">Healthengine</a>.
+    </p>
+    <p class="text-muted-foreground mt-7 max-w-[468px]">
+      Birds come first on this page. If you're here for the engineering,{" "}
+      <a class="textlink" href="#built">skip to how BirdUp is built</a>.
+    </p>
+  </div>
+
+  <figure>
+    <a href={`/photography/photo/${lead.id}`}>
+      <img
+        class="bg-card block h-auto w-full"
+        src={lead.files.xl}
+        srcset={srcset(lead)}
+        sizes="(max-width: 860px) 100vw, 680px"
+        width={lead.width}
+        height={lead.height}
+        alt={lead.alt}
+        fetchpriority="high"
+      />
+    </a>
+    <figcaption class="flex flex-wrap justify-between gap-x-4 gap-y-1 pt-2.5 text-base">
+      <span>
+        {lead.name}, <em>{lead.scientificName}</em>.{" "}
+        <span class="text-muted-foreground">{lead.title}.</span>
+      </span>
+      {data && <span class="data">{data}</span>}
+    </figcaption>
+  </figure>
+</div>
