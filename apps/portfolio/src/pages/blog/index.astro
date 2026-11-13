@@ -1,5 +1,4 @@
 ---
-import FadeIn from "@/components/animations/FadeIn";
 import ArrowLeftIcon from "@/components/icons/ArrowLeftIcon.astro";
 import StructuredData from "@/components/StructuredData.astro";
 import Tag from "@/components/Tag.astro";
@@ -45,11 +44,7 @@ const sortedPosts = [...posts].sort(
     <div class="divide-border divide-y" role="feed" aria-label="Blog posts">
       {
         sortedPosts.map((post, index) => (
-          <FadeIn
-            client:visible
-            delay={index * 0.08}
-            className={index === 0 ? "py-8 pt-0" : "py-8"}
-          >
+          <div class={index === 0 ? "py-8 pt-0" : "py-8"}>
             <article class="group" aria-posinset={index + 1} aria-setsize={sortedPosts.length}>
               <a href={`/blog/${post.slug}`} class="block">
                 <time class="text-muted-foreground text-sm" datetime={post.publishDate}>
@@ -68,7 +63,7 @@ const sortedPosts = [...posts].sort(
                 </ul>
               </a>
             </article>
-          </FadeIn>
+          </div>
         ))
       }
     </div>

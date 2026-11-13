@@ -1,5 +1,5 @@
-/* Google Fonts - Inter & Playfair Display */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+/* Google Fonts - Literata (reading text) & IBM Plex Mono (data) */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&display=swap");
 
 /* Shared UI theme tokens, Tailwind, and base styles from @goodpie/ui */
 @import "../../../../packages/ui/src/styles/globals.css";
@@ -12,17 +12,30 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-serif: "Literata", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
-/* SSR flash prevention — CSS hides content before JS hydrates */
-.motion-fade-in {
-  opacity: 0;
-}
-.motion-line-reveal {
-  transform: scaleX(0);
-  transform-origin: left;
+/* Light theme for this app only. The gallery reads the shared file and stays dark.
+   ponytail: one theme, no toggle. Add a .dark block here if dark mode is ever wanted. */
+:root {
+  --background: #f6f7f4;
+  --popover: #f6f7f4;
+  --primary-foreground: #f6f7f4;
+  --foreground: #15181a;
+  --card-foreground: #15181a;
+  --popover-foreground: #15181a;
+  --secondary-foreground: #15181a;
+  --accent-foreground: #15181a;
+  --card: #e8eae4;
+  --secondary: #e8eae4;
+  --muted: #e8eae4;
+  --accent: #e8eae4;
+  --muted-foreground: #575d61;
+  --border: #d7dad3;
+  --input: #d7dad3;
+  --primary: #1f45c9;
+  --ring: #1f45c9;
 }
 
 @layer base {
@@ -36,15 +49,51 @@
   }
 
   body {
-    @apply font-sans antialiased;
+    @apply font-serif text-[18px] leading-[1.55] antialiased;
+  }
+}
+
+@layer components {
+  /* Dates, years, the stack line, camera settings. Nothing else. */
+  .data {
+    @apply text-muted-foreground font-mono text-[12.5px] leading-normal;
+  }
+
+  /* Links inside running text */
+  .textlink {
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .textlink:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Links in lists: text-coloured until hovered */
+  .listlink {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .listlink:hover {
+    color: var(--primary);
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
   }
 }
 
 /* Map prose colors to theme tokens */
-.prose-invert {
+.prose {
   --tw-prose-body: var(--muted-foreground);
   --tw-prose-headings: var(--foreground);
-  --tw-prose-lead: oklch(0.985 0 0 / 80%);
+  --tw-prose-lead: var(--foreground);
   --tw-prose-links: var(--primary);
   --tw-prose-bold: var(--foreground);
   --tw-prose-bullets: var(--primary);
@@ -52,23 +101,9 @@
   --tw-prose-quotes: var(--muted-foreground);
   --tw-prose-quote-borders: var(--primary);
   --tw-prose-hr: var(--border);
-  --tw-prose-code: var(--primary);
+  --tw-prose-code: var(--foreground);
   --tw-prose-pre-bg: var(--card);
   --tw-prose-pre-code: var(--foreground);
-}
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(from var(--teal) l c h / 0%);
-  }
-  50% {
-    box-shadow: 0 0 20px 4px oklch(from var(--teal) l c h / 20%);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
 }
 
 @layer base {

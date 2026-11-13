@@ -1,13 +1,14 @@
 ---
 interface Props {
+  id?: string;
+  title?: string;
   class?: string;
 }
 
-const { class: className } = Astro.props;
+const { id, title, class: className } = Astro.props;
 ---
 
-<section class:list={["px-6 py-24 md:px-12 lg:px-24", className]}>
-  <div class="w-full">
-    <slot />
-  </div>
+<section id={id} class:list={["border-border border-t py-[clamp(40px,6vw,72px)]", className]}>
+  {title && <h2 class="section-title">{title}</h2>}
+  <slot />
 </section>
