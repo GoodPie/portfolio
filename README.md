@@ -6,7 +6,7 @@ Personal portfolio and photography gallery, split across two apps in a Turborepo
 
 ```
 apps/
-  portfolio/      Astro 5 + React 19 — the main site at brandynbritton.com
+  portfolio/      Astro 7 + React 19 — the main site at brandynbritton.com
   photography/    Next.js 16 + Payload CMS 3 — photo gallery at /photography
 
 packages/
@@ -44,14 +44,14 @@ npx turbo run dev --filter=@goodpie/photography
 
 ## Tech stack
 
-|           | Portfolio                | Photography              |
-| --------- | ------------------------ | ------------------------ |
-| Framework | Astro 5                  | Next.js 16 (App Router)  |
-| UI        | React 19, Tailwind CSS 4 | React 19, Tailwind CSS 4 |
-| CMS       | —                        | Payload CMS 3.75.0       |
-| 3D        | React Three Fiber        | —                        |
-| Maps      | —                        | Mapbox GL JS             |
-| Monitoring| —                        | Sentry                   |
-| Database  | —                        | Supabase PostgreSQL      |
-| Storage   | —                        | Vercel Blob              |
-| Build     | Turborepo                | Turborepo                |
+|            | Portfolio                | Photography              |
+| ---------- | ------------------------ | ------------------------ |
+| Framework  | Astro 7                  | Next.js 16 (App Router)  |
+| UI         | React 19, Tailwind CSS 4 | React 19, Tailwind CSS 4 |
+| CMS        | —                        | Payload CMS 3.93.0       |
+| 3D         | React Three Fiber        | —                        |
+| Maps       | —                        | Mapbox GL JS             |
+| Monitoring | —                        | Sentry                   |
+| Database   | —                        | Supabase PostgreSQL      |
+| Storage    | —                        | Vercel Blob              |
+| Build      | Turborepo                | Turborepo                |
