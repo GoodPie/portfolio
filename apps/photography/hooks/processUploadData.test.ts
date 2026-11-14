@@ -169,6 +169,19 @@ describe("processUploadData — resolveImageBuffer", () => {
     expect(fetch).toHaveBeenCalledWith("https://blob.test/client-upload.jpg");
   });
 
+  it("fetches from doc.url when req.file.data is empty (Payload client upload)", async () => {
+    // Payload 3.93 sets req.file for client uploads with a zero-length buffer.
+    const args = makeHookArgs({
+      doc: makeDoc({ url: "https://blob.test/client-upload.jpg" }),
+      req: { payload: makePayload(), file: { data: Buffer.alloc(0) } },
+    });
+    await (processUploadData as Function)(args);
+    await flush();
+
+    expect(fetch).toHaveBeenCalledWith("https://blob.test/client-upload.jpg");
+    expect(sharp).not.toHaveBeenCalledWith(Buffer.alloc(0));
+  });
+
   it("skips processing when neither file nor URL is available", async () => {
     const args = makeHookArgs({
       doc: makeDoc({ url: undefined }),

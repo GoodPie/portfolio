@@ -21,8 +21,10 @@ async function resolveImageBuffer(
   reqFile: { data: Buffer } | undefined | null,
   docUrl: string | undefined | null,
 ): Promise<Buffer | null> {
-  // Server-side upload — file buffer is on the request
-  if (reqFile?.data) {
+  // Server-side upload — file buffer is on the request.
+  // Payload sets req.file for client uploads too, but with a zero-length buffer,
+  // so an empty buffer has to fall through to the download below.
+  if (reqFile?.data?.length) {
     const d = reqFile.data;
     return Buffer.isBuffer(d) ? d : Buffer.from(d);
   }
