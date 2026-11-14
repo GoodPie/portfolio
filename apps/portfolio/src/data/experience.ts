@@ -7,7 +7,13 @@ export interface Experience {
 
 export const experiences: Experience[] = [
   {
-    dateRange: "2025 — PRESENT",
+    dateRange: "2026 — PRESENT",
+    title: "Senior Software Engineer",
+    company: "Consent2Go",
+    companyUrl: "https://consent2go.com",
+  },
+  {
+    dateRange: "2025 — 2026",
     title: "Senior Full Stack Engineer",
     company: "Healthengine",
     companyUrl: "https://healthengine.com.au",
